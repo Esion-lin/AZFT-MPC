@@ -1,0 +1,52 @@
+#include <pthread.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <stdio.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <sys/shm.h>
+#include <string>
+#include <json/json.h>
+#include "HW/crypto.h"
+#include "config.h"
+class netTool{
+public:
+	netTool(truthtee *tru);
+	~netTool();
+
+    char 	sendbuf[buffer_size];
+	
+
+    void 	set_host_port(std::string host,int port);
+	void 	*init_listen();
+	void 	acc_and_recv();
+	void 	init_conn();
+	void	send_data(Json::Value js);
+	void 	init();
+	void 	deal_data(Json::Value value);
+	
+
+	
+private:
+	truthtee 		*tru;
+	std::string		conn_host;
+	int 			conn_port;
+	// socket port;
+	int 	listen_fd , conn_fd;
+	bool 	is_listen;
+	// define sockaddress 
+	struct 		sockaddr_in 	server_sockaddr, client_addr;
+	//define socket server address when it represent client
+	struct 		sockaddr_in remote_server_sockaddr;
+	unsigned char data_A[0x100];
+	int len_A;
+	unsigned char data_B[0x100];
+	int len_B;
+	void 	accept_key(Json::Value value);
+	void 	accept_data(Json::Value value);
+};
+void *init_listen_static(void *tmp);
