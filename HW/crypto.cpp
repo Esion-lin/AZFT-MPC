@@ -1,6 +1,8 @@
 #include "crypto.h"
 #include <iostream>
 #include <algorithm>
+#include <cstdlib>
+#include <time.h>
 bool test = false;
 //just for test
 void test_pub(ECCPUBLICKEYBLOB pub_key){
@@ -30,6 +32,13 @@ truthtee::truthtee(){
 	if (ret!=SAR_OK)
 	{
 		printf("init error\n");
+	}
+	gen_sym_key();
+}
+void truthtee::gen_sym_key(){
+	srand((unsigned)time(NULL));
+	for(int i = 0; i < sym_key_len/8; i++){
+		sym_key_keep[i] = rand()%256;
 	}
 }
 void truthtee::serialize(ECCPUBLICKEYBLOB pu_key, unsigned char tru_out[]){
@@ -83,29 +92,54 @@ void truthtee::stream_to_key(unsigned char tru_in[]){
 	}
 	
 }
-void truthtee::en_date(unsigned char tru_in[], int len, unsigned char tru_out[], int &len_out){
-	unsigned char c[0x100];
-	unsigned int tmplen;
-	memcpy(dataA,tru_in,len);
-	A_len = len;
-	A_get = true;
-	if(SG_SM2Enc(&remote_pub_key1,tru_in,len,c,&tmplen)==SAR_OK){
-		len_out = tmplen;
-		memcpy(tru_out,c,tmplen);
-	}else{
-		perror("encrypto error\n");
+void truthtee::encrypto_key(unsigned char tru_key_out[],unsigned int &key_len_out){
+	if(SG_SM2Enc(&remote_pub_key1,sym_key_keep,sym_key_len/8,tru_key_out,&key_len_out) != SAR_OK){
+		perror("encrypto key error\n");
 	}
 }
-void truthtee::de_date(unsigned char tru_in[], int len){
-	unsigned char c[0x100];
-	unsigned int tmplen;
+void truthtee::encrypto(unsigned char tru_in[],unsigned int len, unsigned char tru_data_out[],unsigned int &data_len_out){
+
 	
-	if(SG_SM2Dec(&pri_key1,tru_in,len,c,&tmplen)==SAR_OK){
-		memcpy(dataB,c,tmplen);
-		B_len = tmplen;
-		B_get = true;
+	if(SG_SymEnc(SGD_SMS4_ECB ,sym_key_keep,sym_key_len/8,sym_key_keep,sym_key_len/8,tru_in,len,tru_data_out,&data_len_out) != SAR_OK){
+		perror("encrypto data error\n");
+	}
+
+}
+void truthtee::decrypto_key(unsigned char tru_key_in[],unsigned int key_in_len){
+	unsigned int key_check = 0;
+	if(SG_SM2Dec(&pri_key1,tru_key_in,key_in_len,sym_key_remote,&key_check) != SAR_OK){
+		perror("decrypto key error\n");
+	}
+	if(key_check != sym_key_len/8){
+		perror("decrypto key error\n");
+	}
+}
+void truthtee::decrypto(unsigned char tru_data_in[],unsigned int data_in_len, unsigned char tru_out[],unsigned int &out_len){
+
+	
+	if(SG_SymDec(SGD_SMS4_ECB ,sym_key_keep,sym_key_len/8,sym_key_keep,sym_key_len/8,tru_data_in,data_in_len,tru_out,&out_len) != SAR_OK){
+		perror("decrypto data error\n");
+	}
+
+}
+void truthtee::transfer_data(unsigned char tru_in[],unsigned int in_len, unsigned char tru_out[],unsigned int &out_len, bool tr, int signal){
+	if(tr){
+		if(signal == org_key){
+			if(SG_SymDec(SGD_SMS4_ECB ,sym_key_keep,sym_key_len/8,sym_key_keep,sym_key_len/8,tru_in,in_len,tru_out,&out_len) != SAR_OK){
+				perror("decrypto data error\n");
+			}
+		}else if(signal == remote_key){
+			if(SG_SymDec(SGD_SMS4_ECB ,sym_key_remote,sym_key_len/8,sym_key_remote,sym_key_len/8,tru_in,in_len,tru_out,&out_len) != SAR_OK){
+				perror("decrypto data error\n");
+			}
+		}
+		
+		
 	}else{
-		perror("decrypto error\n");
+		if(SG_SymEnc(SGD_SMS4_ECB ,sym_key_keep,sym_key_len/8,sym_key_keep,sym_key_len/8,tru_in,in_len,tru_out,&out_len) != SAR_OK){
+			perror("decrypto data error\n");
+		}
+
 	}
 }
 int truthtee::add_op(unsigned char tru_out[], int &out_len){
@@ -142,7 +176,73 @@ int truthtee::test_and_op(unsigned char tru_out[], int &out_len){
 void truthtee::sign_key(unsigned char tru_out[]){
 
 }
+void truthtee::operation(unsigned char tru_in1[],unsigned int in1_len, unsigned char tru_in2[],unsigned int in2_len, unsigned char tru_out[],unsigned int &out_len, int op, int swi){
+	unsigned char d1[0x100];
+	unsigned int d1_len;
+	unsigned char d2[0x100];
+	unsigned int d2_len;
+	unsigned char ans[0x100];
+	unsigned int ans_len;
+	if(swi == SWI_MID){
+		if(in1_len != 0)
+			transfer_data(tru_in1, in1_len, d1, d1_len, DECRYPTO, org_key);
+		if(in2_len != 0)
+			transfer_data(tru_in2, in2_len, d2, d2_len, DECRYPTO, org_key);
+	}else{
+		if(in1_len != 0)
+			transfer_data(tru_in1, in1_len, d1, d1_len, DECRYPTO, org_key);
+		if(in2_len != 0)
+			transfer_data(tru_in2, in2_len, d2, d2_len, DECRYPTO, remote_key);
+	}
+
+	int len = std::min(d1_len,d2_len);
+	unsigned int carry = 0; 
+	for(int i = len-1; i >= 0; i--){
+		if(op == NOT_OP){
+			if(in1_len != 0){
+				ans[i] = ~d1[i];
+			}else{
+				ans[i] = ~d2[i];
+			}
+			continue;
+		}
+		switch(op){
+			case AND_OP:
+				ans[i] = d1[i] & d2[i];
+				break;
+			case OR_OP:
+				ans[i] = d1[i] | d2[i];
+				break;
+			case NAND_OP:
+				ans[i] = d1[i] ^ d2[i];
+				break;
+			case ADD_OP:
+				ans[i] = (d1[i] + d2[i] + carry)%256;
+				carry = (d1[i] + d2[i] + carry)/256;
+				break;
+			case SUB_OP:
+				if(d1[i] + carry < d2[i]){
+					ans[i] = d1[i] + carry + 256 - d2[i];
+					carry = -1;
+				}else{
+					ans[i] = d1[i] - d2[i];
+					carry = 0;
+				}
+				break;
+			case MUL_OP:
+				ans[i] = d1[i] * d2[i];
+				break;
+			case DIV_OP:
+				ans[i] = d1[i] / d2[i];
+				break;
+			
+		}
+	}
+	transfer_data(ans, len, tru_out, out_len, ENCRYPTO, org_key);
+
+}
 	//verify key using remote_key
+
 bool truthtee::sign_verify(unsigned char tru_in[]){
 	return true;
 }

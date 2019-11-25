@@ -13,6 +13,7 @@
 #include <json/json.h>
 #include "HW/crypto.h"
 #include "config.h"
+#include <map>
 class netTool{
 public:
 	netTool(truthtee *tru);
@@ -28,13 +29,15 @@ public:
 	void	send_data(Json::Value js);
 	void 	init();
 	void 	deal_data(Json::Value value);
-	
-
-	
+	//for test
+	int 			recv_port;
+	std::map<std::string, unsigned char[16]> data_dic;	
+	bool 	is_data_store = false;
 private:
 	truthtee 		*tru;
 	std::string		conn_host;
 	int 			conn_port;
+
 	// socket port;
 	int 	listen_fd , conn_fd;
 	bool 	is_listen;
@@ -42,11 +45,14 @@ private:
 	struct 		sockaddr_in 	server_sockaddr, client_addr;
 	//define socket server address when it represent client
 	struct 		sockaddr_in remote_server_sockaddr;
-	unsigned char data_A[0x100];
-	int len_A;
-	unsigned char data_B[0x100];
-	int len_B;
 	void 	accept_key(Json::Value value);
-	void 	accept_data(Json::Value value);
+	void 	accept_data(Json::Value key_paty, Json::Value data_part);
+
 };
 void *init_listen_static(void *tmp);
+void to_byte16(uint64_t org, unsigned char output[]);
+void to_byte16(uint64_t org1, uint64_t org2, unsigned char output[]);
+void to_byte16(uint32_t org1, uint32_t org2, uint32_t org3, uint32_t org4, unsigned char output[]);
+void to_ll(unsigned char input[], uint64_t &output);
+void to_ll(unsigned char input[], uint64_t &output1, uint64_t &output2);
+void to_int(unsigned char input[], uint32_t &output1, uint32_t &output2,uint32_t &output3,uint32_t &output4);
