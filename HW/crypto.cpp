@@ -172,29 +172,110 @@ int truthtee::test_and_op(unsigned char tru_out[], int &out_len){
 	return 1;
 
 }
+void truthtee::to_ll(unsigned char input[], uint64_t &output){
+    for(int i = 0; i < 8; i++){
+        output *= 256;
+        output += input[i+8];
+    }
+}
+void truthtee::to_byte16(uint64_t org, unsigned char output[]){
+    for(int i = 0; i < 8; i++){
+        output[i] = 0;
+        output[i+8] = org>>((7-i)*8);
+    }
+}
 //sign operation
 void truthtee::sign_key(unsigned char tru_out[]){
 
 }
-void truthtee::operation(unsigned char tru_in1[],unsigned int in1_len, unsigned char tru_in2[],unsigned int in2_len, unsigned char tru_out[],unsigned int &out_len, int op, int swi){
+void truthtee::operation(unsigned char tru_in1[],unsigned int in1_len, int swi_1, unsigned char tru_in2[],unsigned int in2_len, int swi_2, unsigned char tru_out[],unsigned int &out_len, int op){
 	unsigned char d1[0x100];
 	unsigned int d1_len;
 	unsigned char d2[0x100];
 	unsigned int d2_len;
 	unsigned char ans[0x100];
 	unsigned int ans_len;
-	if(swi == SWI_MID){
-		if(in1_len != 0)
-			transfer_data(tru_in1, in1_len, d1, d1_len, DECRYPTO, org_key);
-		if(in2_len != 0)
-			transfer_data(tru_in2, in2_len, d2, d2_len, DECRYPTO, org_key);
+	if(swi_1 == SWI_ORG && in1_len != 0){
+		transfer_data(tru_in1, in1_len, d1, d1_len, DECRYPTO, org_key);
+	}else if(swi_1 == SWI_REM && in1_len != 0){
+		transfer_data(tru_in1, in1_len, d1, d1_len, DECRYPTO, remote_key);
+	}else if(swi_1 == SWI_PLA){
+		memcpy(d1, tru_in1, 16);;
 	}else{
-		if(in1_len != 0)
-			transfer_data(tru_in1, in1_len, d1, d1_len, DECRYPTO, org_key);
-		if(in2_len != 0)
-			transfer_data(tru_in2, in2_len, d2, d2_len, DECRYPTO, remote_key);
+		printf("Illegal swi \n");
 	}
+	if(swi_2 == SWI_ORG && in2_len != 0){
+		transfer_data(tru_in2, in2_len, d2, d2_len, DECRYPTO, org_key);
+	}else if(swi_2 == SWI_REM && in2_len != 0){
 
+		transfer_data(tru_in2, in2_len, d2, d2_len, DECRYPTO, remote_key);
+	}else if(swi_2 == SWI_PLA){
+		memcpy(d2, tru_in2, 16);
+	}else{
+		printf("Illegal swi \n");
+	}
+	//turn to Int
+	uint64_t ud1 = 0;
+	uint64_t ud2 = 0;
+	uint64_t uan = 0;
+	if(in1_len != 0){
+		to_ll(d1,ud1);
+	}
+	if(in2_len != 0){
+		to_ll(d2,ud2);
+	}
+	
+	switch(op){
+		case AND_OP:
+			uan = ud1 & ud2;
+			break;
+		case OR_OP:
+			uan = ud1 | ud2;
+			break;
+		case NAND_OP:
+			uan = ud1 ^ ud2;
+			break;
+		case ADD_OP:
+			uan = ud1 + ud2;
+			break;
+		case SUB_OP:
+			uan = ud1 - ud2;
+			break;
+		case MUL_OP:
+			uan = ud1 * ud2;
+			break;
+		case DIV_OP:
+			uan = ud1 / ud2;
+			break;
+		case SHF_LE:
+			uan = ud1 << ud2;
+			break;
+		case SHF_RI:
+			uan = ud1 >> ud2;
+			break;
+		case NOT_OP:
+			uan = ~ud1;
+			break;
+		case GREAT_OP:
+			uan = ud1 > ud2;
+			break;
+		case GE_OP:
+			uan = ud1 >= ud2;
+			break;
+		case LESS_OP:
+			uan = ud1 < ud2;
+			break;
+		case LE_OP:
+			uan = ud1 <= ud2;
+			break;
+		case EQ_OP:
+			uan = ud1 == ud2;
+			break;
+	}
+	std::cout<<ud1<<" "<<op<<" "<<ud2<<" "<<uan<<std::endl;
+	to_byte16(uan,ans);
+	/*
+	//Do not turn to Int
 	int len = std::min(d1_len,d2_len);
 	unsigned int carry = 0; 
 	for(int i = len-1; i >= 0; i--){
@@ -238,7 +319,8 @@ void truthtee::operation(unsigned char tru_in1[],unsigned int in1_len, unsigned 
 			
 		}
 	}
-	transfer_data(ans, len, tru_out, out_len, ENCRYPTO, org_key);
+	*/
+	transfer_data(ans, 16, tru_out, out_len, ENCRYPTO, org_key);
 
 }
 	//verify key using remote_key

@@ -2,25 +2,38 @@
 #include <stdlib.h>
 #include <memory.h>
 #include <time.h>
+#include <stdint.h>
 #include "SG_API.h"
 //Binary
 #define AND_OP 1
 #define NOT_OP 2
 #define OR_OP 3
 #define NAND_OP 4
+#define SHF_LE 5
+#define SHF_RI 6
+
+
 //Arithmatic
 #define ADD_OP 11
 #define SUB_OP 12
 #define MUL_OP 13
 #define DIV_OP 14
 
+
+#define GREAT_OP 21
+#define GE_OP 22
+#define LESS_OP 23
+#define LE_OP 24
+#define EQ_OP 25
 //define transfer type
 
 #define org_key 2
 #define remote_key 3
 #define DECRYPTO true
 #define ENCRYPTO false
-#define SWI_MID 1
+
+#define SWI_PLA 0
+#define SWI_REM 1
 #define SWI_ORG 2
 
 #define sym_key_len 128
@@ -37,7 +50,7 @@ public:
 
 	//generate key stream, store in serial[]
 	void query_pub_stream(unsigned char t_out[]);
-	void operation(unsigned char tru_in1[],unsigned int in1_len, unsigned char tru_in2[],unsigned int in2_len, unsigned char tru_out[],unsigned int &out_len, int op, int swi);
+	void operation(unsigned char tru_in1[],unsigned int in1_len, int swi_1, unsigned char tru_in2[],unsigned int in2_len, int swi_2, unsigned char tru_out[],unsigned int &out_len, int op);
 	void and_op(unsigned char tru_in1[], unsigned char tru_in2[], unsigned char tru_out[], int swi);
 	void or_op(unsigned char tru_in1[], unsigned char tru_in2[], unsigned char tru_out[], int swi);
 	void not_op(unsigned char t_in[], unsigned char tru_out[], int swi);
@@ -59,12 +72,14 @@ public:
 private:
 	void gen_sym_key();
 	void transfer_data(unsigned char tru_in[],unsigned int in_len, unsigned char tru_out[],unsigned int &out_len, bool tr, int signal);
+	void to_ll(unsigned char input[], uint64_t &output);
+	void to_byte16(uint64_t org, unsigned char output[]);
 	void serialize(ECCPUBLICKEYBLOB pu_key, unsigned char tru_out[]);
 	ECCPUBLICKEYBLOB deserialize(unsigned char tru_in[]);
 	ECCPRIVATEKEYBLOB 	pri_key1;
 	ECCPRIVATEKEYBLOB 	pri_key2;
 	ECCSIGNATUREBLOB  	sig;
-	unsigned char sym_key_keep[sym_key_len/8] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16};
+	unsigned char sym_key_keep[sym_key_len/8];
 	unsigned char sym_key_remote[sym_key_len/8];
 	bool key_ex_suc;
 	bool key_verify_suc;

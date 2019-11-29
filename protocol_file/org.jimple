@@ -1,0 +1,36 @@
+int i0, i1, i2, i3, $i4, $i5, i6, i7, i8, i9, i10, i11, i12;
+i7 = interfaceinvoke r1.<MPCAnnotation: int IN()>();
+i8 = interfaceinvoke r1.<MPCAnnotation: int IN()>();
+i9 = 0;
+i10 = 0;
+label1:
+	if i10 >= 32 goto label7;
+	i1 = i7;
+	i2 = i8;
+	i11 = 0;
+	i12 = 31;
+label2:
+	if i12 < 0 goto label4;
+	i6 = i11 << 1;
+	$i4 = i1 >>> i12;
+	$i5 = $i4 & 1;
+	i11 = i6 + $i5;
+	i3 = i11 - i2;
+	if i11 < i2 goto label3;
+	i11 = i3;
+label3:
+	i12 = i12 + -1;
+	goto label2;
+label4:
+	i9 = i11;
+	goto label5;
+label5:
+	i0 = i8;
+	if i8 == 0 goto label6;
+	i8 = i11;
+	i7 = i0;
+label6:
+	i10 = i10 + 1;
+	goto label1;
+label7:
+	interfaceinvoke r1.<MPCAnnotation: void OUT(int)>(i9);

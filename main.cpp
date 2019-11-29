@@ -1,5 +1,5 @@
 #include "network.h"
-
+#include "protocol.h"
 bool notify(){
 	printf("choose a operation:\n \t1.send encrypto msg\n \t2.run protocol\n \t3.other\n \t4.....\n");
 	return true;
@@ -55,20 +55,223 @@ void send_data(void *tmp, unsigned char key_data[], int key_len, std::map<std::s
 
     nettool->send_data(json);
 }
+int tran_op(std::string op){
+    if(op == ">>>" || op == ">>"){
+        return SHF_RI;
+    }else if(op == "<<<" || op == "<<"){
+        return SHF_LE;
+    }else if(op == "&"){
+        return AND_OP;
+    }else if(op == "|"){
+        return OR_OP;
+    }else if(op == "+"){
+        return ADD_OP;
+    }else if(op == "-"){
+        return SUB_OP;
+    }else if(op == "*"){
+        return MUL_OP;
+    }else if(op == "/"){
+        return DIV_OP;
+    }else if(op == "xor"){
+        return NAND_OP;
+    }else if(op == ">"){
+        return GREAT_OP;
+    }else if(op == ">="){
+        return GE_OP;
+    }else if(op == "<"){
+        return LESS_OP;
+    }else if(op == ">="){
+        return LE_OP;
+    }else if(op == "=="){
+        return EQ_OP;
+    }
+}
+int tran_op(int a, int b, std::string op){
+    int ans;
+    if(op == ">>>" || op == ">>"){
+        ans = a >> b;
+    }else if(op == "<<<" || op == "<<"){
+        ans = a << b;
+    }else if(op == "&"){
+        ans = a & b;
+    }else if(op == "|"){
+        ans = a | b;
+    }else if(op == "+"){
+        ans = a + b;
+    }else if(op == "-"){
+        ans = a - b;
+    }else if(op == "*"){
+        ans = a * b;
+    }else if(op == "/"){
+        ans = a / b;
+    }else if(op == "xor"){
+        ans = a ^ b;
+    }else if(op == ">"){
+        ans = a > b;
+    }else if(op == ">="){
+        ans = a >= b;
+    }else if(op == "<"){
+        ans = a < b;
+    }else if(op == ">="){
+        ans = a >= b;
+    }else if(op == "=="){
+        ans = a == b;
+    }
+    std::cout<<"plain ans is "<<ans<<std::endl;
+    return ans;
+}
+int judge(std::string str,std::map<std::string, unsigned char[16]>remote_dir, std::map<std::string, unsigned char[16]>local_dir, std::map<std::string, int> org_dir){
+    if(local_dir.find(str) != local_dir.end()){
+        return 2;
+    }else if(remote_dir.find(str) != remote_dir.end()){
+        return 1;
+    }else{
+        return 3;
+    }
+}
+bool is_num(std::string data , int &num){
+    if((data[0]>='0' && data[0]<='9' )||data[0]=='-' ){
+        num = atoi(data.c_str());
+        return true;
+    }else{
+        return false;
+    }
+} 
+void deal_cmd(truple now_trp, int &now_step, void *tmp, std::map<std::string,int>goto_dir, std::map<std::string, unsigned char[16]>&remote_dir, std::map<std::string, unsigned char[16]>&local_dir, std::map<std::string, int> &org_dir){
+    int temp;
+    unsigned int data_len;
+    unsigned char temp_msg[16];
+    truthtee* tru = (truthtee*) tmp;
+    if(now_trp.is_goto){
+        if(now_trp.op == "goto"){
+            now_step = goto_dir[now_trp.output];
+        }else{
+            if(is_num(now_trp.operand2,temp)){
+                if(tran_op(org_dir[now_trp.operand1],temp,now_trp.op)){
+                    now_step = goto_dir[now_trp.output];
+                }
+            }else{
+                if(tran_op(org_dir[now_trp.operand1],org_dir[now_trp.operand2],now_trp.op)){
+                    now_step = goto_dir[now_trp.output];
+                }
+            }
+        }
+
+    }else{
+        if(now_trp.op == "out"){
+            tru->decrypto(local_dir[now_trp.output],16,temp_msg,data_len);
+            uint64_t answer;
+            to_ll(temp_msg,answer);
+            std::cout<<now_trp.output<<" is "<<answer<<std::endl;
+            return;
+        }
+        if(now_trp.op == ""){
+            int tp = judge(now_trp.output, remote_dir, local_dir, org_dir);
+            if(is_num(now_trp.operand1,temp)){
+                switch(tp){
+                    case 2:
+                        to_byte16((uint64_t)temp,temp_msg);
+                        tru->encrypto(temp_msg, 16, local_dir[now_trp.output], data_len);
+                        //memcpy(local_dir[now_trp.output],local_dir[now_trp.operand1],16);
+                        //local_dir[now_trp.output] = local_dir[now_trp.operand1];
+                        break;
+                    default:
+                        org_dir[now_trp.output] = temp;
+                        break;
+                }
+
+            }
+            else{
+                int tp = judge(now_trp.operand1, remote_dir, local_dir, org_dir);
+                int tp2 = judge(now_trp.output, remote_dir, local_dir, org_dir);
+                switch(tp){
+                    // case 1:
+                    //     if(tp2 == 1){
+                    //         memcpy(remote_dir[now_trp.output],remote_dir[now_trp.operand1],16);    
+                    //     }else{
+                    //         memcpy(remote_dir[now_trp.output],remote_dir[now_trp.operand1],16);
+                    //     }
+                        
+                    //     //remote_dir[now_trp.output] = remote_dir[now_trp.operand1];
+                    //     break;
+                    case 2:
+                        memcpy(local_dir[now_trp.output],local_dir[now_trp.operand1],16);
+                        //local_dir[now_trp.output] = local_dir[now_trp.operand1];
+                        break;
+                    case 3:
+                        if(tp2 == 2){
+                            to_byte16((uint64_t)temp,temp_msg);
+                            tru->encrypto(temp_msg, 16, local_dir[now_trp.output], data_len);
+                        }else
+                            org_dir[now_trp.output] = org_dir[now_trp.operand1];
+            
+                }
+            }
+        }else{
+            int tp = judge(now_trp.operand1, remote_dir, local_dir, org_dir);
+            if(is_num(now_trp.operand2,temp)){
+                to_byte16((uint64_t)temp,temp_msg);
+                switch(tp){
+                    case 2:
+                        tru->operation(local_dir[now_trp.operand1], 16, SWI_ORG, temp_msg, 16, SWI_PLA, local_dir[now_trp.output], data_len, tran_op(now_trp.op));
+                        break;
+                    case 1:
+                        tru->operation(remote_dir[now_trp.operand1], 16, SWI_REM, temp_msg, 16, SWI_PLA, local_dir[now_trp.output], data_len, tran_op(now_trp.op));
+                        break;
+                    case 3:
+                        org_dir[now_trp.output] = tran_op(org_dir[now_trp.operand1], temp, now_trp.op);
+                }
+            }
+            else{
+                int tp2 = judge(now_trp.operand2, remote_dir, local_dir, org_dir);
+                if(tp == 1){
+                    if(tp2 == 1){
+                        tru->operation(remote_dir[now_trp.operand1], 16, SWI_REM, remote_dir[now_trp.operand2], 16, SWI_REM, local_dir[now_trp.output], data_len, tran_op(now_trp.op));
+                    }else if(tp2 == 2){
+                        tru->operation(remote_dir[now_trp.operand1], 16, SWI_REM, local_dir[now_trp.operand2], 16, SWI_ORG, local_dir[now_trp.output], data_len, tran_op(now_trp.op));
+                    }else{
+                        to_byte16((uint64_t)org_dir[now_trp.operand2],temp_msg);
+                        tru->operation(remote_dir[now_trp.operand1], 16, SWI_REM, temp_msg, 16, SWI_PLA, local_dir[now_trp.output], data_len, tran_op(now_trp.op));
+                    }
+                }else if(tp == 2){
+                    if(tp2 == 1){
+                        tru->operation(local_dir[now_trp.operand1], 16, SWI_ORG, remote_dir[now_trp.operand2], 16, SWI_REM, local_dir[now_trp.output], data_len, tran_op(now_trp.op));
+                    }else if(tp2 == 2){
+                        tru->operation(local_dir[now_trp.operand1], 16, SWI_ORG, local_dir[now_trp.operand2], 16, SWI_ORG, local_dir[now_trp.output], data_len, tran_op(now_trp.op));
+                    }else{
+                        to_byte16((uint64_t)org_dir[now_trp.operand2],temp_msg);
+                        tru->operation(local_dir[now_trp.operand1], 16, SWI_ORG, temp_msg, 16, SWI_PLA, local_dir[now_trp.output], data_len, tran_op(now_trp.op));
+                    }
+                }else{
+                    to_byte16((uint64_t)org_dir[now_trp.operand1],temp_msg);
+                    if(tp2 == 1){
+                        tru->operation(temp_msg, 16, SWI_PLA, remote_dir[now_trp.operand2], 16, SWI_REM, local_dir[now_trp.output], data_len, tran_op(now_trp.op));
+                    }else if(tp2 == 2){
+                        tru->operation(temp_msg, 16, SWI_PLA, local_dir[now_trp.operand2], 16, SWI_ORG, local_dir[now_trp.output], data_len, tran_op(now_trp.op));
+                    }else{
+                        org_dir[now_trp.output] = tran_op(org_dir[now_trp.operand1], org_dir[now_trp.operand2], now_trp.op);
+                    }
+                }
+            }
+        }
+    }
+}
+  
 int main(){
     std::map<std::string, unsigned char[16]> dir;
 	pthread_t   recv_tid;
     truthtee* tru = new truthtee();
     netTool* nettool = new netTool(tru);
+    PotocolRead* protocol = new PotocolRead("./protocol_file/T.jimple");
     printf("please input port to listen:\n");
     std::cin>>nettool->recv_port;
     if(pthread_create(&recv_tid , NULL , init_listen_static, (void *)nettool) == -1){
         perror("pthread create error.\n");
         exit(1);
     }
-    printf("please input host to connect:\n");
-    std::string host;
-    std::cin>>host;
+    //printf("please input host to connect:\n");
+    std::string host = "127.0.0.1";
+    //std::cin>>host;
     printf("please input port to connect:\n");
     int port;
     std::cin>>port;
@@ -76,7 +279,8 @@ int main(){
     send_pub_key(tru, nettool);
 
     //load protocol
-
+    std::map<std::string, unsigned char[16]> remote_dir;
+    std::map<std::string, int> org_dic;
     //
     while(notify()){
     	int act;
@@ -105,18 +309,36 @@ int main(){
     			send_data(nettool, enc_key, key_len, dir);
     			break;
     		case 2:
-    			if(!nettool->is_data_store){
-                    printf("wait for data exchage");
-                    continue;
+                //test end  
+    			// if(!nettool->is_data_store){
+       //              printf("wait for data exchage");
+       //              continue;
+       //          }
+                remote_dir = nettool->data_dic;
+                to_byte16(0,msg);
+                for(auto &v : remote_dir){
+                    tru->operation(v.second, 16, SWI_REM, msg, 16, SWI_PLA, dir[v.first], data_len, ADD_OP);
+                }
+                
+                while(true){
+                    truple now_trp = protocol->next();
+                    
+                    std::cout<<"now operation "<<now_trp.operand1<<" "<<now_trp.op<<" "<<now_trp.operand2<<" -> "<<now_trp.output<<std::endl;
+                    //std::cin>>a;
+                    deal_cmd(now_trp, protocol->now_step, tru, protocol->dic_goto, remote_dir, dir, org_dic);
+                    std::cout<<"now_step:"<< protocol->now_step<<std::endl;
+                    if(protocol->now_step == protocol->size_of_protocol()){
+                        break;
+                    }
                 }
                 //for test
-                unsigned char output[16],ans[16];
-                uint nn,nn2;
-                uint64_t answer;
-                tru->operation(dir["B"],16,nettool->data_dic["A"],16,output,nn,AND_OP,SWI_ORG);
-                tru->decrypto(output,16,ans,nn2);
-                to_ll(ans,answer);
-                std::cout<<"get answer: "<<answer<<std::endl;
+                // unsigned char output[16],ans[16];
+                // uint nn,nn2;
+                // uint64_t answer;
+                // tru->operation(dir["B"],16,SWI_ORG,nettool->data_dic["A"],16, SWI_REM,output,nn,AND_OP);
+                // tru->decrypto(output,16,ans,nn2);
+                // to_ll(ans,answer);
+                // std::cout<<"get answer: "<<answer<<std::endl;
     			break;
     		case 3:
     			
