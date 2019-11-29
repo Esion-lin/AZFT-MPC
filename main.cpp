@@ -1,5 +1,6 @@
 #include "network.h"
 #include "protocol.h"
+bool debug_this = false;
 bool notify(){
 	printf("choose a operation:\n \t1.send encrypto msg\n \t2.run protocol\n \t3.other\n \t4.....\n");
 	return true;
@@ -117,7 +118,8 @@ int tran_op(int a, int b, std::string op){
     }else if(op == "=="){
         ans = a == b;
     }
-    std::cout<<"plain ans is "<<ans<<std::endl;
+    if(debug_this)
+        std::cout<<"plain ans is "<<ans<<std::endl;
     return ans;
 }
 int judge(std::string str,std::map<std::string, unsigned char[16]>remote_dir, std::map<std::string, unsigned char[16]>local_dir, std::map<std::string, int> org_dir){
@@ -262,7 +264,7 @@ int main(){
 	pthread_t   recv_tid;
     truthtee* tru = new truthtee();
     netTool* nettool = new netTool(tru);
-    PotocolRead* protocol = new PotocolRead("./protocol_file/T.jimple");
+    PotocolRead* protocol = new PotocolRead("./protocol_file/org.jimple");
     printf("please input port to listen:\n");
     std::cin>>nettool->recv_port;
     if(pthread_create(&recv_tid , NULL , init_listen_static, (void *)nettool) == -1){
@@ -281,6 +283,7 @@ int main(){
     //load protocol
     std::map<std::string, unsigned char[16]> remote_dir;
     std::map<std::string, int> org_dic;
+    std::map<std::string, unsigned char[16]> local_dir;
     //
     while(notify()){
     	int act;
@@ -314,19 +317,24 @@ int main(){
        //              printf("wait for data exchage");
        //              continue;
        //          }
+                protocol->clear_iteam();
                 remote_dir = nettool->data_dic;
+                org_dic.clear();
+                local_dir = dir;
                 to_byte16(0,msg);
                 for(auto &v : remote_dir){
-                    tru->operation(v.second, 16, SWI_REM, msg, 16, SWI_PLA, dir[v.first], data_len, ADD_OP);
+                    tru->operation(v.second, 16, SWI_REM, msg, 16, SWI_PLA, local_dir[v.first], data_len, ADD_OP);
                 }
                 
                 while(true){
                     truple now_trp = protocol->next();
-                    
-                    std::cout<<"now operation "<<now_trp.operand1<<" "<<now_trp.op<<" "<<now_trp.operand2<<" -> "<<now_trp.output<<std::endl;
-                    //std::cin>>a;
-                    deal_cmd(now_trp, protocol->now_step, tru, protocol->dic_goto, remote_dir, dir, org_dic);
-                    std::cout<<"now_step:"<< protocol->now_step<<std::endl;
+                    if(debug_this)
+                        std::cout<<"now operation |"<<now_trp.operand1<<"| "<<now_trp.op<<" |"<<now_trp.operand2<<"| -> "<<now_trp.output<<std::endl;
+                    if(debug_this)
+                        std::cin>>a;
+                    deal_cmd(now_trp, protocol->now_step, tru, protocol->dic_goto, remote_dir, local_dir, org_dic);
+                    if(debug_this)
+                        std::cout<<"now_step:"<< protocol->now_step<<std::endl;
                     if(protocol->now_step == protocol->size_of_protocol()){
                         break;
                     }

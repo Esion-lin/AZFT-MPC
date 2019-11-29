@@ -4,11 +4,11 @@ i8 = interfaceinvoke r1.<MPCAnnotation: int IN()>();
 i9 = 0;
 i10 = 0;
 label1:
-	if i10 >= 32 goto label7;
+	if i10 >= 64 goto label7;
 	i1 = i7;
 	i2 = i8;
 	i11 = 0;
-	i12 = 31;
+	i12 = 63;
 label2:
 	if i12 < 0 goto label4;
 	i6 = i11 << 1;

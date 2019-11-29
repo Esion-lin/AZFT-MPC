@@ -129,13 +129,13 @@ void *netTool::init_listen(){
             perror("connect error.\n");
             exit(1);
         }else{
-            printf("connect successful\n");
+            //printf("connect successful\n");
         }    
         int ret = recv(conn, recvbuf, sizeof(recvbuf),0);
         if(ret <0){
             perror("recv error\n");
         }else{
-            printf("recv size: %d\n",ret); 
+            //printf("recv size: %d\n",ret); 
         }
         if(reader.parse(recvbuf,value)){
             deal_data(value);        

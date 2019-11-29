@@ -272,7 +272,8 @@ void truthtee::operation(unsigned char tru_in1[],unsigned int in1_len, int swi_1
 			uan = ud1 == ud2;
 			break;
 	}
-	std::cout<<ud1<<" "<<op<<" "<<ud2<<" "<<uan<<std::endl;
+	if(test)
+		std::cout<<ud1<<" "<<op<<" "<<ud2<<" "<<uan<<std::endl;
 	to_byte16(uan,ans);
 	/*
 	//Do not turn to Int

@@ -74,15 +74,22 @@ struct truple{
 class PotocolRead{
 	public:
 		int now_step = 0;
+		std::map<std::string, int> dic_goto;
 		PotocolRead(std::string file_path);
 		~PotocolRead();
 		void Reader(std::string file_path);
 		truple next();
-		std::map<std::string, int> dic_goto;
 		int size_of_protocol();
+		void clear_iteam();
+
 	private:
-		
+		//this function is desigened for Conversion of data independence
+		void transfer();
 		std::vector<std::string> output;
 		std::vector<truple> cmd;
-		
+		/*
+		0:plaintext
+		1:cyphertext
+		*/
+		std::map<std::string, int> dic_var;
 };
