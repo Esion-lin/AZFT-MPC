@@ -120,7 +120,7 @@ void *netTool::init_listen(){
         exit(1);
     }
     socklen_t length = sizeof(client_addr);
-    char recvbuf[buffer_size*2];
+    char recvbuf[buffer_size*buffer_size];
     Json::Value   value;
     Json::Reader  reader;
     while(true){

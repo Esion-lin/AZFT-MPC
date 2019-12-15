@@ -22,6 +22,14 @@ void test_pri(ECCPRIVATEKEYBLOB pri_key){
 	std::cout<<std::endl;
 
 }
+void test_sign(ECCSIGNATUREBLOB sign){
+	printf("sign messsage is :\n");
+	for(int i = 0; i < ECC_MAX_XCOORDINATE_BITS_LEN/8; i++){
+		std::cout<<sign.r[i]<<" "<<sign.s[i];
+	}
+	std::cout<<std::endl;
+
+}
 truthtee::truthtee(){
 	int ret = SG_GenKeyPair(SGD_SM2,&pub_key1,&pri_key1);
 	if (ret!=SAR_OK)
@@ -49,6 +57,14 @@ void truthtee::serialize(ECCPUBLICKEYBLOB pu_key, unsigned char tru_out[]){
 	}
 
 }
+void truthtee::serialize_signature(ECCSIGNATUREBLOB sign, unsigned char tru_out[]){
+	int ptr = 0;
+	for(int i = 0; i < ECC_MAX_XCOORDINATE_BITS_LEN/8; i ++ ){
+		tru_out[ptr++] = sign.r[i];
+		tru_out[ptr++] = sign.s[i];
+	}
+
+}
 ECCPUBLICKEYBLOB truthtee::deserialize(unsigned char tru_in[]){
 	ECCPUBLICKEYBLOB pub_key;
 	pub_key.BitLen = 256;
@@ -57,6 +73,14 @@ ECCPUBLICKEYBLOB truthtee::deserialize(unsigned char tru_in[]){
 		pub_key.YCoordinate[i] = tru_in[i*2+1];
 	}
 	return pub_key;
+}
+ECCSIGNATUREBLOB truthtee::deserialize_signature(unsigned char tru_in[]){
+	ECCSIGNATUREBLOB sign;
+	for(int i = 0; i < ECC_MAX_XCOORDINATE_BITS_LEN/8; i ++ ){
+		sign.r[i] = tru_in[i*2];
+		sign.s[i] = tru_in[i*2+1];
+	}
+	return sign;
 }
 void truthtee::query_pub_stream(unsigned char tru_out[]){
 	unsigned char 		a[ECC_MAX_XCOORDINATE_BITS_LEN/4];
@@ -71,11 +95,26 @@ void truthtee::query_pub_stream(unsigned char tru_out[]){
 		tru_out[ptr++] = a[i];
 		tru_out[ptr++] = b[i];
 	}
-	for(int i = 0; i < ECC_MAX_XCOORDINATE_BITS_LEN/2; i ++){
-		serial[i] = tru_out[i];
-	}
 	
 
+}
+void truthtee::query_signature(unsigned char tru_out[], bool verify){
+	unsigned char 		a[ECC_MAX_XCOORDINATE_BITS_LEN/4];
+	serialize(pub_key1,a);
+	if(test){
+				
+	}
+	int ptr = 0;
+	for(int i = 0; i < ECC_MAX_XCOORDINATE_BITS_LEN/4; i ++){
+		if(!verify){
+			tru_out[ptr++] = a[i];
+			tru_out[ptr++] = remote_a[i];
+		}else{
+			tru_out[ptr++] = remote_a[i];
+			tru_out[ptr++] = a[i];
+		}
+		
+	}
 }
 void truthtee::stream_to_key(unsigned char tru_in[]){
 	int ptr = 0;
@@ -142,21 +181,6 @@ void truthtee::transfer_data(unsigned char tru_in[],unsigned int in_len, unsigne
 
 	}
 }
-int truthtee::add_op(unsigned char tru_out[], int &out_len){
-	if(!A_get){
-		return 0;
-	}
-	if(!B_get){
-		return -1;
-	}
-	int len = std::min(A_len,B_len);
-	out_len = len;
-	for(int i = 0; i < len; i++){
-		tru_out[i] = dataA[i] + dataB[i];
-	}
-	return 1;
-
-}
 int truthtee::test_and_op(unsigned char tru_out[], int &out_len){
 	if(!A_get){
 		return 0;
@@ -186,6 +210,29 @@ void truthtee::to_byte16(uint64_t org, unsigned char output[]){
 }
 //sign operation
 void truthtee::sign_key(unsigned char tru_out[]){
+	//use sign key encrypt public key
+	unsigned char allover_public_key[ECC_MAX_XCOORDINATE_BITS_LEN/2];
+	query_signature(allover_public_key, false);
+	if(SG_SM2Sign(1,&pub_key2,&pri_key2,NULL,0,allover_public_key,ECC_MAX_XCOORDINATE_BITS_LEN/2,&sig) != SAR_OK){
+		perror("signature data error\n");
+	}
+	serialize_signature(sig,tru_out);
+
+}
+bool truthtee::sign_verify(unsigned char tru_in[]){
+	remote_sig = deserialize_signature(tru_in);
+	if(test){
+		test_sign(remote_sig);
+	}
+	unsigned char allover_public_key[ECC_MAX_XCOORDINATE_BITS_LEN/2];
+	query_signature(allover_public_key, false);
+	if(SG_SM2Verify(1,&remote_pub_key2,NULL,0,allover_public_key,ECC_MAX_XCOORDINATE_BITS_LEN/2,&remote_sig) != SAR_OK){
+		perror("verify signature error\n");
+	}else{
+		key_verify_suc = true;
+		return true;
+	}
+	return false;
 
 }
 void truthtee::operation(unsigned char tru_in1[],unsigned int in1_len, int swi_1, unsigned char tru_in2[],unsigned int in2_len, int swi_2, unsigned char tru_out[],unsigned int &out_len, int op){
@@ -326,9 +373,7 @@ void truthtee::operation(unsigned char tru_in1[],unsigned int in1_len, int swi_1
 }
 	//verify key using remote_key
 
-bool truthtee::sign_verify(unsigned char tru_in[]){
-	return true;
-}
+
 //for test
 /*int main(){
 	truthtee * tru = new truthtee();

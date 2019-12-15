@@ -56,6 +56,26 @@ void send_data(void *tmp, unsigned char key_data[], int key_len, std::map<std::s
 
     nettool->send_data(json);
 }
+std::string get_item(std::map<std::string,int> dic, std::string str){
+    if(str.find("[") == str.npos){
+        return str;
+    }else{
+        std::string arr = str.substr(0,str.find("["));
+        std::string num = str.substr(str.find("[")+1, str.find("]") - str.find("[")-1);
+        //std::cout<<"num is "<<num<<"|"<<std::endl;
+        int now_num;char ans[10];
+        if(num[0]>='0' && num[0]<='9'){
+            arr = arr + "_" + num;
+        }else if(dic.find(num) != dic.end()){
+            sprintf(ans, "%d", dic[num]);
+            arr = arr + "_" + ans;
+        }else{
+            printf("index error(%s):array index is cipher text.\n", num.c_str());
+        }
+        return arr;
+
+    }
+}
 int tran_op(std::string op){
     if(op == ">>>" || op == ">>"){
         return SHF_RI;
@@ -144,6 +164,9 @@ void deal_cmd(truple now_trp, int &now_step, void *tmp, std::map<std::string,int
     unsigned int data_len;
     unsigned char temp_msg[16];
     truthtee* tru = (truthtee*) tmp;
+    now_trp.operand1 = get_item(org_dir,now_trp.operand1);
+    now_trp.operand2 = get_item(org_dir,now_trp.operand2);
+    now_trp.output = get_item(org_dir,now_trp.output);
     if(now_trp.is_goto){
         if(now_trp.op == "goto"){
             now_step = goto_dir[now_trp.output];
@@ -258,7 +281,7 @@ void deal_cmd(truple now_trp, int &now_step, void *tmp, std::map<std::string,int
         }
     }
 }
-  
+
 int main(){
     std::map<std::string, unsigned char[16]> dir;
 	pthread_t   recv_tid;
@@ -293,7 +316,11 @@ int main(){
     	unsigned char enc_key[0x100];
     	unsigned char enc_data[0x10];
     	uint64_t value;
+        std::string mid;
         std::string key_po;
+        std::string line;
+        std::string file_path;
+        std::ifstream file;
     	unsigned int key_len = 0;
     	unsigned int data_len = 0;
     	std::cin>>act;
@@ -335,7 +362,7 @@ int main(){
                     deal_cmd(now_trp, protocol->now_step, tru, protocol->dic_goto, remote_dir, local_dir, org_dic);
                     if(debug_this)
                         std::cout<<"now_step:"<< protocol->now_step<<std::endl;
-                    if(protocol->now_step == protocol->size_of_protocol()){
+                    if(protocol->now_step >= protocol->size_of_protocol()){
                         break;
                     }
                 }
@@ -349,7 +376,29 @@ int main(){
                 // std::cout<<"get answer: "<<answer<<std::endl;
     			break;
     		case 3:
-    			
+                std::cout<<"input file path and name \n";
+                std::cin>>file_path;
+                file.open(file_path,std::ios::in);
+                if(!file.is_open()){
+                    printf("no such file\n");
+                    break;    
+                }
+                dir.clear();
+                tru->encrypto_key(enc_key, key_len);
+
+                while(getline(file,line)){
+                    if(line.empty()) continue;
+                    key_po = line.substr(0,line.find(" "));
+                    mid = line.substr(line.find(" ")+1);
+                    value = atoi(mid.c_str());
+                    if(key_po == "0" && value == 0){
+                        break;
+                    }
+                    to_byte16(value,msg);
+                    tru->encrypto(msg, 16, dir[key_po], data_len);
+
+                }
+                send_data(nettool, enc_key, key_len, dir);
     			break;
     		case 4:
     			exit(1);

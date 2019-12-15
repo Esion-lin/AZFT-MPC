@@ -51,11 +51,6 @@ public:
 	//generate key stream, store in serial[]
 	void query_pub_stream(unsigned char t_out[]);
 	void operation(unsigned char tru_in1[],unsigned int in1_len, int swi_1, unsigned char tru_in2[],unsigned int in2_len, int swi_2, unsigned char tru_out[],unsigned int &out_len, int op);
-	void and_op(unsigned char tru_in1[], unsigned char tru_in2[], unsigned char tru_out[], int swi);
-	void or_op(unsigned char tru_in1[], unsigned char tru_in2[], unsigned char tru_out[], int swi);
-	void not_op(unsigned char t_in[], unsigned char tru_out[], int swi);
-	void nand_op(unsigned char tru_in1[], unsigned char tru_in2[], unsigned char tru_out[], int swi);
-	int add_op(unsigned char tru_out[], int &out_len);
 	int test_and_op(unsigned char tru_out[], int &out_len);
 	void encrypto_key(unsigned char tru_key_out[],unsigned int &key_len_out);
 	void encrypto(unsigned char tru_in[], unsigned int len, unsigned char tru_data_out[],unsigned int &data_len_out);
@@ -75,10 +70,14 @@ private:
 	void to_ll(unsigned char input[], uint64_t &output);
 	void to_byte16(uint64_t org, unsigned char output[]);
 	void serialize(ECCPUBLICKEYBLOB pu_key, unsigned char tru_out[]);
+	void serialize_signature(ECCSIGNATUREBLOB sign, unsigned char tru_out[]);
+	void query_signature(unsigned char tru_out[], bool verify);
+	ECCSIGNATUREBLOB deserialize_signature(unsigned char tru_in[]);
 	ECCPUBLICKEYBLOB deserialize(unsigned char tru_in[]);
 	ECCPRIVATEKEYBLOB 	pri_key1;
 	ECCPRIVATEKEYBLOB 	pri_key2;
 	ECCSIGNATUREBLOB  	sig;
+	ECCSIGNATUREBLOB	remote_sig;
 	unsigned char sym_key_keep[sym_key_len/8];
 	unsigned char sym_key_remote[sym_key_len/8];
 	bool key_ex_suc;
@@ -90,7 +89,6 @@ private:
 	bool B_get;
 	unsigned char		dataB[0x100];
 	int B_len;
-	unsigned char 		serial[ECC_MAX_XCOORDINATE_BITS_LEN/2];
 	unsigned char 		remote_a[ECC_MAX_XCOORDINATE_BITS_LEN/4];
 	unsigned char 		remote_b[ECC_MAX_XCOORDINATE_BITS_LEN/4];
 	unsigned char 		remote_serial[ECC_MAX_XCOORDINATE_BITS_LEN/2];

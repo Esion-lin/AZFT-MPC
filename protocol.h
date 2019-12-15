@@ -71,6 +71,10 @@ struct truple{
         return this->is_goto == b.is_goto && this->op == b.op && this->output == b.output;  
     }  
 };
+
+//MerkleHash function
+void MerkleHash(vector<truple> cmds, unsigned char output_hash[]);
+
 class PotocolRead{
 	public:
 		int now_step = 0;
@@ -85,6 +89,7 @@ class PotocolRead{
 	private:
 		//this function is desigened for Conversion of data independence
 		void transfer();
+		std::string arr2item(std::string str); 
 		std::vector<std::string> output;
 		std::vector<truple> cmd;
 		/*
