@@ -35,7 +35,7 @@
 #define SWI_PLA 0
 #define SWI_REM 1
 #define SWI_ORG 2
-
+#define cipher_len 16
 #define sym_key_len 128
 class truthtee{
 public:
@@ -45,8 +45,6 @@ public:
 	ECCPUBLICKEYBLOB 	pub_key2;
 	ECCPUBLICKEYBLOB 	remote_pub_key1;
 	ECCPUBLICKEYBLOB 	remote_pub_key2;	
-
-	
 
 	//generate key stream, store in serial[]
 	void query_pub_stream(unsigned char t_out[]);

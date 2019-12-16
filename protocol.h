@@ -73,7 +73,6 @@ struct truple{
 };
 
 //MerkleHash function
-void MerkleHash(vector<truple> cmds, unsigned char output_hash[]);
 
 class PotocolRead{
 	public:
