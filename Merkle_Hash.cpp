@@ -66,7 +66,12 @@ void sha256(unsigned char input[], int len, unsigned char output[])
     SHA256_Final(output, &sha256);
 }
 void merkleTree::output_hash(unsigned char output[]){
-
+	for(int i = 0; i < SHA256_DIGEST_LENGTH; i++){
+		output[i] = out_hash[i];
+	}
+}
+string merkleTree::output_hash(){
+	return out_str;
 }
 vector<string> merkleTree::quary_path(truple trp){
 	vector<string> ans;

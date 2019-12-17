@@ -9,6 +9,7 @@ public:
 	merkleTree(vector<truple> cmds);
 	merkleTree(map<std::string, unsigned char[16]> datas);
 	void output_hash(unsigned char output[]);
+	string output_hash();
 	vector<string> quary_path(truple trp);
 	vector<string> quary_path(string label, unsigned char cipher[]);
 private:

@@ -32,7 +32,7 @@ public:
 	//for test
 	int 			recv_port;
 	std::map<std::string, unsigned char[16]> data_dic;	
-	bool 	is_data_store = false;
+
 private:
 	truthtee 		*tru;
 	std::string		conn_host;

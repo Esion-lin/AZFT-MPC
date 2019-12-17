@@ -30,6 +30,38 @@ void test_sign(ECCSIGNATUREBLOB sign){
 	std::cout<<std::endl;
 
 }
+void sha256(const string str, unsigned char output[])
+{
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256_CTX sha256;
+    SHA256_Init(&sha256);
+    SHA256_Update(&sha256, str.c_str(), str.size());
+    SHA256_Final(output, &sha256);
+}
+string sha256(const string str)
+{
+	char buf[2];
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256_CTX sha256;
+    SHA256_Init(&sha256);
+    SHA256_Update(&sha256, str.c_str(), str.size());
+    SHA256_Final(hash, &sha256);
+    string str2 = "";
+    for(int i = 0; i < SHA256_DIGEST_LENGTH; i++)
+    {
+        sprintf(buf,"%x",hash[i]);
+        str2 = str2 + buf;
+    }
+	return str2;
+}
+void sha256(unsigned char input[], int len, unsigned char output[])
+{
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256_CTX sha256;
+    SHA256_Init(&sha256);
+    SHA256_Update(&sha256, input, len);
+    SHA256_Final(output, &sha256);
+}
 truthtee::truthtee(){
 	int ret = SG_GenKeyPair(SGD_SM2,&pub_key1,&pri_key1);
 	if (ret!=SAR_OK)
@@ -233,6 +265,49 @@ bool truthtee::sign_verify(unsigned char tru_in[]){
 		return true;
 	}
 	return false;
+
+}
+std::string truthtee::check_mac(std::string hash, std::vector<std::string>hash_table){
+	/*
+	recursively caculate hash
+	*/
+	std::string ans_hash = hash;
+ 	for(int i = 0; i < hash_table.size(); i ++){
+ 		ans_hash = sha256(ans_hash + hash_table[i]);
+	}
+}
+void truthtee::operation(std::string label1, unsigned char tru_in1[],unsigned int in1_len, int swi_1, std::vector<std::string>path1, std::string label2, unsigned char tru_in2[],unsigned int in2_len, int swi_2, std::vector<std::string>path2, unsigned char tru_out[],unsigned int &out_len, int op, std::vector<std::string>path_protocol){
+	/*
+	check MAC:
+		1. check label and data
+		2. check cmd
+	*/
+	string hash1 = sha256(label1 + to_string(op) + label2);
+	if(check_mac(hash1) != cmd_hash){
+		printf("Illegal cmd\n");
+		return;
+	}
+	char buf[2];
+	for(int i = 0; i < cipher_len; i++) {
+		sprintf(buf,"%x",tru_in1[i]);
+        label1 = label1 + buf;
+	}
+	string hash2 = sha256(label1);
+	if(check_mac(hash2) != data_hash){
+		printf("Illegal cmd\n");
+		return;
+	}
+	for(int i = 0; i < cipher_len; i++) {
+		sprintf(buf,"%x",tru_in2[i]);
+        label2 = label2 + buf;
+	}
+	hash2 = sha256(label1);
+	if(check_mac(hash2) != data_hash){
+		printf("Illegal cmd\n");
+		return;
+	}
+	//if MAC checked, run operation
+	operation(unsigned char tru_in1[],unsigned int in1_len, int swi_1, unsigned char tru_in2[],unsigned int in2_len, int swi_2, unsigned char tru_out[],unsigned int &out_len, int op);
 
 }
 void truthtee::operation(unsigned char tru_in1[],unsigned int in1_len, int swi_1, unsigned char tru_in2[],unsigned int in2_len, int swi_2, unsigned char tru_out[],unsigned int &out_len, int op){

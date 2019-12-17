@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <memory.h>
 #include <time.h>
+#include <vector>
 #include <stdint.h>
 #include "SG_API.h"
 //Binary
@@ -49,6 +50,7 @@ public:
 	//generate key stream, store in serial[]
 	void query_pub_stream(unsigned char t_out[]);
 	void operation(unsigned char tru_in1[],unsigned int in1_len, int swi_1, unsigned char tru_in2[],unsigned int in2_len, int swi_2, unsigned char tru_out[],unsigned int &out_len, int op);
+	void operation(std::string label1, unsigned char tru_in1[],unsigned int in1_len, int swi_1, std::vector<std::string>path1, std::string label2, unsigned char tru_in2[],unsigned int in2_len, int swi_2, std::vector<std::string>path2, unsigned char tru_out[],unsigned int &out_len, int op, std::vector<std::string>path_protocol);
 	int test_and_op(unsigned char tru_out[], int &out_len);
 	void encrypto_key(unsigned char tru_key_out[],unsigned int &key_len_out);
 	void encrypto(unsigned char tru_in[], unsigned int len, unsigned char tru_data_out[],unsigned int &data_len_out);
@@ -70,6 +72,9 @@ private:
 	void serialize(ECCPUBLICKEYBLOB pu_key, unsigned char tru_out[]);
 	void serialize_signature(ECCSIGNATUREBLOB sign, unsigned char tru_out[]);
 	void query_signature(unsigned char tru_out[], bool verify);
+	bool check_mac(std::string hash, std::vector<std::string>hash_table);
+	std::string cmd_hash;
+	std::string data_hash;
 	ECCSIGNATUREBLOB deserialize_signature(unsigned char tru_in[]);
 	ECCPUBLICKEYBLOB deserialize(unsigned char tru_in[]);
 	ECCPRIVATEKEYBLOB 	pri_key1;

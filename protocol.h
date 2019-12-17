@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <Merkle_Hash.h>
 //Binary
 #define U_AND_OP 1
 #define U_NOT_OP 2
@@ -84,7 +85,7 @@ class PotocolRead{
 		truple next();
 		int size_of_protocol();
 		void clear_iteam();
-
+		merkleTree *cmd_merkle_tree;
 	private:
 		//this function is desigened for Conversion of data independence
 		void transfer();

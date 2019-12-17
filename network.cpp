@@ -58,6 +58,9 @@ void netTool::deal_data(Json::Value value){
         case key_ex_action:
             data = value["data"];
             accept_key(data);
+            /*
+                todo:send signature
+            */
             break;
         case sign_action:
             break;

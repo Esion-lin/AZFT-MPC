@@ -1,5 +1,6 @@
 #include "network.h"
 #include "protocol.h"
+#include "Merkle_Hash.h"
 bool debug_this = false;
 bool notify(){
 	printf("choose a operation:\n \t1.send encrypto msg\n \t2.run protocol\n \t3.other\n \t4.....\n");
@@ -302,12 +303,16 @@ int main(){
     std::cin>>port;
     nettool->set_host_port(host,port);
     send_pub_key(tru, nettool);
-
+    /*
+    from protocol make MerkleTree
+    and exchange it
+    */
     //load protocol
     std::map<std::string, unsigned char[16]> remote_dir;
     std::map<std::string, int> org_dic;
     std::map<std::string, unsigned char[16]> local_dir;
     //
+    merkleTree* data_merkle_tree;
     while(notify()){
     	int act;
     	int ret;
@@ -337,6 +342,7 @@ int main(){
 
                 }
     			send_data(nettool, enc_key, key_len, dir);
+                is_data_send = true;
     			break;
     		case 2:
                 //test end  
@@ -344,6 +350,12 @@ int main(){
        //              printf("wait for data exchage");
        //              continue;
        //          }
+
+                if(!is_data_store || !is_data_send){
+                    //sign data hash and send it
+                    printf("before run protocol, plz send data or receive data");
+                    break;
+                }
                 protocol->clear_iteam();
                 remote_dir = nettool->data_dic;
                 org_dic.clear();
@@ -352,7 +364,8 @@ int main(){
                 for(auto &v : remote_dir){
                     tru->operation(v.second, 16, SWI_REM, msg, 16, SWI_PLA, local_dir[v.first], data_len, ADD_OP);
                 }
-                
+                data_merkle_tree = new merkleTree(local_dir);
+
                 while(true){
                     truple now_trp = protocol->next();
                     if(debug_this)
