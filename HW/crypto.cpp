@@ -184,6 +184,18 @@ void truthtee::encrypto(unsigned char tru_in[],unsigned int len, unsigned char t
 	}
 
 }
+void truthtee::encrypt_MAC(std::string label, unsigned char tru_in[], unsigned int len, unsigned char tru_data_out[],unsigned int &data_len_out, unsigned int tru_mac_out[], unsigned int &mac_len_out){
+	int over_all_len = label.length() + len;
+	//to make sure that label is not longer then 34
+	unsigned char over_all[50];
+	memcpy(over_all, tru_in, len);
+	for(int i = len; i < over_all_len; i++) {
+		over_all[i] = label[i-len];
+	}
+	encrypto(tru_in,len,tru_data_out,data_len_out);
+	SG_Hmac(SGD_SM3, sym_key_keep, sym_key_len/8, over_all, 50, tru_mac_out, mac_len_out);
+
+}
 void truthtee::decrypto_key(unsigned char tru_key_in[],unsigned int key_in_len){
 	unsigned int key_check = 0;
 	if(SG_SM2Dec(&pri_key1,tru_key_in,key_in_len,sym_key_remote,&key_check) != SAR_OK){
