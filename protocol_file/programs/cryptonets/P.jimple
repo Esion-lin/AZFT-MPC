@@ -1,0 +1,735 @@
+public class P extends java.lang.Object
+{
+    public static final int IMAGE_WIDTH;
+    public static final int WINDOW_WIDTH;
+    public static final int STRIDE;
+    public static final int OUTPUT_CHANNELS;
+    public static final int IMAGE_CROP;
+    public static final int SIZE_CONVOLUTION;
+    public static final int FULLY_CONNECTED_WIDTH;
+    public static final int FINAL_OUTPUT_CHANNELS;
+
+    public void <init>()
+    {
+        P r0;
+
+        r0 := @this: P;
+
+        specialinvoke r0.<java.lang.Object: void <init>()>();
+
+        return;
+    }
+
+    public static int activate_sqr(int)
+    {
+        int i0, i1;
+
+        i0 := @parameter0: int;
+
+        i1 = i0 * i0;
+
+        return i1;
+    }
+
+    public static void convolution_naive_outputs(int, int[], int[], int[], int, int, int, int, int)
+    {
+        int i0, i1, i2, i3, i4, i5, i6, i7, i8, i9, $i12, $i13, $i14, $i16, $i17, $i18, $i19, $i20, $i21, $i22, $i23, $i24, $i25, i26, i27, i28, i29, i30, i31;
+        int[] r0, r1, r2;
+
+        i0 := @parameter0: int;
+
+        r0 := @parameter1: int[];
+
+        r1 := @parameter2: int[];
+
+        r2 := @parameter3: int[];
+
+        i1 := @parameter4: int;
+
+        i2 := @parameter5: int;
+
+        i3 := @parameter6: int;
+
+        i4 := @parameter7: int;
+
+        i5 := @parameter8: int;
+
+        i6 = i2 * i2;
+
+        i26 = 0;
+
+     label01:
+        if i26 >= i3 goto label10;
+
+        i7 = i26 * i6;
+
+        $i12 = i5 * i5;
+
+        i8 = i26 * $i12;
+
+        i27 = 0;
+
+     label02:
+        if i27 >= i5 goto label09;
+
+        i28 = 0;
+
+     label03:
+        if i28 >= i5 goto label08;
+
+        $i13 = i27 * i5;
+
+        i9 = i28 + $i13;
+
+        i29 = 0;
+
+        i30 = 0;
+
+     label04:
+        if i30 >= i2 goto label07;
+
+        i31 = 0;
+
+     label05:
+        if i31 >= i2 goto label06;
+
+        $i24 = r1[i7];
+
+        $i16 = i27 * i4;
+
+        $i17 = $i16 + i30;
+
+        $i18 = $i17 * i1;
+
+        $i21 = i0 + $i18;
+
+        $i19 = i28 * i4;
+
+        $i20 = $i19 + i31;
+
+        $i22 = $i21 + $i20;
+
+        $i23 = r0[$i22];
+
+        $i25 = $i24 * $i23;
+
+        i29 = i29 + $i25;
+
+        i31 = i31 + 1;
+
+        goto label05;
+
+     label06:
+        i30 = i30 + 1;
+
+        goto label04;
+
+     label07:
+        $i14 = i8 + i9;
+
+        r2[$i14] = i29;
+
+        i28 = i28 + 1;
+
+        goto label03;
+
+     label08:
+        i27 = i27 + 1;
+
+        goto label02;
+
+     label09:
+        i26 = i26 + 1;
+
+        goto label01;
+
+     label10:
+        return;
+    }
+
+    public static void mmulT_unrolled(int[], int[], int[], int, int, int)
+    {
+        int[] r0, r1, r2, r3;
+        int i0, i1, i2, i3, i4, $i5, $i6, $i7, $i8, $i9, $i10, $i11, $i12, i13, i14, i15, i16, i17;
+
+        r0 := @parameter0: int[];
+
+        r1 := @parameter1: int[];
+
+        r2 := @parameter2: int[];
+
+        i0 := @parameter3: int;
+
+        i1 := @parameter4: int;
+
+        i2 := @parameter5: int;
+
+        i13 = 0;
+
+     label1:
+        if i13 >= i0 goto label8;
+
+        i3 = i13 * i2;
+
+        i14 = 0;
+
+     label2:
+        if i14 >= i1 goto label7;
+
+        i4 = i14 * i2;
+
+        r3 = newarray (int)[i2];
+
+        i15 = 0;
+
+     label3:
+        if i15 >= i2 goto label4;
+
+        $i8 = i3 + i15;
+
+        $i11 = r0[$i8];
+
+        $i9 = i4 + i15;
+
+        $i10 = r1[$i9];
+
+        $i12 = $i11 * $i10;
+
+        r3[i15] = $i12;
+
+        i15 = i15 + 1;
+
+        goto label3;
+
+     label4:
+        i16 = r3[0];
+
+        i17 = 1;
+
+     label5:
+        if i17 >= i2 goto label6;
+
+        $i7 = r3[i17];
+
+        i16 = i16 + $i7;
+
+        i17 = i17 + 1;
+
+        goto label5;
+
+     label6:
+        $i5 = i13 * i1;
+
+        $i6 = $i5 + i14;
+
+        r2[$i6] = i16;
+
+        i14 = i14 + 1;
+
+        goto label2;
+
+     label7:
+        i13 = i13 + 1;
+
+        goto label1;
+
+     label8:
+        return;
+    }
+
+    public static void sum(int[], int[], int[], int)
+    {
+        int[] r0, r1, r2;
+        int i0, $i1, $i2, $i3, i4;
+
+        r0 := @parameter0: int[];
+
+        r1 := @parameter1: int[];
+
+        r2 := @parameter2: int[];
+
+        i0 := @parameter3: int;
+
+        i4 = 0;
+
+     label1:
+        if i4 >= i0 goto label2;
+
+        $i2 = r1[i4];
+
+        $i1 = r2[i4];
+
+        $i3 = $i2 + $i1;
+
+        r0[i4] = $i3;
+
+        i4 = i4 + 1;
+
+        goto label1;
+
+     label2:
+        return;
+    }
+
+    public static void main(java.lang.String[])
+    {
+        java.lang.String[] r0;
+        int[] r1, r2, r3, r4, r5, r7, r8, r9, r16, r20;
+        MPCAnnotation r6;
+        int $i0, $i1, $i2, $i3, $i4, $i5, $i6, $i7, $i8, $i9, $i10, $i11, $i12, $i13, $i14, $i15, $i16, i24, i25, i26, i27, $i30, $i31, $i32, $i34, $i35, $i36, $i37, $i38, $i39, $i40, $i41, $i42, $i43, i44, i45, i49, i50, $i51, $i52, $i53, $i54, $i55, $i56, $i57, $i58, i59, i60, i64, i65, $i66, $i67, $i68, $i69, $i70, $i71, $i72, $i73, i74, i75, i76, i77, i78, i79, i80, i81, i82, i83, i84, i85, i86, i87, i88, i89, i90, i91, i92, i93, i94, i95, i96, i97, i98, i99;
+
+        r0 := @parameter0: java.lang.String[];
+
+        r1 = newarray (int)[784];
+
+        r2 = newarray (int)[125];
+
+        r3 = newarray (int)[84500];
+
+        r4 = newarray (int)[1000];
+
+        r5 = newarray (int)[10];
+
+        r6 = staticinvoke <MPCAnnotationImpl: MPCAnnotation v()>();
+
+        i74 = 0;
+
+     label01:
+        if i74 >= 784 goto label02;
+
+        $i16 = interfaceinvoke r6.<MPCAnnotation: int IN()>();
+
+        r1[i74] = $i16;
+
+        i74 = i74 + 1;
+
+        goto label01;
+
+     label02:
+        i75 = 0;
+
+     label03:
+        if i75 >= 125 goto label04;
+
+        $i15 = interfaceinvoke r6.<MPCAnnotation: int IN()>();
+
+        r2[i75] = $i15;
+
+        i75 = i75 + 1;
+
+        goto label03;
+
+     label04:
+        i76 = 0;
+
+     label05:
+        if i76 >= 84500 goto label06;
+
+        $i14 = interfaceinvoke r6.<MPCAnnotation: int IN()>();
+
+        r3[i76] = $i14;
+
+        i76 = i76 + 1;
+
+        goto label05;
+
+     label06:
+        i77 = 0;
+
+     label07:
+        if i77 >= 1000 goto label08;
+
+        $i13 = interfaceinvoke r6.<MPCAnnotation: int IN()>();
+
+        r4[i77] = $i13;
+
+        i77 = i77 + 1;
+
+        goto label07;
+
+     label08:
+        $i0 = 30 * 30;
+
+        r7 = newarray (int)[$i0];
+
+        i78 = 0;
+
+     label09:
+        if i78 >= 30 goto label10;
+
+        r7[i78] = 0;
+
+        $i9 = i78 + 30;
+
+        r7[$i9] = 0;
+
+        $i10 = 30 * i78;
+
+        r7[$i10] = 0;
+
+        $i11 = 30 * i78;
+
+        $i12 = $i11 + 1;
+
+        r7[$i12] = 0;
+
+        i78 = i78 + 1;
+
+        goto label09;
+
+     label10:
+        i79 = 0;
+
+     label11:
+        if i79 >= 28 goto label14;
+
+        i80 = 0;
+
+     label12:
+        if i80 >= 28 goto label13;
+
+        $i2 = i79 + 2;
+
+        $i4 = $i2 * 30;
+
+        $i3 = i80 + 2;
+
+        $i8 = $i4 + $i3;
+
+        $i5 = i79 * 28;
+
+        $i6 = $i5 + i80;
+
+        $i7 = r1[$i6];
+
+        r7[$i8] = $i7;
+
+        i80 = i80 + 1;
+
+        goto label12;
+
+     label13:
+        i79 = i79 + 1;
+
+        goto label11;
+
+     label14:
+        r8 = newarray (int)[845];
+
+        i24 = 5 * 5;
+
+        i81 = 0;
+
+     label15:
+        if i81 >= 5 goto label24;
+
+        i25 = i81 * i24;
+
+        $i30 = 13 * 13;
+
+        i26 = i81 * $i30;
+
+        i82 = 0;
+
+     label16:
+        if i82 >= 13 goto label23;
+
+        i83 = 0;
+
+     label17:
+        if i83 >= 13 goto label22;
+
+        $i31 = i82 * 13;
+
+        i27 = i83 + $i31;
+
+        i84 = 0;
+
+        i85 = 0;
+
+     label18:
+        if i85 >= 5 goto label21;
+
+        i86 = 0;
+
+     label19:
+        if i86 >= 5 goto label20;
+
+        $i42 = r2[i25];
+
+        $i34 = i82 * 2;
+
+        $i35 = $i34 + i85;
+
+        $i36 = $i35 * 30;
+
+        $i39 = 0 + $i36;
+
+        $i37 = i83 * 2;
+
+        $i38 = $i37 + i86;
+
+        $i40 = $i39 + $i38;
+
+        $i41 = r7[$i40];
+
+        $i43 = $i42 * $i41;
+
+        i84 = i84 + $i43;
+
+        i86 = i86 + 1;
+
+        goto label19;
+
+     label20:
+        i85 = i85 + 1;
+
+        goto label18;
+
+     label21:
+        $i32 = i26 + i27;
+
+        r8[$i32] = i84;
+
+        i83 = i83 + 1;
+
+        goto label17;
+
+     label22:
+        i82 = i82 + 1;
+
+        goto label16;
+
+     label23:
+        i81 = i81 + 1;
+
+        goto label15;
+
+     label24:
+        goto label25;
+
+     label25:
+        i87 = 0;
+
+     label26:
+        if i87 >= 845 goto label28;
+
+        i44 = r8[i87];
+
+        i45 = i44 * i44;
+
+        goto label27;
+
+     label27:
+        r8[i87] = i45;
+
+        i87 = i87 + 1;
+
+        goto label26;
+
+     label28:
+        r9 = newarray (int)[100];
+
+        i88 = 0;
+
+     label29:
+        if i88 >= 100 goto label36;
+
+        i49 = i88 * 845;
+
+        i89 = 0;
+
+     label30:
+        if i89 >= 1 goto label35;
+
+        i50 = i89 * 845;
+
+        r16 = newarray (int)[845];
+
+        i90 = 0;
+
+     label31:
+        if i90 >= 845 goto label32;
+
+        $i54 = i49 + i90;
+
+        $i57 = r3[$i54];
+
+        $i55 = i50 + i90;
+
+        $i56 = r8[$i55];
+
+        $i58 = $i57 * $i56;
+
+        r16[i90] = $i58;
+
+        i90 = i90 + 1;
+
+        goto label31;
+
+     label32:
+        i91 = r16[0];
+
+        i92 = 1;
+
+     label33:
+        if i92 >= 845 goto label34;
+
+        $i53 = r16[i92];
+
+        i91 = i91 + $i53;
+
+        i92 = i92 + 1;
+
+        goto label33;
+
+     label34:
+        $i51 = i88 * 1;
+
+        $i52 = $i51 + i89;
+
+        r9[$i52] = i91;
+
+        i89 = i89 + 1;
+
+        goto label30;
+
+     label35:
+        i88 = i88 + 1;
+
+        goto label29;
+
+     label36:
+        goto label37;
+
+     label37:
+        i93 = 0;
+
+     label38:
+        if i93 >= 100 goto label40;
+
+        i59 = r9[i93];
+
+        i60 = i59 * i59;
+
+        goto label39;
+
+     label39:
+        r9[i93] = i60;
+
+        i93 = i93 + 1;
+
+        goto label38;
+
+     label40:
+        i94 = 0;
+
+     label41:
+        if i94 >= 10 goto label48;
+
+        i64 = i94 * 100;
+
+        i95 = 0;
+
+     label42:
+        if i95 >= 1 goto label47;
+
+        i65 = i95 * 100;
+
+        r20 = newarray (int)[100];
+
+        i96 = 0;
+
+     label43:
+        if i96 >= 100 goto label44;
+
+        $i69 = i64 + i96;
+
+        $i72 = r4[$i69];
+
+        $i70 = i65 + i96;
+
+        $i71 = r9[$i70];
+
+        $i73 = $i72 * $i71;
+
+        r20[i96] = $i73;
+
+        i96 = i96 + 1;
+
+        goto label43;
+
+     label44:
+        i97 = r20[0];
+
+        i98 = 1;
+
+     label45:
+        if i98 >= 100 goto label46;
+
+        $i68 = r20[i98];
+
+        i97 = i97 + $i68;
+
+        i98 = i98 + 1;
+
+        goto label45;
+
+     label46:
+        $i66 = i94 * 1;
+
+        $i67 = $i66 + i95;
+
+        r5[$i67] = i97;
+
+        i95 = i95 + 1;
+
+        goto label42;
+
+     label47:
+        i94 = i94 + 1;
+
+        goto label41;
+
+     label48:
+        goto label49;
+
+     label49:
+        i99 = 0;
+
+     label50:
+        if i99 >= 10 goto label51;
+
+        $i1 = r5[i99];
+
+        interfaceinvoke r6.<MPCAnnotation: void OUT(int)>($i1);
+
+        i99 = i99 + 1;
+
+        goto label50;
+
+     label51:
+        return;
+    }
+
+    public static void <clinit>()
+    {
+        <P: int FINAL_OUTPUT_CHANNELS> = 10;
+
+        <P: int FULLY_CONNECTED_WIDTH> = 100;
+
+        <P: int SIZE_CONVOLUTION> = 169;
+
+        <P: int IMAGE_CROP> = 13;
+
+        <P: int OUTPUT_CHANNELS> = 5;
+
+        <P: int STRIDE> = 2;
+
+        <P: int WINDOW_WIDTH> = 5;
+
+        <P: int IMAGE_WIDTH> = 28;
+
+        return;
+    }
+}

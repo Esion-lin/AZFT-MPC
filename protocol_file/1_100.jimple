@@ -1,0 +1,22 @@
+i7 = interfaceinvoke r1.<MPCAnnotation: int IN()>();
+        int i0, i1;
+
+        r1 = staticinvoke <MPCAnnotationImpl: MPCAnnotation v()>();
+
+        i0 = i7;
+
+        i1 = 1;
+
+     label1:
+        if i1 > 100 goto label2;
+
+        i0 = i0 + i1;
+
+        i1 = i1 + 1;
+
+        goto label1;
+
+     label2:
+        interfaceinvoke r1.<MPCAnnotation: void OUT(int)>(i0);
+
+        return;

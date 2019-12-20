@@ -32,12 +32,13 @@ public:
 	//for test
 	int 			recv_port;
 	std::map<std::string, unsigned char[16]> data_dic;	
-
+	bool 	is_data_store = false;
+	bool	is_data_send = false;
 private:
 	truthtee 		*tru;
 	std::string		conn_host;
 	int 			conn_port;
-
+	
 	// socket port;
 	int 	listen_fd , conn_fd;
 	bool 	is_listen;

@@ -1,6 +1,6 @@
 #include "network.h"
 #include "protocol.h"
-#include "Merkle_Hash.h"
+
 bool debug_this = false;
 bool notify(){
 	printf("choose a operation:\n \t1.send encrypto msg\n \t2.run protocol\n \t3.other\n \t4.....\n");
@@ -288,7 +288,7 @@ int main(){
 	pthread_t   recv_tid;
     truthtee* tru = new truthtee();
     netTool* nettool = new netTool(tru);
-    PotocolRead* protocol = new PotocolRead("./protocol_file/org.jimple");
+    PotocolRead* protocol = new PotocolRead("./protocol_file/dot.jimple");
     printf("please input port to listen:\n");
     std::cin>>nettool->recv_port;
     if(pthread_create(&recv_tid , NULL , init_listen_static, (void *)nettool) == -1){
@@ -342,7 +342,7 @@ int main(){
 
                 }
     			send_data(nettool, enc_key, key_len, dir);
-                is_data_send = true;
+                nettool->is_data_send = true;
     			break;
     		case 2:
                 //test end  
@@ -351,7 +351,7 @@ int main(){
        //              continue;
        //          }
 
-                if(!is_data_store || !is_data_send){
+                if(!nettool->is_data_store || !nettool->is_data_send){
                     //sign data hash and send it
                     printf("before run protocol, plz send data or receive data");
                     break;

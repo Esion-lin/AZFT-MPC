@@ -1,0 +1,62 @@
+        MPCAnnotation r1;
+        int[] r2, r3;
+        int $i0, $i1, $i2, $i3, $i4, $i5, $i7, $i8, $i9, i10, i11;
+
+        r0 := @parameter0: java.lang.String[];
+
+        r1 = staticinvoke <MPCAnnotationImpl: MPCAnnotation v()>();
+
+        r2 = newarray (int)[3];
+
+        r3 = newarray (int)[3];
+
+        $i0 = interfaceinvoke r1.<MPCAnnotation: int IN()>();
+
+        r2[0] = $i0;
+
+        $i1 = interfaceinvoke r1.<MPCAnnotation: int IN()>();
+
+        r2[1] = $i1;
+
+        $i2 = interfaceinvoke r1.<MPCAnnotation: int IN()>();
+
+        r2[2] = $i2;
+
+        $i3 = interfaceinvoke r1.<MPCAnnotation: int IN()>();
+
+        r3[0] = $i3;
+
+        $i4 = interfaceinvoke r1.<MPCAnnotation: int IN()>();
+
+        r3[1] = $i4;
+
+        $i5 = interfaceinvoke r1.<MPCAnnotation: int IN()>();
+
+        r3[2] = $i5;
+
+        i10 = 0;
+
+        i11 = 0;
+
+     label1:
+        if i11 >= 3 goto label2;
+
+        $i8 = r2[i11];
+
+        $i7 = r3[i11];
+
+        $i9 = $i8 * $i7;
+
+        i10 = i10 + $i9;
+
+        i11 = i11 + 1;
+
+        goto label1;
+
+     label2:
+        goto label3;
+
+     label3:
+        interfaceinvoke r1.<MPCAnnotation: void OUT(int)>(i10);
+
+        return;

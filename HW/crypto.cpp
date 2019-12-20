@@ -3,8 +3,9 @@
 #include <algorithm>
 #include <cstdlib>
 #include <time.h>
+#include <unistd.h>
 bool test = false;
-//just for test
+//test, print public key content
 void test_pub(ECCPUBLICKEYBLOB pub_key){
 	printf("BitLen: %d\n",pub_key.BitLen);
 	for(int i = 0; i < ECC_MAX_XCOORDINATE_BITS_LEN/8; i++){
@@ -13,7 +14,7 @@ void test_pub(ECCPUBLICKEYBLOB pub_key){
 	std::cout<<std::endl;
 
 }
-//just for test
+//test, print private key content
 void test_pri(ECCPRIVATEKEYBLOB pri_key){
 	printf("BitLen: %d\n",pri_key.BitLen);
 	for(int i = 0; i < ECC_MAX_MODULUS_BITS_LEN/8; i++){
@@ -22,6 +23,7 @@ void test_pri(ECCPRIVATEKEYBLOB pri_key){
 	std::cout<<std::endl;
 
 }
+//test, print signature content
 void test_sign(ECCSIGNATUREBLOB sign){
 	printf("sign messsage is :\n");
 	for(int i = 0; i < ECC_MAX_XCOORDINATE_BITS_LEN/8; i++){
@@ -30,7 +32,10 @@ void test_sign(ECCSIGNATUREBLOB sign){
 	std::cout<<std::endl;
 
 }
-void sha256(const string str, unsigned char output[])
+/*
+when use Merkle tree to verify MAC, remain SHA, remove otherwise. 
+*/
+void sha256(const std::string str, unsigned char output[])
 {
     unsigned char hash[SHA256_DIGEST_LENGTH];
     SHA256_CTX sha256;
@@ -38,7 +43,7 @@ void sha256(const string str, unsigned char output[])
     SHA256_Update(&sha256, str.c_str(), str.size());
     SHA256_Final(output, &sha256);
 }
-string sha256(const string str)
+std::string sha256(const std::string str)
 {
 	char buf[2];
     unsigned char hash[SHA256_DIGEST_LENGTH];
@@ -46,7 +51,7 @@ string sha256(const string str)
     SHA256_Init(&sha256);
     SHA256_Update(&sha256, str.c_str(), str.size());
     SHA256_Final(hash, &sha256);
-    string str2 = "";
+    std::string str2 = "";
     for(int i = 0; i < SHA256_DIGEST_LENGTH; i++)
     {
         sprintf(buf,"%x",hash[i]);
@@ -62,12 +67,15 @@ void sha256(unsigned char input[], int len, unsigned char output[])
     SHA256_Update(&sha256, input, len);
     SHA256_Final(output, &sha256);
 }
+
 truthtee::truthtee(){
 	int ret = SG_GenKeyPair(SGD_SM2,&pub_key1,&pri_key1);
 	if (ret!=SAR_OK)
 	{
 		printf("init error\n");
 	}
+	usleep(200);
+	//sleep 200 ms for a new random seed
 	ret = SG_GenKeyPair(SGD_SM2,&pub_key2,&pri_key2);
 	if (ret!=SAR_OK)
 	{
@@ -282,8 +290,8 @@ void truthtee::operation(std::string label1, unsigned char tru_in1[],unsigned in
 		1. check label and data
 		2. check cmd
 	*/
-	string hash1 = sha256(label1 + to_string(op) + label2);
-	if(check_mac(hash1) != cmd_hash){
+	std::string hash1 = sha256(label1 + std::to_string(op) + label2);
+	if(check_mac(hash1, path_protocol) != cmd_hash){
 		printf("Illegal cmd\n");
 		return;
 	}
@@ -292,8 +300,8 @@ void truthtee::operation(std::string label1, unsigned char tru_in1[],unsigned in
 		sprintf(buf,"%x",tru_in1[i]);
         label1 = label1 + buf;
 	}
-	string hash2 = sha256(label1);
-	if(check_mac(hash2) != data_hash){
+	std::string hash2 = sha256(label1);
+	if(check_mac(hash2, path1) != data_hash){
 		printf("Illegal cmd\n");
 		return;
 	}
@@ -302,12 +310,12 @@ void truthtee::operation(std::string label1, unsigned char tru_in1[],unsigned in
         label2 = label2 + buf;
 	}
 	hash2 = sha256(label1);
-	if(check_mac(hash2) != data_hash){
+	if(check_mac(hash2, path2) != data_hash){
 		printf("Illegal cmd\n");
 		return;
 	}
 	//if MAC checked, run operation
-	operation(unsigned char tru_in1[],unsigned int in1_len, int swi_1, unsigned char tru_in2[],unsigned int in2_len, int swi_2, unsigned char tru_out[],unsigned int &out_len, int op);
+	operation(tru_in1, in1_len, swi_1, tru_in2, in2_len, swi_2, tru_out,out_len, op);
 
 }
 void truthtee::operation(unsigned char tru_in1[],unsigned int in1_len, int swi_1, unsigned char tru_in2[],unsigned int in2_len, int swi_2, unsigned char tru_out[],unsigned int &out_len, int op){

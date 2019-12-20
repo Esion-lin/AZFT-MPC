@@ -1,0 +1,125 @@
+public class P extends java.lang.Object
+{
+    static final int len;
+
+    public void <init>()
+    {
+        P r0;
+
+        r0 := @this: P;
+
+        specialinvoke r0.<java.lang.Object: void <init>()>();
+
+        return;
+    }
+
+    public static int mul(int[], int[])
+    {
+        int[] r0, r1;
+        int $i0, $i1, $i2, i3, i4;
+
+        r0 := @parameter0: int[];
+
+        r1 := @parameter1: int[];
+
+        i3 = 0;
+
+        i4 = 0;
+
+     label1:
+        if i4 >= 5 goto label2;
+
+        $i1 = r0[i4];
+
+        $i0 = r1[i4];
+
+        $i2 = $i1 * $i0;
+
+        i3 = i3 + $i2;
+
+        i4 = i4 + 1;
+
+        goto label1;
+
+     label2:
+        return i3;
+    }
+
+    public static void main(java.lang.String[])
+    {
+        java.lang.String[] r0;
+        MPCAnnotation r1;
+        int[] r2, r3;
+        int $i0, $i1, $i3, $i4, $i5, i6, i7, i8, i9;
+
+        r0 := @parameter0: java.lang.String[];
+
+        r1 = staticinvoke <MPCAnnotationImpl: MPCAnnotation v()>();
+
+        r2 = newarray (int)[5];
+
+        r3 = newarray (int)[5];
+
+        i6 = 0;
+
+     label1:
+        if i6 >= 5 goto label2;
+
+        $i1 = interfaceinvoke r1.<MPCAnnotation: int IN()>();
+
+        r2[i6] = $i1;
+
+        i6 = i6 + 1;
+
+        goto label1;
+
+     label2:
+        i7 = 0;
+
+     label3:
+        if i7 >= 5 goto label4;
+
+        $i0 = interfaceinvoke r1.<MPCAnnotation: int IN()>();
+
+        r3[i7] = $i0;
+
+        i7 = i7 + 1;
+
+        goto label3;
+
+     label4:
+        i8 = 0;
+
+        i9 = 0;
+
+     label5:
+        if i9 >= 5 goto label6;
+
+        $i4 = r2[i9];
+
+        $i3 = r3[i9];
+
+        $i5 = $i4 * $i3;
+
+        i8 = i8 + $i5;
+
+        i9 = i9 + 1;
+
+        goto label5;
+
+     label6:
+        goto label7;
+
+     label7:
+        interfaceinvoke r1.<MPCAnnotation: void OUT(int)>(i8);
+
+        return;
+    }
+
+    public static void <clinit>()
+    {
+        <P: int len> = 5;
+
+        return;
+    }
+}

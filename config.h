@@ -15,10 +15,3 @@
 #define data_sign_action 4
 #define is_debug true
 
-
-bool 	is_data_store = false;
-bool	is_data_send = false;
-//bool is_rec_pub = false;
-//bool is_sign = false;
-
-

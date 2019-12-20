@@ -33,7 +33,8 @@ int op_form(std::string op){
     }
 }
 //overwrite sha256 function
-void sha256(const string str, unsigned char output[])
+
+void merkleTree::sha256(const string str, unsigned char output[])
 {
     unsigned char hash[SHA256_DIGEST_LENGTH];
     SHA256_CTX sha256;
@@ -41,7 +42,7 @@ void sha256(const string str, unsigned char output[])
     SHA256_Update(&sha256, str.c_str(), str.size());
     SHA256_Final(output, &sha256);
 }
-string sha256(const string str)
+string merkleTree::sha256(const string str)
 {
 	char buf[2];
     unsigned char hash[SHA256_DIGEST_LENGTH];
@@ -57,7 +58,7 @@ string sha256(const string str)
     }
 	return str2;
 }
-void sha256(unsigned char input[], int len, unsigned char output[])
+void merkleTree::sha256(unsigned char input[], int len, unsigned char output[])
 {
     unsigned char hash[SHA256_DIGEST_LENGTH];
     SHA256_CTX sha256;
@@ -65,6 +66,7 @@ void sha256(unsigned char input[], int len, unsigned char output[])
     SHA256_Update(&sha256, input, len);
     SHA256_Final(output, &sha256);
 }
+
 void merkleTree::output_hash(unsigned char output[]){
 	for(int i = 0; i < SHA256_DIGEST_LENGTH; i++){
 		output[i] = out_hash[i];

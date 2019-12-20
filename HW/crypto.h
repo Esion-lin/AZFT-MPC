@@ -3,6 +3,8 @@
 #include <memory.h>
 #include <time.h>
 #include <vector>
+#include <string>
+#include <openssl/sha.h>
 #include <stdint.h>
 #include "SG_API.h"
 //Binary
@@ -39,32 +41,56 @@
 #define cipher_len 16
 #define sym_key_len 128
 class truthtee{
+
 public:
 	truthtee();
 	~truthtee();
+
+	//public key for data encrytion(send to other party) 
 	ECCPUBLICKEYBLOB 	pub_key1;
+	//public key for key signature(send to other party) 
 	ECCPUBLICKEYBLOB 	pub_key2;
+	
+	//remote public key(use this key to encrypt data sent)
 	ECCPUBLICKEYBLOB 	remote_pub_key1;
+	//remote public key2(use this key to sign both public keys used to encrypt the data)
 	ECCPUBLICKEYBLOB 	remote_pub_key2;	
 
 	//generate key stream, store in serial[]
 	void query_pub_stream(unsigned char t_out[]);
+	//without verification(will moved to private function)
 	void operation(unsigned char tru_in1[],unsigned int in1_len, int swi_1, unsigned char tru_in2[],unsigned int in2_len, int swi_2, unsigned char tru_out[],unsigned int &out_len, int op);
+	//use merkle tree to verify commend integrity
 	void operation(std::string label1, unsigned char tru_in1[],unsigned int in1_len, int swi_1, std::vector<std::string>path1, std::string label2, unsigned char tru_in2[],unsigned int in2_len, int swi_2, std::vector<std::string>path2, unsigned char tru_out[],unsigned int &out_len, int op, std::vector<std::string>path_protocol);
+	//verify MAC with count and verify data integrity with MAC
+	void operation(std::string label1, unsigned char tru_in1[],unsigned int in1_len, int swi_1, std::string label2, unsigned char tru_in2[],unsigned int in2_len, int swi_2, unsigned char tru_out[],unsigned int &out_len, int op)
+	//just for test
 	int test_and_op(unsigned char tru_out[], int &out_len);
+	/*
+	thinks to hybrid encryption
+	encrypt symmetric key with encrypto_key(), encrypt data with encrypto()
+	*/
 	void encrypto_key(unsigned char tru_key_out[],unsigned int &key_len_out);
 	void encrypto(unsigned char tru_in[], unsigned int len, unsigned char tru_data_out[],unsigned int &data_len_out);
+	//pair-wise, corresponding decryption function
 	void decrypto_key(unsigned char tru_key_in[],unsigned int key_in_len);
 	void decrypto(unsigned char tru_data_in[],unsigned int data_in_len, unsigned char tru_out[],unsigned int &out_len);
-	void ch_data(unsigned char tru_in[]);
+	//just for test
+	void test_ch_data(unsigned char tru_in[]);
 	//sign operation
 	void sign_key(unsigned char tru_out[]);
 	//verify key using remote_key
 	bool sign_verify(unsigned char tru_in[]);
-
+	/*
+	Since only binary stream available, need decode from stream
+	*/
 	//from stream decode keys
 	void stream_to_key(unsigned char tru_in[]);
 private:
+
+	/*
+	there are some temporary functions
+	*/
 	void gen_sym_key();
 	void transfer_data(unsigned char tru_in[],unsigned int in_len, unsigned char tru_out[],unsigned int &out_len, bool tr, int signal);
 	void to_ll(unsigned char input[], uint64_t &output);
@@ -72,7 +98,7 @@ private:
 	void serialize(ECCPUBLICKEYBLOB pu_key, unsigned char tru_out[]);
 	void serialize_signature(ECCSIGNATUREBLOB sign, unsigned char tru_out[]);
 	void query_signature(unsigned char tru_out[], bool verify);
-	bool check_mac(std::string hash, std::vector<std::string>hash_table);
+	std::string check_mac(std::string hash, std::vector<std::string>hash_table);
 	std::string cmd_hash;
 	std::string data_hash;
 	ECCSIGNATUREBLOB deserialize_signature(unsigned char tru_in[]);

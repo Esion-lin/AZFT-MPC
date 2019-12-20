@@ -2,6 +2,7 @@
 #include "protocol.h"
 using namespace std;
 bool pro_test = false;
+
 string middle(string str){
 	if(str.find("[") != str.npos)
 		return str.substr(0,str.find("["));

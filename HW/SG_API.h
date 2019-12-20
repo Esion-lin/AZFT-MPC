@@ -105,7 +105,7 @@ int SG_SM2Verify(unsigned char flag,
 		unsigned char *pDataIn,
 		unsigned int pDataInLen,
 		PECCSIGNATUREBLOB pSignature);
-
+int SG_Hmac(unsigned int algorithm ,unsigned char *pKey,unsigned int pKeyLen,unsigned char *pDataIn,unsigned int pDataInLen,unsigned char *pDataOut,unsigned int* pDataOutLen);
 int SG_Digest(ECCPUBLICKEYBLOB *pECCPubKeyBlob,unsigned char *pID,unsigned int pIDLen,unsigned char *pDataIn,unsigned int pDataInLen,unsigned char *pDataOut,unsigned int* pDataOutLen);
 
  int WhiteBoxInit(char *filename);

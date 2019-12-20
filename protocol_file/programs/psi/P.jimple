@@ -1,0 +1,168 @@
+public class P extends java.lang.Object
+{
+    static final int SIZE1;
+    static final int SIZE2;
+
+    public void <init>()
+    {
+        P r0;
+
+        r0 := @this: P;
+
+        specialinvoke r0.<java.lang.Object: void <init>()>();
+
+        return;
+    }
+
+    public static int contains(int[], int, int)
+    {
+        int[] r0;
+        int i0, i1, $i2, i4;
+        byte b3;
+
+        r0 := @parameter0: int[];
+
+        i0 := @parameter1: int;
+
+        i1 := @parameter2: int;
+
+        b3 = 0;
+
+        i4 = 0;
+
+     label1:
+        if i4 >= i1 goto label4;
+
+        $i2 = r0[i4];
+
+        if $i2 != i0 goto label2;
+
+        b3 = 1;
+
+        goto label3;
+
+     label2:
+        b3 = 0;
+
+     label3:
+        i4 = i4 + 1;
+
+        goto label1;
+
+     label4:
+        return b3;
+    }
+
+    public static void main(java.lang.String[])
+    {
+        java.lang.String[] r0;
+        MPCAnnotation r1;
+        int[] r2, r3, r4;
+        int $i1, $i2, $i3, i4, $i6, i7, i8, i9, i11, i12;
+        byte b10;
+
+        r0 := @parameter0: java.lang.String[];
+
+        r1 = staticinvoke <MPCAnnotationImpl: MPCAnnotation v()>();
+
+        r2 = newarray (int)[32];
+
+        i7 = 0;
+
+     label01:
+        if i7 >= 32 goto label02;
+
+        $i3 = interfaceinvoke r1.<MPCAnnotation: int IN()>();
+
+        r2[i7] = $i3;
+
+        i7 = i7 + 1;
+
+        goto label01;
+
+     label02:
+        r3 = newarray (int)[1024];
+
+        i8 = 0;
+
+     label03:
+        if i8 >= 1024 goto label04;
+
+        $i2 = interfaceinvoke r1.<MPCAnnotation: int IN()>();
+
+        r3[i8] = $i2;
+
+        i8 = i8 + 1;
+
+        goto label03;
+
+     label04:
+        r4 = newarray (int)[32];
+
+        i9 = 0;
+
+     label05:
+        if i9 >= 32 goto label11;
+
+        i4 = r2[i9];
+
+        b10 = 0;
+
+        i11 = 0;
+
+     label06:
+        if i11 >= 1024 goto label09;
+
+        $i6 = r3[i11];
+
+        if $i6 != i4 goto label07;
+
+        b10 = 1;
+
+        goto label08;
+
+     label07:
+        b10 = 0;
+
+     label08:
+        i11 = i11 + 1;
+
+        goto label06;
+
+     label09:
+        goto label10;
+
+     label10:
+        r4[i9] = b10;
+
+        i9 = i9 + 1;
+
+        goto label05;
+
+     label11:
+        i12 = 0;
+
+     label12:
+        if i12 >= 32 goto label13;
+
+        $i1 = r4[i12];
+
+        interfaceinvoke r1.<MPCAnnotation: void OUT(int)>($i1);
+
+        i12 = i12 + 1;
+
+        goto label12;
+
+     label13:
+        return;
+    }
+
+    public static void <clinit>()
+    {
+        <P: int SIZE2> = 1024;
+
+        <P: int SIZE1> = 32;
+
+        return;
+    }
+}
