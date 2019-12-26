@@ -1,3 +1,5 @@
+// Auther: Tainpei Lu
+// Creation: 11/02 2019 
 #include "network.h"
 void to_byte16(uint64_t org, unsigned char output[]){
     for(int i = 0; i < 8; i++){

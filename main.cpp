@@ -1,3 +1,5 @@
+// Auther: Tainpei Lu
+// Creation: 11/02 2019 
 #include "network.h"
 #include "protocol.h"
 
@@ -305,8 +307,10 @@ int main(){
     send_pub_key(tru, nettool);
     /*
     from protocol make MerkleTree
+    or use counter + MAC
     and exchange it
     */
+
     //load protocol
     std::map<std::string, unsigned char[16]> remote_dir;
     std::map<std::string, int> org_dic;
@@ -362,6 +366,7 @@ int main(){
                 local_dir = dir;
                 to_byte16(0,msg);
                 for(auto &v : remote_dir){
+                    //tran all data to local
                     tru->operation(v.second, 16, SWI_REM, msg, 16, SWI_PLA, local_dir[v.first], data_len, ADD_OP);
                 }
                 data_merkle_tree = new merkleTree(local_dir);

@@ -1,13 +1,16 @@
+// Auther: Tainpei Lu
+// Creation: 11/02 2019 
 //protocol.cpp
 #include "protocol.h"
 using namespace std;
 bool pro_test = false;
-
+//deal with array, split array name
 string middle(string str){
 	if(str.find("[") != str.npos)
 		return str.substr(0,str.find("["));
 	return str;
 }
+//deal with array, split array index
 string index(string str){
 	if(str.find("[") != str.npos)
 		return str.substr(str.find("[")+1, str.find("]") - str.find("[")-1);
@@ -138,6 +141,7 @@ void PotocolRead::Reader(std::string file_path){
 }
 
 void PotocolRead::transfer(){
+    //remove the branch statement which contain cipher text
 	int ch = 0;
 
 	while(true){

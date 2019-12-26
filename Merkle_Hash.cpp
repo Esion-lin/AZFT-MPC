@@ -1,3 +1,5 @@
+// Auther: Tainpei Lu
+// Creation: 11/02 2019 
 #include "Merkle_Hash.h"
 #include "HW/crypto.h"
 using namespace std;

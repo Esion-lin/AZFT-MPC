@@ -1,3 +1,5 @@
+// Auther: Tainpei Lu
+// Creation: 11/02 2019 
 #include "crypto.h"
 #include <iostream>
 #include <algorithm>
@@ -33,7 +35,7 @@ void test_sign(ECCSIGNATUREBLOB sign){
 
 }
 /*
-when use Merkle tree to verify MAC, remain SHA, remove otherwise. 
+Remian it when use Merkle tree to verify MAC, otherwise, remove it. 
 */
 void sha256(const std::string str, unsigned char output[])
 {
@@ -81,12 +83,12 @@ truthtee::truthtee(){
 	{
 		printf("init error\n");
 	}
-	gen_sym_key();
+	gen_sym_key(sym_key_keep, sym_key_len/8);
 }
-void truthtee::gen_sym_key(){
+void truthtee::gen_sym_key(unsigned char tru_out[], unsigned int key_len){
 	srand((unsigned)time(NULL));
-	for(int i = 0; i < sym_key_len/8; i++){
-		sym_key_keep[i] = rand()%256;
+	for(int i = 0; i < key_len; i++){
+		tru_out[i] = rand()%256;
 	}
 }
 void truthtee::serialize(ECCPUBLICKEYBLOB pu_key, unsigned char tru_out[]){
@@ -123,8 +125,8 @@ ECCSIGNATUREBLOB truthtee::deserialize_signature(unsigned char tru_in[]){
 	return sign;
 }
 void truthtee::query_pub_stream(unsigned char tru_out[]){
-	unsigned char 		a[ECC_MAX_XCOORDINATE_BITS_LEN/4];
-	unsigned char 		b[ECC_MAX_XCOORDINATE_BITS_LEN/4];
+	unsigned char 	a[ECC_MAX_XCOORDINATE_BITS_LEN/4];
+	unsigned char 	b[ECC_MAX_XCOORDINATE_BITS_LEN/4];
 	serialize(pub_key1,a);
 	serialize(pub_key2,b);
 	if(test){
@@ -139,8 +141,10 @@ void truthtee::query_pub_stream(unsigned char tru_out[]){
 
 }
 void truthtee::query_signature(unsigned char tru_out[], bool verify){
-	unsigned char 		a[ECC_MAX_XCOORDINATE_BITS_LEN/4];
+	unsigned char 	a[ECC_MAX_XCOORDINATE_BITS_LEN/4];
+	unsigned char 	b[ECC_MAX_XCOORDINATE_BITS_LEN/4];
 	serialize(pub_key1,a);
+	serialize(remote_pub_key1,b);
 	if(test){
 				
 	}
@@ -148,9 +152,9 @@ void truthtee::query_signature(unsigned char tru_out[], bool verify){
 	for(int i = 0; i < ECC_MAX_XCOORDINATE_BITS_LEN/4; i ++){
 		if(!verify){
 			tru_out[ptr++] = a[i];
-			tru_out[ptr++] = remote_a[i];
+			tru_out[ptr++] = b[i];
 		}else{
-			tru_out[ptr++] = remote_a[i];
+			tru_out[ptr++] = b[i];
 			tru_out[ptr++] = a[i];
 		}
 		
@@ -158,6 +162,8 @@ void truthtee::query_signature(unsigned char tru_out[], bool verify){
 }
 void truthtee::stream_to_key(unsigned char tru_in[]){
 	int ptr = 0;
+	unsigned char 	remote_a[ECC_MAX_XCOORDINATE_BITS_LEN/4];
+	unsigned char 	remote_b[ECC_MAX_XCOORDINATE_BITS_LEN/4];
 	for(int i = 0; i < ECC_MAX_XCOORDINATE_BITS_LEN/4; i ++){
 		remote_a[i] = tru_in[ptr++];
 		remote_b[i] = tru_in[ptr++];
@@ -184,16 +190,14 @@ void truthtee::encrypto(unsigned char tru_in[],unsigned int len, unsigned char t
 	}
 
 }
-void truthtee::encrypt_MAC(std::string label, unsigned char tru_in[], unsigned int len, unsigned char tru_data_out[],unsigned int &data_len_out, unsigned int tru_mac_out[], unsigned int &mac_len_out){
-	int over_all_len = label.length() + len;
-	//to make sure that label is not longer then 34
-	unsigned char over_all[50];
-	memcpy(over_all, tru_in, len);
-	for(int i = len; i < over_all_len; i++) {
-		over_all[i] = label[i-len];
-	}
+void truthtee::encrypt_MAC(unsigned char label[], unsigned char tru_in[], unsigned int len, unsigned char tru_data_out[],unsigned int &data_len_out, unsigned char tru_mac_out[], unsigned int &mac_len_out){
+	//fixed label length :17 Bytes
+	//For security, firstly, encrypt plaintext, then caculate the label and ciphertext MAC, 
 	encrypto(tru_in,len,tru_data_out,data_len_out);
-	SG_Hmac(SGD_SM3, sym_key_keep, sym_key_len/8, over_all, 50, tru_mac_out, mac_len_out);
+	unsigned char over_all[50];
+	memcpy(over_all, tru_data_out, data_len_out);
+	memcpy(over_all + len, label, label_len);
+	SG_Hmac(SGD_SM3 , sym_key_keep, sym_key_len/8, over_all, 50, tru_mac_out, &mac_len_out);
 
 }
 void truthtee::decrypto_key(unsigned char tru_key_in[],unsigned int key_in_len){
@@ -277,7 +281,7 @@ bool truthtee::sign_verify(unsigned char tru_in[]){
 		test_sign(remote_sig);
 	}
 	unsigned char allover_public_key[ECC_MAX_XCOORDINATE_BITS_LEN/2];
-	query_signature(allover_public_key, false);
+	query_signature(allover_public_key, true);
 	if(SG_SM2Verify(1,&remote_pub_key2,NULL,0,allover_public_key,ECC_MAX_XCOORDINATE_BITS_LEN/2,&remote_sig) != SAR_OK){
 		perror("verify signature error\n");
 	}else{
@@ -286,6 +290,23 @@ bool truthtee::sign_verify(unsigned char tru_in[]){
 	}
 	return false;
 
+}
+void truthtee::sign_cmd(unsigned char label1[], unsigned char label2[], unsigned int op, unsigned char tru_out[], unsigned int &data_len_out){
+	cmd_counter ++;
+	unsigned char over_all[50];
+	over_all[0] = cmd_counter%256;
+	over_all[1] = cmd_counter/256;
+	memcpy(over_all + 2, label1, label_len);
+	over_all[label_len+2] = op;
+	memcpy(over_all + label_len+3, label2, label_len);
+	SG_Hmac(SGD_SM3 , sym_key_keep, sym_key_len/8, over_all, 2*label_len+3, tru_out, &data_len_out);
+}
+void truthtee::sign_cmd_without_counter(unsigned char label1[], unsigned char label2[], unsigned int op, unsigned char tru_out[], unsigned int &data_len_out){
+	unsigned char over_all[50];
+	memcpy(over_all, label1, label_len);
+	over_all[label_len] = op;
+	memcpy(over_all + label_len+1, label2, label_len);
+	SG_Hmac(SGD_SM3 , sym_key_keep, sym_key_len/8, over_all, 2*label_len+1, tru_out, &data_len_out);
 }
 std::string truthtee::check_mac(std::string hash, std::vector<std::string>hash_table){
 	/*
@@ -296,9 +317,24 @@ std::string truthtee::check_mac(std::string hash, std::vector<std::string>hash_t
  		ans_hash = sha256(ans_hash + hash_table[i]);
 	}
 }
+bool truthtee::mac_verification(unsigned char text[], unsigned int text_len, unsigned char mac[], unsigned int mac_len){
+	//call SG_Hmac API for mac check
+	unsigned char mac_out[50];
+	unsigned int mac_len_out;
+	SG_Hmac(SGD_SM3 , sym_key_keep, sym_key_len/8, text, text_len, mac_out, &mac_len_out);
+	if(mac_len != mac_len_out){
+		return false;
+	}else{
+		for(int i = 0; i < mac_len; i++){
+			if(mac_out[i] != mac[i])
+				return false;
+		}
+	}
+	return true;
+}
 void truthtee::operation(std::string label1, unsigned char tru_in1[],unsigned int in1_len, int swi_1, std::vector<std::string>path1, std::string label2, unsigned char tru_in2[],unsigned int in2_len, int swi_2, std::vector<std::string>path2, unsigned char tru_out[],unsigned int &out_len, int op, std::vector<std::string>path_protocol){
 	/*
-	check MAC:
+	check MAC with Merkle Tree:
 		1. check label and data
 		2. check cmd
 	*/
@@ -330,6 +366,56 @@ void truthtee::operation(std::string label1, unsigned char tru_in1[],unsigned in
 	operation(tru_in1, in1_len, swi_1, tru_in2, in2_len, swi_2, tru_out,out_len, op);
 
 }
+void truthtee::operation(unsigned char label1[], unsigned char tru_in1[],unsigned int in1_len, int swi_1, unsigned char mac1[], unsigned int mac1_len, unsigned char label2[], unsigned char tru_in2[],unsigned int in2_len, int swi_2, unsigned char mac2[], unsigned int mac2_len, unsigned char tru_out[],unsigned int &out_len, unsigned char mac_op[], unsigned int macop_len, int op){
+	/*
+	check MAC:
+		1. check label and data
+		2. check cmd
+	*/
+	//check cmd
+	//fixed length label :17 Bytes
+	cmd_counter ++;
+	unsigned char over_all[50];
+	unsigned int over_all_len;
+	if(is_check_counter){
+		over_all[0] = cmd_counter%256;
+		over_all[1] = cmd_counter/256;
+		memcpy(over_all + 2, label1, label_len);
+		over_all[label_len+2] = op;
+		memcpy(over_all + label_len+3, label2, label_len);
+		over_all_len = 2*label_len+3;
+	}else{
+		memcpy(over_all, label1, label_len);
+		over_all[label_len] = op;
+		memcpy(over_all + label_len+1, label2, label_len);
+		over_all_len = 2*label_len+1;
+	}
+	
+	if(!mac_verification(over_all, over_all_len, mac_op, macop_len)){
+		printf("Illegal cmd\n");
+		return;
+	}
+	//check data
+	unsigned char check[50];
+	memcpy(check, tru_in1, in1_len);
+	memcpy(check + in1_len, label1, label_len);
+	if(!mac_verification(check, in1_len + label_len, mac1, mac1_len)){
+		printf("Illegal cmd\n");
+		return;
+	}
+	memcpy(check, tru_in2, in2_len);
+	memcpy(check + in2_len, label2, label_len);
+	if(!mac_verification(check, in1_len + label_len, mac2, mac2_len)){
+		printf("Illegal cmd\n");
+		return;
+	}
+	//if MAC checked, run operation
+	operation(tru_in1, in1_len, swi_1, tru_in2, in2_len, swi_2, tru_out,out_len, op);
+	
+
+
+
+}
 void truthtee::operation(unsigned char tru_in1[],unsigned int in1_len, int swi_1, unsigned char tru_in2[],unsigned int in2_len, int swi_2, unsigned char tru_out[],unsigned int &out_len, int op){
 	unsigned char d1[0x100];
 	unsigned int d1_len;
@@ -356,7 +442,7 @@ void truthtee::operation(unsigned char tru_in1[],unsigned int in1_len, int swi_1
 	}else{
 		printf("Illegal swi \n");
 	}
-	//turn to Int
+	//Convert to Int
 	uint64_t ud1 = 0;
 	uint64_t ud2 = 0;
 	uint64_t uan = 0;
@@ -418,7 +504,7 @@ void truthtee::operation(unsigned char tru_in1[],unsigned int in1_len, int swi_1
 		std::cout<<ud1<<" "<<op<<" "<<ud2<<" "<<uan<<std::endl;
 	to_byte16(uan,ans);
 	/*
-	//Do not turn to Int
+	//Do not convert to Int
 	int len = std::min(d1_len,d2_len);
 	unsigned int carry = 0; 
 	for(int i = len-1; i >= 0; i--){

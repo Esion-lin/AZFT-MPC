@@ -1,3 +1,5 @@
+// Auther: Tainpei Lu
+// Creation: 11/02 2019 
 #include "tool.h"
 
 Json::Value stream2json(unsigned char stream[]){

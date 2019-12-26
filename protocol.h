@@ -1,3 +1,5 @@
+// Auther: Tainpei Lu
+// Creation: 11/02 2019 
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -29,42 +31,15 @@
 
 #define OUTPUT 100
 /*
-1.o = number
-{
-	false,
-	"number",
-	"",
-	"o",
-	""
-}
-2.o = n1 op n2
-{
-	false,
-	"n1",
-	"n2",
-	"o",
-	"op"
-}
-3 if n1 op n2 goto o
-{
-	true,
-	"n1",
-	"n2",
-	"o",
-	"op"
-}
-3. goto o
-{
-	true,
-	"",
-	"",
-	"o",
-	""
-}
+	This page is for dealing with protocol
+	Input a file which written with the protocol code
+	Scan the code line by line and convert each instruction to "truple" structure
+	For convenience this function need tell whither the instruction is plain(no cipertext need)
+	And this class also do simplified and analysis of instructions
 */
 
 
-//MerkleHash function
+
 
 class PotocolRead{
 	public:
@@ -78,15 +53,16 @@ class PotocolRead{
 		void clear_iteam();
 		merkleTree *cmd_merkle_tree;
 	private:
-		//this function is desigened for Conversion of data independence
+		//this function is desigened for conversion of data independence
 		void transfer();
 		std::string arr2item(std::string str); 
 		std::vector<std::string> output;
 		std::vector<truple> cmd;
 
 		/*
+		dic_var record whether the variable is ciphertext or not
 		0:plaintext
-		1:cyphertext
+		1:ciphertext
 		*/
 		std::map<std::string, int> dic_var;
 };
