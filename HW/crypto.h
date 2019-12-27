@@ -83,6 +83,8 @@ public:
 	void encrypto(unsigned char tru_in[], unsigned int len, unsigned char tru_data_out[],unsigned int &data_len_out);
 	//using AE instead Encryption
 	void encrypt_MAC(unsigned char label[], unsigned char tru_in[], unsigned int len, unsigned char tru_data_out[],unsigned int &data_len_out, unsigned char tru_mac_out[], unsigned int &mac_len_out);
+	//using AE check data and transform data
+	bool verify_data(unsigned char label[], unsigned char tru_in[], unsigned int len, unsigned char mac_in[], unsigned int mac_len, unsigned char tru_data_out[], unsigned int &data_len_out, unsigned char tru_mac_out[], unsigned int &mac_len_out);
 	//pair-wise, corresponding decryption function
 	void decrypto_key(unsigned char tru_key_in[],unsigned int key_in_len);
 	void decrypto(unsigned char tru_data_in[],unsigned int data_in_len, unsigned char tru_out[],unsigned int &out_len);
@@ -150,8 +152,8 @@ private:
 	ECCSIGNATUREBLOB	remote_sig;
 	unsigned char sym_key_keep[sym_key_len/8];
 	unsigned char sym_key_remote[sym_key_len/8];
-	bool key_ex_suc;
-	bool key_verify_suc;
+	bool key_ex_suc = false;
+	bool key_verify_suc = false;
 	//middle variable
 	bool is_check_counter = false;
 	unsigned char		dataA[0x100];

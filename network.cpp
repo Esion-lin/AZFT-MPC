@@ -65,6 +65,8 @@ void netTool::deal_data(Json::Value value){
             */
             break;
         case sign_action:
+            data = value["data"];
+            accept_sign(data);
             break;
         case data_action:
             key_part = value["key"];
@@ -103,6 +105,16 @@ void netTool::accept_key(Json::Value value){
         data[i] = value[i].asUInt();
     }
     tru->stream_to_key(data);
+    is_key_store = true;
+
+}
+void netTool::accept_sign(Json::Value value){
+    unsigned char data[value.size()];
+    for(int i = 0; i < value.size(); i++){
+        data[i] = value[i].asUInt();
+    }
+    is_key_verify = tru->sign_verify(data);
+    
 }
 void netTool::set_host_port(std::string host,int port){
     this->conn_host = host;

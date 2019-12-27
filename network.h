@@ -36,6 +36,8 @@ public:
 	std::map<std::string, unsigned char[16]> data_dic;	
 	bool 	is_data_store = false;
 	bool	is_data_send = false;
+	bool	is_key_store = false;
+	bool	is_key_verify = false;
 private:
 	truthtee 		*tru;
 	std::string		conn_host;
@@ -50,7 +52,7 @@ private:
 	struct 		sockaddr_in remote_server_sockaddr;
 	void 	accept_key(Json::Value value);
 	void 	accept_data(Json::Value key_paty, Json::Value data_part);
-
+	void 	accept_sign(Json::Value value);
 };
 void *init_listen_static(void *tmp);
 void to_byte16(uint64_t org, unsigned char output[]);

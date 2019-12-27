@@ -305,6 +305,14 @@ int main(){
     std::cin>>port;
     nettool->set_host_port(host,port);
     send_pub_key(tru, nettool);
+    printf("Key exchanging......\n");
+    while(!nettool->is_key_store){};
+    printf("Key exchanging successfully.\n");
+    /*sign the public key*/
+    sign_key(tru,nettool);
+    printf("Key verifing.......\n");
+    while(!nettool->is_key_verify){};
+    printf("Key verify successfully.\n");
     /*
     from protocol make MerkleTree
     or use counter + MAC
@@ -417,6 +425,7 @@ int main(){
 
                 }
                 send_data(nettool, enc_key, key_len, dir);
+                nettool->is_data_send = true;
     			break;
     		case 4:
     			exit(1);

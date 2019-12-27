@@ -175,7 +175,7 @@ void truthtee::stream_to_key(unsigned char tru_in[]){
 		test_pub(remote_pub_key1);
 		test_pub(remote_pub_key2);	
 	}
-	
+	key_ex_suc = true;
 }
 void truthtee::encrypto_key(unsigned char tru_key_out[],unsigned int &key_len_out){
 	if(SG_SM2Enc(&remote_pub_key1,sym_key_keep,sym_key_len/8,tru_key_out,&key_len_out) != SAR_OK){
@@ -195,10 +195,24 @@ void truthtee::encrypt_MAC(unsigned char label[], unsigned char tru_in[], unsign
 	//For security, firstly, encrypt plaintext, then caculate the label and ciphertext MAC, 
 	encrypto(tru_in,len,tru_data_out,data_len_out);
 	unsigned char over_all[50];
-	memcpy(over_all, tru_data_out, data_len_out);
-	memcpy(over_all + len, label, label_len);
+	memcpy(over_all, label, label_len);
+	memcpy(over_all + label_len, tru_data_out, data_len_out);
+	
 	SG_Hmac(SGD_SM3 , sym_key_keep, sym_key_len/8, over_all, 50, tru_mac_out, &mac_len_out);
 
+}
+bool truthtee::verify_data(unsigned char label[], unsigned char tru_in[], unsigned int len, unsigned char mac_in[], unsigned int mac_len, unsigned char tru_data_out[], unsigned int &data_len_out, unsigned char tru_mac_out[], unsigned int &mac_len_out){
+	unsigned char over_all[50];
+	memcpy(over_all, label, label_len);
+	memcpy(over_all + label_len, tru_in, len);
+	unsigned char d1[0x100];
+	unsigned int d1_len;
+	if(mac_verification(over_all, label_len + len, mac_in, mac_len)){
+		transfer_data(tru_in,len, d1, d1_len, DECRYPTO, remote_key);
+		encrypt_MAC(label, d1, d1_len, tru_data_out, data_len_out, tru_mac_out, mac_len_out);
+		return true;
+	}
+	return false;	
 }
 void truthtee::decrypto_key(unsigned char tru_key_in[],unsigned int key_in_len){
 	unsigned int key_check = 0;
@@ -417,6 +431,11 @@ void truthtee::operation(unsigned char label1[], unsigned char tru_in1[],unsigne
 
 }
 void truthtee::operation(unsigned char tru_in1[],unsigned int in1_len, int swi_1, unsigned char tru_in2[],unsigned int in2_len, int swi_2, unsigned char tru_out[],unsigned int &out_len, int op){
+	
+	if(!key_ex_suc || !key_verify_suc){ 
+		printf("plz do key exchange and verify firstly");
+		return;
+	}
 	unsigned char d1[0x100];
 	unsigned int d1_len;
 	unsigned char d2[0x100];
