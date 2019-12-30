@@ -2,7 +2,7 @@
 // Creation: 11/02 2019 
 #include "network.h"
 #include "protocol.h"
-
+#include "tool.h"
 bool debug_this = false;
 bool notify(){
 	printf("choose a operation:\n \t1.send encrypto msg\n \t2.run protocol\n \t3.other\n \t4.....\n");
@@ -27,16 +27,33 @@ void sign_key(void *tmp,void *tmp2){
 	send_json(sign_action, data, ECC_MAX_XCOORDINATE_BITS_LEN/4, tmp2);
     
 }
+void send_cmd_mac(void *tmp, std::vector<unsigned char[MAC_LEN]> data){
+    netTool* nettool = (netTool*) tmp;
+    Json::Value  json;
+    Json::Value  jdata;
+    for(int i = 0; i < data.size(); i++){
+        Json::Value mid;
+        for(int i = 0; i < MAC_LEN; i++){
+            mid[i] = data[i];
+        }
+        jdata[i] = mid;
+    }
+    json["action"] = Json::Value(cmd_mac_action);
+    json["data"] = jdata;
+    nettool->send_data(json);
+}
+
 void send_pub_key(void *tmp,void *tmp2){
 	truthtee* tru = (truthtee*) tmp;
 	unsigned char data[ECC_MAX_XCOORDINATE_BITS_LEN/2];
     tru->query_pub_stream(data);
 	send_json(key_ex_action, data, ECC_MAX_XCOORDINATE_BITS_LEN/2, tmp2);
 }
-void send_data(void *tmp, unsigned char key_data[], int key_len, std::map<std::string, unsigned char[16]> dir){
+void send_data(void *tmp, unsigned char key_data[], int key_len, std::map<std::string, unsigned char[CIPHER_LEN]> dir, std::map<std::string, unsigned char[MAC_LEN]> dir_mac){
 	Json::Value  json;
     Json::Value  jdata;
     Json::Value  jkey;
+    Json::Value  jmac;
 	netTool* nettool = (netTool*) tmp;
 	json["action"] = data_action;
 	for(int i = 0; i < key_len; i++){
@@ -53,12 +70,26 @@ void send_data(void *tmp, unsigned char key_data[], int key_len, std::map<std::s
         jdata[v.first] = mid;
 
     }
+    uint mac_arr[8];
+    for(auto &v : dir_mac){
+        to_int(v.second,MAC_LEN,mac_arr);
+        Json::Value mid;
+        for(int i = 0; i < MAC_LEN/4; i++){
+            mid[i] = mac_arr[i];
+        }
+        jmac[v.first] = mid;
+    }
 
     json["key"] =  jkey;
     json["data"] = jdata;
+    json["mac"] = jmac;
 
     nettool->send_data(json);
 }
+/*
+//This function is designed for conversion of array index items
+    Because array index needs to be guaranteed to be plaintext, search from plaintext dictionary(org_dir)
+*/
 std::string get_item(std::map<std::string,int> dic, std::string str){
     if(str.find("[") == str.npos){
         return str;
@@ -79,72 +110,7 @@ std::string get_item(std::map<std::string,int> dic, std::string str){
 
     }
 }
-int tran_op(std::string op){
-    if(op == ">>>" || op == ">>"){
-        return SHF_RI;
-    }else if(op == "<<<" || op == "<<"){
-        return SHF_LE;
-    }else if(op == "&"){
-        return AND_OP;
-    }else if(op == "|"){
-        return OR_OP;
-    }else if(op == "+"){
-        return ADD_OP;
-    }else if(op == "-"){
-        return SUB_OP;
-    }else if(op == "*"){
-        return MUL_OP;
-    }else if(op == "/"){
-        return DIV_OP;
-    }else if(op == "xor"){
-        return NAND_OP;
-    }else if(op == ">"){
-        return GREAT_OP;
-    }else if(op == ">="){
-        return GE_OP;
-    }else if(op == "<"){
-        return LESS_OP;
-    }else if(op == ">="){
-        return LE_OP;
-    }else if(op == "=="){
-        return EQ_OP;
-    }
-}
-int tran_op(int a, int b, std::string op){
-    int ans;
-    if(op == ">>>" || op == ">>"){
-        ans = a >> b;
-    }else if(op == "<<<" || op == "<<"){
-        ans = a << b;
-    }else if(op == "&"){
-        ans = a & b;
-    }else if(op == "|"){
-        ans = a | b;
-    }else if(op == "+"){
-        ans = a + b;
-    }else if(op == "-"){
-        ans = a - b;
-    }else if(op == "*"){
-        ans = a * b;
-    }else if(op == "/"){
-        ans = a / b;
-    }else if(op == "xor"){
-        ans = a ^ b;
-    }else if(op == ">"){
-        ans = a > b;
-    }else if(op == ">="){
-        ans = a >= b;
-    }else if(op == "<"){
-        ans = a < b;
-    }else if(op == ">="){
-        ans = a >= b;
-    }else if(op == "=="){
-        ans = a == b;
-    }
-    if(debug_this)
-        std::cout<<"plain ans is "<<ans<<std::endl;
-    return ans;
-}
+
 int judge(std::string str,std::map<std::string, unsigned char[16]>remote_dir, std::map<std::string, unsigned char[16]>local_dir, std::map<std::string, int> org_dir){
     if(local_dir.find(str) != local_dir.end()){
         return 2;
@@ -286,11 +252,12 @@ void deal_cmd(truple now_trp, int &now_step, void *tmp, std::map<std::string,int
 }
 
 int main(){
-    std::map<std::string, unsigned char[16]> dir;
+    
 	pthread_t   recv_tid;
     truthtee* tru = new truthtee();
-    netTool* nettool = new netTool(tru);
     PotocolRead* protocol = new PotocolRead("./protocol_file/dot.jimple");
+    netTool* nettool = new netTool(tru);
+    
     printf("please input port to listen:\n");
     std::cin>>nettool->recv_port;
     if(pthread_create(&recv_tid , NULL , init_listen_static, (void *)nettool) == -1){
@@ -320,16 +287,27 @@ int main(){
     */
 
     //load protocol
-    std::map<std::string, unsigned char[16]> remote_dir;
+    
+    //dictionary for local data ciphertext and MAC
+    std::map<std::string, unsigned char[CIPHER_LEN]> dir;
+    std::map<std::string, unsigned char[MAC_LEN]> dir_mac;
+
+    //dictionary for remote data ciphertext and MAC
+    std::map<std::string, unsigned char[CIPHER_LEN]> remote_dir;
+    std::map<std::string, unsigned char[MAC_LEN]> remote_mac_dir;
+    // use the "org_dir" to store the variables that do not need to be calculated under ciphertext, such as counters.
     std::map<std::string, int> org_dic;
-    std::map<std::string, unsigned char[16]> local_dir;
     //
-    merkleTree* data_merkle_tree;
+    /*
+    call markle tree
+    */
+    //merkleTree* data_merkle_tree;
     while(notify()){
     	int act;
     	int ret;
     	int a,b;
-    	unsigned char msg[16];
+    	unsigned char msg[CIPHER_LEN];
+        unsigned char label_temp[LABEL_LEN];
     	unsigned char enc_key[0x100];
     	unsigned char enc_data[0x10];
     	uint64_t value;
@@ -340,6 +318,7 @@ int main(){
         std::ifstream file;
     	unsigned int key_len = 0;
     	unsigned int data_len = 0;
+        unsigned int mac_len = 0;
     	std::cin>>act;
     	switch(act){
     		case 1:
@@ -350,11 +329,14 @@ int main(){
                         break;
                     }
                     to_byte16(value,msg);
-                    tru->encrypto(msg, 16, dir[key_po], data_len);
+                    memcpy(label_temp, key_po.c_str(), key_po.length());
+                    tru->encrypt_MAC(label_temp, msg, CIPHER_LEN, dir[key_po], data_len, dir_mac[key_po], mac_len);
 
                 }
-    			send_data(nettool, enc_key, key_len, dir);
+    			send_data(nettool, enc_key, key_len, dir, dir_mac);
                 nettool->is_data_send = true;
+                send_cmd_mac(nettool, protocol->tran_mac(tru));
+                nettool->is_mac_send = true;
     			break;
     		case 2:
                 //test end  
@@ -365,27 +347,50 @@ int main(){
 
                 if(!nettool->is_data_store || !nettool->is_data_send){
                     //sign data hash and send it
-                    printf("before run protocol, plz send data or receive data");
+                    printf("before run protocol, plz send data or receive data\n");
                     break;
                 }
+                if(!nettool->is_mac_store || !nettool->is_mac_send){
+                    //sign data hash and send it
+                    printf("before run protocol, plz send protocol\n");
+                    break;
+                }
+                protocol->load_mac(nettool->mac_dir);
+                printf("load protocol successfully......\n");
                 protocol->clear_iteam();
+                //take date from network tool
                 remote_dir = nettool->data_dic;
+                remote_mac_dir = nettool->data_mac_dic;
+                //clear plaintext dictionary
                 org_dic.clear();
-                local_dir = dir;
+                // verify data and the hard ware will encrypt with its key
+                for(auto &v : remote_dir){
+                    //tran all data to local
+                    unsigned char label[LABEL_LEN];
+                    memcpy(label, v.first.c_str(), v.first.length());
+                    tru->verify_data(label, v.second, CIPHER_LEN, remote_mac_dir[v.first], MAC_LEN, dir[v.first], data_len, dir_mac[v.first], mac_len);
+                }
+                /*
+
+                //First version of data tansform
                 to_byte16(0,msg);
                 for(auto &v : remote_dir){
                     //tran all data to local
                     tru->operation(v.second, 16, SWI_REM, msg, 16, SWI_PLA, local_dir[v.first], data_len, ADD_OP);
-                }
-                data_merkle_tree = new merkleTree(local_dir);
+                }*/
+                /*
+                store with merkle tree
+                */
+                //data_merkle_tree = new merkleTree(local_dir);
 
                 while(true){
-                    truple now_trp = protocol->next();
+                    truple_mac now_trp_mac = protocol->next_mac();
+                    truple now_trp = now_trp_mac.trup;
                     if(debug_this)
                         std::cout<<"now operation |"<<now_trp.operand1<<"| "<<now_trp.op<<" |"<<now_trp.operand2<<"| -> "<<now_trp.output<<std::endl;
                     if(debug_this)
                         std::cin>>a;
-                    deal_cmd(now_trp, protocol->now_step, tru, protocol->dic_goto, remote_dir, local_dir, org_dic);
+                    deal_cmd(now_trp, protocol->now_step, tru, protocol->dic_goto, remote_dir, dir, org_dic);
                     if(debug_this)
                         std::cout<<"now_step:"<< protocol->now_step<<std::endl;
                     if(protocol->now_step >= protocol->size_of_protocol()){
@@ -421,11 +426,13 @@ int main(){
                         break;
                     }
                     to_byte16(value,msg);
-                    tru->encrypto(msg, 16, dir[key_po], data_len);
+                    tru->encrypt_MAC(label_temp, msg, CIPHER_LEN, dir[key_po], data_len, dir_mac[key_po], mac_len);
 
                 }
-                send_data(nettool, enc_key, key_len, dir);
+                send_data(nettool, enc_key, key_len, dir, dir_mac);
                 nettool->is_data_send = true;
+                send_cmd_mac(nettool, protocol->tran_mac(tru));
+                nettool->is_mac_send = true;
     			break;
     		case 4:
     			exit(1);

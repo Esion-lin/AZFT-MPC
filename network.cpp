@@ -1,53 +1,7 @@
 // Auther: Tainpei Lu
 // Creation: 11/02 2019 
 #include "network.h"
-void to_byte16(uint64_t org, unsigned char output[]){
-    for(int i = 0; i < 8; i++){
-        output[i] = 0;
-        output[i+8] = org>>((7-i)*8);
-    }
-}
-void to_byte16(uint64_t org1, uint64_t org2, unsigned char output[]){
-    for(int i = 0; i < 8; i++){
-        output[i] = org1>>((7-i)*8);
-        output[i+8] = org2>>((7-i)*8);
-    }
-}
-void to_byte16(uint32_t org1, uint32_t org2, uint32_t org3, uint32_t org4, unsigned char output[]){
-    for(int i = 0; i < 4; i++){
-        output[i] = org1>>((3-i)*8);
-        output[i+4] = org2>>((3-i)*8);
-        output[i+8] = org3>>((3-i)*8);
-        output[i+12] = org4>>((3-i)*8);
-    }
-}
-void to_ll(unsigned char input[], uint64_t &output){
-    for(int i = 0; i < 8; i++){
-        output *= 256;
-        output += input[i+8];
-    }
-}
-void to_ll(unsigned char input[], uint64_t &output1, uint64_t &output2){
-    for(int i = 0; i < 8; i++){
-        output1 *= 256;
-        output1 += input[i];
-        output2 *= 256;
-        output2 += input[i+8];
-    }
-}
-void to_int(unsigned char input[], uint32_t &output1, uint32_t &output2,uint32_t &output3,uint32_t &output4){
-    for(int i = 0; i < 4; i++){
-        output1 *= 256;
-        output1 += input[i];
-        output2 *= 256;
-        output2 += input[i+4];
-        output3 *= 256;
-        output3 += input[i+8];
-        output4 *= 256;
-        output4 += input[i+12];
 
-    }
-}
 netTool::netTool(truthtee* tru){
     this->tru = tru;
 }
@@ -56,6 +10,7 @@ void netTool::deal_data(Json::Value value){
     int action = value["action"].asInt();
     Json::Value key_part;
     Json::Value data;
+    Json::Value mac;
     switch(action){
         case key_ex_action:
             data = value["data"];
@@ -71,33 +26,57 @@ void netTool::deal_data(Json::Value value){
         case data_action:
             key_part = value["key"];
             data = value["data"];
-            accept_data(key_part,data);
+            mac = value["mac"];
+            accept_data(key_part, data, mac);
+            break;
+        case cmd_mac_action:
+            data = value["data"];
+            accept_mac(data);
             break;
         default:
             printf("error package\n");
     }
 }
-void netTool::accept_data(Json::Value key_paty, Json::Value data_part){
+void netTool::accept_data(Json::Value key_paty, Json::Value data_part, Json::Value mac){
     unsigned char key_data[key_paty.size()];
     for(int i = 0; i < key_paty.size(); i++){
         key_data[i] = key_paty[i].asUInt();
     }
     tru->decrypto_key(key_data, key_paty.size());
     Json::Value::Members members = data_part.getMemberNames();
-    uint arr[4];
+    uint32_t arr[CIPHER_LEN/4];
     for (Json::Value::Members::iterator iterMember = members.begin(); iterMember != members.end(); iterMember++){
         std::string key = *iterMember;
-        for(int i = 0; i < 4; i++){
+        for(int i = 0; i < CIPHER_LEN/4; i++){
             arr[i] = data_part[key][i].asUInt();
         }
-        
-        to_byte16(arr[0], arr[1], arr[2], arr[3], data_dic[key]);
+        unsigned int len_temp;
+        to_byte(arr, CIPHER_LEN/4, data_dic[key], len_temp);
+    }
+    uint32_t arr_mac[MAC_LEN/4];
+    Json::Value::Members memb = mac.getMemberNames();
+    for (Json::Value::Members::iterator iterMember = memb.begin(); iterMember != memb.end(); iterMember++){
+        std::string key = *iterMember;
+        for(int i = 0; i < MAC_LEN/4; i++){
+            arr[i] = mac[key][i].asUInt();
+        }
+        unsigned int len_temp;
+        to_byte(arr, MAC_LEN/4, data_mac_dic[key], len_temp);
     }
     is_data_store = true;
     // unsigned char test[16];
     // unsigned int len;
     // tru->decrypto(data_dic["A"],16,test,len);
-
+}
+void netTool::accept_mac(Json::Value value){
+    mac_dir = std::vector<unsigned char[MAC_LEN]>(value.size());
+    for(int i = 0; i < value.size(); i++){
+        for(int j = 0; j < MAC_LEN; j++){
+            mac_dir[i][j] = value[i][j].asUInt();
+        }
+    }
+    //copy(new_vec.begin(), new_vec.end(), mac_dir.begin());
+    is_mac_store = true;
 }
 void netTool::accept_key(Json::Value value){
     unsigned char data[value.size()];
@@ -184,7 +163,7 @@ void netTool::send_data(Json::Value js){
         perror("connect");
     } 
     std::string s = js.toStyledString();
-    send(conn_fd, s.c_str(), strlen(s.c_str()),0); ///发送
+    send(conn_fd, s.c_str(), strlen(s.c_str()),0); ///send away
     close(conn_fd);
 }
 //for testing

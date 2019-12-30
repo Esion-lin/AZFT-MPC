@@ -1,3 +1,5 @@
+#ifndef _TRUTHTEE_H_
+#define _TRUTHTEE_H_
 #include <stdio.h>
 #include <stdlib.h>
 #include <memory.h>
@@ -47,7 +49,9 @@ There are some definitions about function args
 #define cipher_len 16
 #define sym_key_len 128
 
-#define label_len 17
+#define LABEL_LEN 17
+#define MAC_LEN 32
+#define CIPHER_LEN 16
 class truthtee{
 
 public:
@@ -168,3 +172,5 @@ private:
 	unsigned char 		remote_b[ECC_MAX_XCOORDINATE_BITS_LEN/4];
 	unsigned char 		remote_serial[ECC_MAX_XCOORDINATE_BITS_LEN/2];
 };
+
+#endif

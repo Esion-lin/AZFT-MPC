@@ -14,6 +14,11 @@
 #define key_ex_action 1
 #define sign_action 2
 #define data_action 3
+#define cmd_mac_action 22
 #define data_sign_action 4
 #define is_debug true
 
+#ifndef _CONFIGFILE_H_
+#define _CONFIGFILE_H_
+
+#endif

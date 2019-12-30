@@ -49,4 +49,8 @@ struct truple{
         return this->is_goto == b.is_goto && this->op == b.op && this->output == b.output;  
     }  
 };
+struct truple_mac{
+	truple trup;
+	unsigned char mac[32];
+};
 #endif

@@ -195,19 +195,19 @@ void truthtee::encrypt_MAC(unsigned char label[], unsigned char tru_in[], unsign
 	//For security, firstly, encrypt plaintext, then caculate the label and ciphertext MAC, 
 	encrypto(tru_in,len,tru_data_out,data_len_out);
 	unsigned char over_all[50];
-	memcpy(over_all, label, label_len);
-	memcpy(over_all + label_len, tru_data_out, data_len_out);
+	memcpy(over_all, label, LABEL_LEN);
+	memcpy(over_all + LABEL_LEN, tru_data_out, data_len_out);
 	
 	SG_Hmac(SGD_SM3 , sym_key_keep, sym_key_len/8, over_all, 50, tru_mac_out, &mac_len_out);
 
 }
 bool truthtee::verify_data(unsigned char label[], unsigned char tru_in[], unsigned int len, unsigned char mac_in[], unsigned int mac_len, unsigned char tru_data_out[], unsigned int &data_len_out, unsigned char tru_mac_out[], unsigned int &mac_len_out){
 	unsigned char over_all[50];
-	memcpy(over_all, label, label_len);
-	memcpy(over_all + label_len, tru_in, len);
+	memcpy(over_all, label, LABEL_LEN);
+	memcpy(over_all + LABEL_LEN, tru_in, len);
 	unsigned char d1[0x100];
 	unsigned int d1_len;
-	if(mac_verification(over_all, label_len + len, mac_in, mac_len)){
+	if(mac_verification(over_all, LABEL_LEN + len, mac_in, mac_len)){
 		transfer_data(tru_in,len, d1, d1_len, DECRYPTO, remote_key);
 		encrypt_MAC(label, d1, d1_len, tru_data_out, data_len_out, tru_mac_out, mac_len_out);
 		return true;
@@ -310,17 +310,17 @@ void truthtee::sign_cmd(unsigned char label1[], unsigned char label2[], unsigned
 	unsigned char over_all[50];
 	over_all[0] = cmd_counter%256;
 	over_all[1] = cmd_counter/256;
-	memcpy(over_all + 2, label1, label_len);
-	over_all[label_len+2] = op;
-	memcpy(over_all + label_len+3, label2, label_len);
-	SG_Hmac(SGD_SM3 , sym_key_keep, sym_key_len/8, over_all, 2*label_len+3, tru_out, &data_len_out);
+	memcpy(over_all + 2, label1, LABEL_LEN);
+	over_all[LABEL_LEN+2] = op;
+	memcpy(over_all + LABEL_LEN+3, label2, LABEL_LEN);
+	SG_Hmac(SGD_SM3 , sym_key_keep, sym_key_len/8, over_all, 2*LABEL_LEN+3, tru_out, &data_len_out);
 }
 void truthtee::sign_cmd_without_counter(unsigned char label1[], unsigned char label2[], unsigned int op, unsigned char tru_out[], unsigned int &data_len_out){
 	unsigned char over_all[50];
-	memcpy(over_all, label1, label_len);
-	over_all[label_len] = op;
-	memcpy(over_all + label_len+1, label2, label_len);
-	SG_Hmac(SGD_SM3 , sym_key_keep, sym_key_len/8, over_all, 2*label_len+1, tru_out, &data_len_out);
+	memcpy(over_all, label1, LABEL_LEN);
+	over_all[LABEL_LEN] = op;
+	memcpy(over_all + LABEL_LEN+1, label2, LABEL_LEN);
+	SG_Hmac(SGD_SM3 , sym_key_remote, sym_key_len/8, over_all, 2*LABEL_LEN+1, tru_out, &data_len_out);
 }
 std::string truthtee::check_mac(std::string hash, std::vector<std::string>hash_table){
 	/*
@@ -335,7 +335,7 @@ bool truthtee::mac_verification(unsigned char text[], unsigned int text_len, uns
 	//call SG_Hmac API for mac check
 	unsigned char mac_out[50];
 	unsigned int mac_len_out;
-	SG_Hmac(SGD_SM3 , sym_key_keep, sym_key_len/8, text, text_len, mac_out, &mac_len_out);
+	SG_Hmac(SGD_SM3 , sym_key_remote, sym_key_len/8, text, text_len, mac_out, &mac_len_out);
 	if(mac_len != mac_len_out){
 		return false;
 	}else{
@@ -394,15 +394,15 @@ void truthtee::operation(unsigned char label1[], unsigned char tru_in1[],unsigne
 	if(is_check_counter){
 		over_all[0] = cmd_counter%256;
 		over_all[1] = cmd_counter/256;
-		memcpy(over_all + 2, label1, label_len);
-		over_all[label_len+2] = op;
-		memcpy(over_all + label_len+3, label2, label_len);
-		over_all_len = 2*label_len+3;
+		memcpy(over_all + 2, label1, LABEL_LEN);
+		over_all[LABEL_LEN+2] = op;
+		memcpy(over_all + LABEL_LEN+3, label2, LABEL_LEN);
+		over_all_len = 2*LABEL_LEN+3;
 	}else{
-		memcpy(over_all, label1, label_len);
-		over_all[label_len] = op;
-		memcpy(over_all + label_len+1, label2, label_len);
-		over_all_len = 2*label_len+1;
+		memcpy(over_all, label1, LABEL_LEN);
+		over_all[LABEL_LEN] = op;
+		memcpy(over_all + LABEL_LEN+1, label2, LABEL_LEN);
+		over_all_len = 2*LABEL_LEN+1;
 	}
 	
 	if(!mac_verification(over_all, over_all_len, mac_op, macop_len)){
@@ -412,14 +412,14 @@ void truthtee::operation(unsigned char label1[], unsigned char tru_in1[],unsigne
 	//check data
 	unsigned char check[50];
 	memcpy(check, tru_in1, in1_len);
-	memcpy(check + in1_len, label1, label_len);
-	if(!mac_verification(check, in1_len + label_len, mac1, mac1_len)){
+	memcpy(check + in1_len, label1, LABEL_LEN);
+	if(!mac_verification(check, in1_len + LABEL_LEN, mac1, mac1_len)){
 		printf("Illegal cmd\n");
 		return;
 	}
 	memcpy(check, tru_in2, in2_len);
-	memcpy(check + in2_len, label2, label_len);
-	if(!mac_verification(check, in1_len + label_len, mac2, mac2_len)){
+	memcpy(check + in2_len, label2, LABEL_LEN);
+	if(!mac_verification(check, in1_len + LABEL_LEN, mac2, mac2_len)){
 		printf("Illegal cmd\n");
 		return;
 	}

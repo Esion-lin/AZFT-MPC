@@ -201,6 +201,7 @@ void PotocolRead::transfer(){
 	}
 	cmd.clear();
 	cmd.swap(cmd_cp);
+    
     if(pro_test){
         for(int i = 0; i < cmd.size(); i++){
             cout<<i<<" "<<cmd[i].operand1<<" "<<cmd[i].op<<" "<<cmd[i].operand2<<" = "<<cmd[i].output<<endl;
@@ -218,9 +219,45 @@ void PotocolRead::transfer(){
     }
 	
 }
-PotocolRead::PotocolRead(std::string file_path){
-	Reader(file_path);
 
+PotocolRead::PotocolRead(std::string file_path, bool do_mac){
+	Reader(file_path);
+    is_cmd_mac = do_mac;
+
+}
+std::vector<unsigned char[MAC_LEN]> PotocolRead::tran_mac(truthtee *tru){
+    std::vector<unsigned char[MAC_LEN]> mac_vector(cmd.size());
+    if(is_cmd_mac){
+        for(int i = 0; i < cmd.size(); i++){
+            unsigned char arr[MAC_LEN];
+            unsigned int mac_len;
+            unsigned char label1[LABEL_LEN];
+            unsigned char label2[LABEL_LEN];
+            memcpy(label1, cmd[i].operand1.c_str(), cmd[i].operand1.length());
+            memcpy(label2, cmd[i].operand2.c_str(), cmd[i].operand2.length());
+            tru->sign_cmd_without_counter(label1, label2, tran_op(cmd[i].op), mac_vector[i], mac_len);
+            
+            // truple_mac t1;
+            // t1.trup = cmd[i];
+            // memcpy(t1.mac, arr, MAC_LEN);
+            // cmd_mac.push_back(t1);
+        }
+    }else{
+        printf("Do not need make MAC. please use mac option when create instance.\n");
+    }
+    return mac_vector;
+}
+void PotocolRead::load_mac(std::vector<unsigned char[MAC_LEN]> &mac_dir){
+    //cmd_mac = std::vector<unsigned char[MAC_LEN]>(mac_dir.size());
+    cmd_mac = std::vector<truple_mac>(mac_dir.size());
+    if(mac_dir.size() != cmd.size()){
+        printf("protocol error. please make sure anyone keep same protocol files\n");
+        return ;
+    }
+    for(int i = 0; i < cmd.size(); i++){
+        cmd_mac[i].trup = cmd[i];
+        memcpy(cmd_mac[i].mac, mac_dir[i], MAC_LEN);
+    }
 }
 void PotocolRead::clear_iteam(){
 	now_step = 0; 
@@ -230,6 +267,12 @@ truple PotocolRead::next(){
 		now_step ++;
 	}
 	return cmd[now_step-1];
+}
+truple_mac PotocolRead::next_mac(){
+    if(now_step < cmd_mac.size()){
+        now_step ++;
+    }
+    return cmd_mac[now_step-1];
 }
 int PotocolRead::size_of_protocol(){
 	return cmd.size();
