@@ -202,21 +202,21 @@ void PotocolRead::transfer(){
 	cmd.clear();
 	cmd.swap(cmd_cp);
     
-    if(pro_test){
-        for(int i = 0; i < cmd.size(); i++){
-            cout<<i<<" "<<cmd[i].operand1<<" "<<cmd[i].op<<" "<<cmd[i].operand2<<" = "<<cmd[i].output<<endl;
-        	if(index(cmd[i].operand1)!=cmd[i].operand1 && dic_var[index(cmd[i].operand1)] == 1){
-        		cout<<"index of arr is cipher text:"<<cmd[i].operand1;
-        	}else if(index(cmd[i].operand2)!=cmd[i].operand2 && dic_var[index(cmd[i].operand2)] == 1){
-        		cout<<"index of arr is cipher text:"<<cmd[i].operand2;
-        	}else if(index(cmd[i].output)!=cmd[i].output && dic_var[index(cmd[i].output)] == 1){
-        		cout<<"index of arr is cipher text:"<<cmd[i].output;
-        	}
-        }
-        for(auto &v : dic_var){
-            cout<<v.first<<" "<<v.second<<endl;
-        }
+
+    for(int i = 0; i < cmd.size(); i++){
+        //cout<<i<<" "<<cmd[i].operand1<<" "<<cmd[i].op<<" "<<cmd[i].operand2<<" = "<<cmd[i].output<<endl;
+    	if(index(cmd[i].operand1)!=cmd[i].operand1 && dic_var[index(cmd[i].operand1)] == 1){
+    		cout<<"index of arr is cipher text:"<<cmd[i].operand1;
+    	}else if(index(cmd[i].operand2)!=cmd[i].operand2 && dic_var[index(cmd[i].operand2)] == 1){
+    		cout<<"index of arr is cipher text:"<<cmd[i].operand2;
+    	}else if(index(cmd[i].output)!=cmd[i].output && dic_var[index(cmd[i].output)] == 1){
+    		cout<<"index of arr is cipher text:"<<cmd[i].output;
+    	}
     }
+    for(auto &v : dic_var){
+        cout<<v.first<<" "<<v.second<<endl;
+    }
+    
 	
 }
 
@@ -233,9 +233,16 @@ std::vector<unsigned char[MAC_LEN]> PotocolRead::tran_mac(truthtee *tru){
             unsigned int mac_len;
             unsigned char label1[LABEL_LEN];
             unsigned char label2[LABEL_LEN];
-            memcpy(label1, cmd[i].operand1.c_str(), cmd[i].operand1.length());
             memcpy(label2, cmd[i].operand2.c_str(), cmd[i].operand2.length());
-            tru->sign_cmd_without_counter(label1, label2, tran_op(cmd[i].op), mac_vector[i], mac_len);
+            if(cmd[i].op == "out"){
+                memcpy(label1, cmd[i].output.c_str(), cmd[i].output.length());
+                tru->sign_cmd_without_counter(label1, cmd[i].output.length(), label2, cmd[i].operand2.length(), tran_op(cmd[i].op), mac_vector[i], mac_len);
+            }else{
+                memcpy(label1, cmd[i].operand1.c_str(), cmd[i].operand1.length());
+                tru->sign_cmd_without_counter(label1, cmd[i].operand1.length(), label2, cmd[i].operand2.length(), tran_op(cmd[i].op), mac_vector[i], mac_len);
+            }
+            
+            
             
             // truple_mac t1;
             // t1.trup = cmd[i];
@@ -245,6 +252,7 @@ std::vector<unsigned char[MAC_LEN]> PotocolRead::tran_mac(truthtee *tru){
     }else{
         printf("Do not need make MAC. please use mac option when create instance.\n");
     }
+        
     return mac_vector;
 }
 void PotocolRead::load_mac(std::vector<unsigned char[MAC_LEN]> &mac_dir){
@@ -256,6 +264,7 @@ void PotocolRead::load_mac(std::vector<unsigned char[MAC_LEN]> &mac_dir){
     }
     for(int i = 0; i < cmd.size(); i++){
         cmd_mac[i].trup = cmd[i];
+        
         memcpy(cmd_mac[i].mac, mac_dir[i], MAC_LEN);
     }
 }

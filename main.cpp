@@ -28,13 +28,14 @@ void sign_key(void *tmp,void *tmp2){
     
 }
 void send_cmd_mac(void *tmp, std::vector<unsigned char[MAC_LEN]> data){
+ 
     netTool* nettool = (netTool*) tmp;
     Json::Value  json;
     Json::Value  jdata;
     for(int i = 0; i < data.size(); i++){
         Json::Value mid;
-        for(int i = 0; i < MAC_LEN; i++){
-            mid[i] = data[i];
+        for(int j = 0; j < MAC_LEN; j++){
+            mid[j] = data[i][j];
         }
         jdata[i] = mid;
     }
@@ -59,7 +60,7 @@ void send_data(void *tmp, unsigned char key_data[], int key_len, std::map<std::s
 	for(int i = 0; i < key_len; i++){
         jkey[i] = key_data[i];
     }
-    uint arr[4];
+    uint arr[CIPHER_LEN/4];
     for( auto &v : dir ) {
         
         to_int(v.second,arr[0],arr[1],arr[2],arr[3]);
@@ -70,7 +71,7 @@ void send_data(void *tmp, unsigned char key_data[], int key_len, std::map<std::s
         jdata[v.first] = mid;
 
     }
-    uint mac_arr[8];
+    uint mac_arr[MAC_LEN/4];
     for(auto &v : dir_mac){
         to_int(v.second,MAC_LEN,mac_arr);
         Json::Value mid;
@@ -110,7 +111,7 @@ std::string get_item(std::map<std::string,int> dic, std::string str){
 
     }
 }
-
+//Determine which collection the data belongs to
 int judge(std::string str,std::map<std::string, unsigned char[16]>remote_dir, std::map<std::string, unsigned char[16]>local_dir, std::map<std::string, int> org_dir){
     if(local_dir.find(str) != local_dir.end()){
         return 2;
@@ -120,6 +121,17 @@ int judge(std::string str,std::map<std::string, unsigned char[16]>remote_dir, st
         return 3;
     }
 }
+/*
+thank to shift all data to local, just judge if it belong plaintext or ciphertext
+*/
+int judge(std::string str, std::map<std::string, unsigned char[16]>local_dir, std::map<std::string, int> org_dir){
+    if(local_dir.find(str) != local_dir.end()){
+        return 2;
+    }else{
+        return 3;
+    }
+}
+//check if the operand is number 
 bool is_num(std::string data , int &num){
     if((data[0]>='0' && data[0]<='9' )||data[0]=='-' ){
         num = atoi(data.c_str());
@@ -127,7 +139,176 @@ bool is_num(std::string data , int &num){
     }else{
         return false;
     }
-} 
+}
+/*
+rewrite cmd deal function :
+
+
+
+
+*/
+void deal_cmd(truple_mac now_trp_mac, int &now_step, void *tmp, std::map<std::string,int>goto_dir, std::map<std::string, unsigned char[CIPHER_LEN]>&local_dir, std::map<std::string, unsigned char[MAC_LEN]>&local_mac_dir, std::map<std::string, int> &org_dir){
+    //get the cmd 
+
+    truple now_trp = now_trp_mac.trup;
+    unsigned int data_len;
+    unsigned int mac_len;
+    unsigned char temp_msg[CIPHER_LEN];
+    truthtee* tru = (truthtee*) tmp;
+    //conversion of array element
+    now_trp.operand1 = get_item(org_dir,now_trp.operand1);
+    now_trp.operand2 = get_item(org_dir,now_trp.operand2);
+    now_trp.output = get_item(org_dir,now_trp.output);
+    //a number store operand if Operator is number
+    int number_temp;
+
+    unsigned char label[LABEL_LEN];
+    unsigned char label2[LABEL_LEN];
+    unsigned char out_label[LABEL_LEN];
+    //if the instruction is jump statement
+    if(now_trp.is_goto){
+        if(now_trp.op == "goto"){
+            now_step = goto_dir[now_trp.output];
+        }else{
+            //make sure all goto statement is under the plaintext
+            if(is_num(now_trp.operand2,number_temp)){
+                if(tran_op(org_dir[now_trp.operand1],number_temp,now_trp.op)){
+                    now_step = goto_dir[now_trp.output];
+                }
+            }else{
+                if(tran_op(org_dir[now_trp.operand1],org_dir[now_trp.operand2],now_trp.op)){
+                    now_step = goto_dir[now_trp.output];
+                }
+            }
+        }
+
+    }else{
+        //check if it is time to stop caculate
+        if(now_trp.op == "out"){
+            //tell the truthted third party label, ciphertext and MAC
+            memcpy(label, now_trp.output.c_str(), now_trp.output.length());
+            if(tru->decrypto(label, now_trp.output.length(), local_dir[now_trp.output],CIPHER_LEN, local_mac_dir[now_trp.output], MAC_LEN, now_trp_mac.mac, MAC_LEN, temp_msg,data_len)){
+                uint64_t answer;
+                to_ll(temp_msg,answer);
+                std::cout<<now_trp.output<<" is "<<answer<<std::endl;
+                return;
+            }else{
+                return;
+            }
+            
+        }
+        /*
+        op = '' means that it is a direct assignment statement, like a = b, or a = 0x00
+        handle these two cases separately
+        */
+        if(now_trp.op == ""){
+            //judge if the data is under the ciphertext
+            int tp = judge(now_trp.output, local_dir, org_dir);
+            if(is_num(now_trp.operand1,number_temp)){
+                //the second case: a = 0x00
+                switch(tp){
+                    case 2:
+                    //a is ciphertext
+                        to_byte16((uint64_t)number_temp,temp_msg);
+                        //old version without MAC check
+                        //tru->encrypto(temp_msg, CIPHER_LEN, local_dir[now_trp.output], data_len);
+                        memcpy(label, now_trp.output.c_str(), now_trp.output.length());
+                        tru->encrypt_MAC(label, now_trp.output.length(), temp_msg, CIPHER_LEN, local_dir[now_trp.output], data_len, local_mac_dir[now_trp.output], mac_len);
+                        //memcpy(local_dir[now_trp.output],local_dir[now_trp.operand1],16);
+                        //local_dir[now_trp.output] = local_dir[now_trp.operand1];
+                        break;
+                    default:
+                        //plaintext do not need MAC
+                        org_dir[now_trp.output] = number_temp;
+                        break;
+                }
+
+            }
+            else{
+                //the first case: a = b
+                int tp = judge(now_trp.operand1, local_dir, org_dir);
+                int tp2 = judge(now_trp.output, local_dir, org_dir);
+                switch(tp){
+                    case 2:
+                        //memcpy(local_dir[now_trp.output],local_dir[now_trp.operand1],CIPHER_LEN);
+                        memcpy(label, now_trp.operand1.c_str(), now_trp.operand1.length());
+                        memcpy(out_label, now_trp.output.c_str(), now_trp.output.length());
+                        tru->operation(label, now_trp.operand1.length(), local_dir[now_trp.operand1],CIPHER_LEN, SWI_ORG, local_mac_dir[now_trp.operand1], MAC_LEN, NULL, 0, NULL, 0, 0, NULL, 0, out_label, now_trp.output.length(), local_dir[now_trp.output],data_len, local_mac_dir[now_trp.output],mac_len, now_trp_mac.mac, MAC_LEN, 0);
+                        //tru->operation(remote_dir[now_trp.operand1], 16, SWI_REM, temp_msg, 16, SWI_PLA, local_dir[now_trp.output], data_len, tran_op(now_trp.op));
+                        //local_dir[now_trp.output] = local_dir[now_trp.operand1];
+                        break;
+                    case 3:
+                        //a is ciphertext and b is plaintext
+                        if(tp2 == 2){
+                            to_byte16((uint64_t)org_dir[now_trp.operand1],temp_msg);
+                            memcpy(label, now_trp.output.c_str(), now_trp.output.length());
+                            tru->encrypt_MAC(label, now_trp.output.length(), temp_msg, CIPHER_LEN, local_dir[now_trp.output], data_len, local_mac_dir[now_trp.output], mac_len);
+                        }else
+                        //both plaintext
+                            org_dir[now_trp.output] = org_dir[now_trp.operand1];
+            
+                }
+            }
+        }else{
+            /*
+            General instructions
+            The case of two number is illegal for example: a = 0x00 op 0x00
+            */
+            //to make sure operand1 is not a number
+            if(is_num(now_trp.operand1,number_temp)){
+                if(is_num(now_trp.operand2,number_temp)){
+                    printf("[%d] %s op %s:Instruction error!!! invalid equation from number operation\n", now_step, now_trp.operand1.c_str(), now_trp.operand2.c_str());
+                    return ;
+                }else{
+                    printf("[%d] %s op %s:Instruction error!!! invalid equation from number operation\n", now_step, now_trp.operand1.c_str(), now_trp.operand2.c_str());
+                    return ;
+                }
+            }
+            memcpy(label, now_trp.operand1.c_str(), now_trp.operand1.length());
+            memcpy(label2, now_trp.operand2.c_str(), now_trp.operand2.length());
+            memcpy(out_label, now_trp.output.c_str(), now_trp.output.length());
+            int tp = judge(now_trp.operand1, local_dir, org_dir);
+            //case of "a = b op 0x00"
+            if(is_num(now_trp.operand2,number_temp)){
+                to_byte16((uint64_t)number_temp,temp_msg);
+                switch(tp){
+                    case 2:
+                        //b is under ciphertext 
+                        tru->operation(label, now_trp.operand1.length(), local_dir[now_trp.operand1],CIPHER_LEN, SWI_ORG, local_mac_dir[now_trp.operand1], MAC_LEN, label2, now_trp.operand2.length(), temp_msg, CIPHER_LEN, SWI_PLA, NULL, 0, out_label, now_trp.output.length(), local_dir[now_trp.output],data_len, local_mac_dir[now_trp.output],mac_len, now_trp_mac.mac, MAC_LEN, tran_op(now_trp.op));
+                        //tru->operation(local_dir[now_trp.operand1], CIPHER_LEN, SWI_ORG, temp_msg, CIPHER_LEN, SWI_PLA, local_dir[now_trp.output], data_len, tran_op(now_trp.op));
+                        break;
+                    case 3:
+                        //b is under plaintext
+                        org_dir[now_trp.output] = tran_op(org_dir[now_trp.operand1], number_temp, now_trp.op);
+                }
+            }
+            else{
+                //case of "a = b op c"
+                int tp2 = judge(now_trp.operand2, local_dir, org_dir);
+                if(tp == 2){
+                    if(tp2 == 2){
+                        //b,c both under ciphertext
+                        tru->operation(label, now_trp.operand1.length(), local_dir[now_trp.operand1],CIPHER_LEN, SWI_ORG, local_mac_dir[now_trp.operand1], MAC_LEN, label2, now_trp.operand2.length(), local_dir[now_trp.operand2], CIPHER_LEN, SWI_ORG, local_mac_dir[now_trp.operand2], MAC_LEN, out_label, now_trp.output.length(), local_dir[now_trp.output],data_len, local_mac_dir[now_trp.output],mac_len, now_trp_mac.mac, MAC_LEN, tran_op(now_trp.op));
+                    }else{
+                        //c:cipher , b:plain 
+                        to_byte16((uint64_t)org_dir[now_trp.operand2],temp_msg);
+                        tru->operation(label, now_trp.operand1.length(), local_dir[now_trp.operand1],CIPHER_LEN, SWI_ORG, local_mac_dir[now_trp.operand1], MAC_LEN, label2, now_trp.operand2.length(), temp_msg, CIPHER_LEN, SWI_PLA, NULL, 0, out_label, now_trp.output.length(), local_dir[now_trp.output],data_len, local_mac_dir[now_trp.output],mac_len, now_trp_mac.mac, MAC_LEN, tran_op(now_trp.op));
+                    }
+                }else{
+                    //b:plain
+                    to_byte16((uint64_t)org_dir[now_trp.operand1],temp_msg);
+                    if(tp2 == 2){
+
+                        tru->operation(label, now_trp.operand1.length(), temp_msg,CIPHER_LEN, SWI_PLA, NULL, 0, label2, now_trp.operand2.length(), local_dir[now_trp.operand2], CIPHER_LEN, SWI_ORG, local_mac_dir[now_trp.operand2], MAC_LEN, out_label, now_trp.output.length(), local_dir[now_trp.output],data_len, local_mac_dir[now_trp.output],mac_len, now_trp_mac.mac, MAC_LEN, tran_op(now_trp.op));
+                    }else{
+                        org_dir[now_trp.output] = tran_op(org_dir[now_trp.operand1], org_dir[now_trp.operand2], now_trp.op);
+                    }
+                }
+            }
+        }
+
+    }
+}
 void deal_cmd(truple now_trp, int &now_step, void *tmp, std::map<std::string,int>goto_dir, std::map<std::string, unsigned char[16]>&remote_dir, std::map<std::string, unsigned char[16]>&local_dir, std::map<std::string, int> &org_dir){
     int temp;
     unsigned int data_len;
@@ -153,11 +334,13 @@ void deal_cmd(truple now_trp, int &now_step, void *tmp, std::map<std::string,int
 
     }else{
         if(now_trp.op == "out"){
+            /*
             tru->decrypto(local_dir[now_trp.output],16,temp_msg,data_len);
             uint64_t answer;
             to_ll(temp_msg,answer);
             std::cout<<now_trp.output<<" is "<<answer<<std::endl;
             return;
+            */
         }
         if(now_trp.op == ""){
             int tp = judge(now_trp.output, remote_dir, local_dir, org_dir);
@@ -194,7 +377,7 @@ void deal_cmd(truple now_trp, int &now_step, void *tmp, std::map<std::string,int
                         break;
                     case 3:
                         if(tp2 == 2){
-                            to_byte16((uint64_t)temp,temp_msg);
+                            to_byte16((uint64_t)org_dir[now_trp.operand1],temp_msg);
                             tru->encrypto(temp_msg, 16, local_dir[now_trp.output], data_len);
                         }else
                             org_dir[now_trp.output] = org_dir[now_trp.operand1];
@@ -255,7 +438,7 @@ int main(){
     
 	pthread_t   recv_tid;
     truthtee* tru = new truthtee();
-    PotocolRead* protocol = new PotocolRead("./protocol_file/dot.jimple");
+    PotocolRead* protocol = new PotocolRead("./protocol_file/org.jimple");
     netTool* nettool = new netTool(tru);
     
     printf("please input port to listen:\n");
@@ -328,9 +511,11 @@ int main(){
                     if(key_po == "0" && value == 0){
                         break;
                     }
+
                     to_byte16(value,msg);
-                    memcpy(label_temp, key_po.c_str(), key_po.length());
-                    tru->encrypt_MAC(label_temp, msg, CIPHER_LEN, dir[key_po], data_len, dir_mac[key_po], mac_len);
+                    unsigned char label[LABEL_LEN];
+                    memcpy(label, key_po.c_str(), key_po.length());
+                    tru->encrypt_MAC(label, key_po.length(), msg, CIPHER_LEN, dir[key_po], data_len, dir_mac[key_po], mac_len);
 
                 }
     			send_data(nettool, enc_key, key_len, dir, dir_mac);
@@ -368,7 +553,9 @@ int main(){
                     //tran all data to local
                     unsigned char label[LABEL_LEN];
                     memcpy(label, v.first.c_str(), v.first.length());
-                    tru->verify_data(label, v.second, CIPHER_LEN, remote_mac_dir[v.first], MAC_LEN, dir[v.first], data_len, dir_mac[v.first], mac_len);
+                    if(!tru->verify_data(label, v.first.length(), v.second, CIPHER_LEN, remote_mac_dir[v.first], MAC_LEN, dir[v.first], data_len, dir_mac[v.first], mac_len)){
+                        printf("illegal data\n");
+                    }
                 }
                 /*
 
@@ -390,7 +577,8 @@ int main(){
                         std::cout<<"now operation |"<<now_trp.operand1<<"| "<<now_trp.op<<" |"<<now_trp.operand2<<"| -> "<<now_trp.output<<std::endl;
                     if(debug_this)
                         std::cin>>a;
-                    deal_cmd(now_trp, protocol->now_step, tru, protocol->dic_goto, remote_dir, dir, org_dic);
+                    deal_cmd(now_trp_mac, protocol->now_step, tru, protocol->dic_goto, dir, dir_mac, org_dic);
+                    //deal_cmd(now_trp, protocol->now_step, tru, protocol->dic_goto, remote_dir, dir, org_dic);
                     if(debug_this)
                         std::cout<<"now_step:"<< protocol->now_step<<std::endl;
                     if(protocol->now_step >= protocol->size_of_protocol()){
@@ -426,7 +614,9 @@ int main(){
                         break;
                     }
                     to_byte16(value,msg);
-                    tru->encrypt_MAC(label_temp, msg, CIPHER_LEN, dir[key_po], data_len, dir_mac[key_po], mac_len);
+                    unsigned char label[LABEL_LEN];
+                    memcpy(label, key_po.c_str(), key_po.length());
+                    tru->encrypt_MAC(label, key_po.length(), msg, CIPHER_LEN, dir[key_po], data_len, dir_mac[key_po], mac_len);
 
                 }
                 send_data(nettool, enc_key, key_len, dir, dir_mac);

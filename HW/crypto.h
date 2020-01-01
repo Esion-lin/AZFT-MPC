@@ -15,6 +15,9 @@
 /*
 There are some definitions about function args 
 */
+
+// output
+#define END_CMD 100
 //Binary
 #define AND_OP 1
 #define NOT_OP 2
@@ -75,7 +78,7 @@ public:
 	//use merkle tree to verify commend integrity
 	void operation(std::string label1, unsigned char tru_in1[],unsigned int in1_len, int swi_1, std::vector<std::string>path1, std::string label2, unsigned char tru_in2[],unsigned int in2_len, int swi_2, std::vector<std::string>path2, unsigned char tru_out[],unsigned int &out_len, int op, std::vector<std::string>path_protocol);
 	//verify MAC with count and verify data integrity with MAC
-	void operation(unsigned char label1[], unsigned char tru_in1[],unsigned int in1_len, int swi_1, unsigned char mac1[], unsigned int mac1_len, unsigned char label2[], unsigned char tru_in2[],unsigned int in2_len, int swi_2, unsigned char mac2[], unsigned int mac2_len, unsigned char tru_out[],unsigned int &out_len, unsigned char mac_op[], unsigned int macop_len, int op);
+	void operation(unsigned char label1[], unsigned int lab_len1, unsigned char tru_in1[],unsigned int in1_len, int swi_1, unsigned char mac1[], unsigned int mac1_len, unsigned char label2[], unsigned int lab_len2, unsigned char tru_in2[],unsigned int in2_len, int swi_2, unsigned char mac2[], unsigned int mac2_len, unsigned char out_label[], unsigned int outlabel_len, unsigned char tru_out[],unsigned int &out_len, unsigned char tru_mac_out[],unsigned int &mac_out_len, unsigned char mac_op[], unsigned int macop_len, int op);
 	//just for test
 	int test_and_op(unsigned char tru_out[], int &out_len);
 	/*
@@ -86,12 +89,14 @@ public:
 	void encrypto_key(unsigned char tru_key_out[],unsigned int &key_len_out);
 	void encrypto(unsigned char tru_in[], unsigned int len, unsigned char tru_data_out[],unsigned int &data_len_out);
 	//using AE instead Encryption
-	void encrypt_MAC(unsigned char label[], unsigned char tru_in[], unsigned int len, unsigned char tru_data_out[],unsigned int &data_len_out, unsigned char tru_mac_out[], unsigned int &mac_len_out);
+	void encrypt_MAC(unsigned char label[], unsigned int lab_len, unsigned char tru_in[], unsigned int len, unsigned char tru_data_out[],unsigned int &data_len_out, unsigned char tru_mac_out[], unsigned int &mac_len_out);
 	//using AE check data and transform data
-	bool verify_data(unsigned char label[], unsigned char tru_in[], unsigned int len, unsigned char mac_in[], unsigned int mac_len, unsigned char tru_data_out[], unsigned int &data_len_out, unsigned char tru_mac_out[], unsigned int &mac_len_out);
+	bool verify_data(unsigned char label[], unsigned int lab_len, unsigned char tru_in[], unsigned int len, unsigned char mac_in[], unsigned int mac_len, unsigned char tru_data_out[], unsigned int &data_len_out, unsigned char tru_mac_out[], unsigned int &mac_len_out);
 	//pair-wise, corresponding decryption function
 	void decrypto_key(unsigned char tru_key_in[],unsigned int key_in_len);
-	void decrypto(unsigned char tru_data_in[],unsigned int data_in_len, unsigned char tru_out[],unsigned int &out_len);
+	
+	//check ans
+	bool decrypto(unsigned char label[], unsigned int lab_len, unsigned char tru_data_in[],unsigned int data_in_len, unsigned char mac_in_data[], unsigned int mac_data_len, unsigned char mac_in_cmd[], unsigned int mac_cmd_len, unsigned char tru_out[],unsigned int &out_len);
 	//just for test
 	void test_ch_data(unsigned char tru_in[]);
 	//sign operation
@@ -99,9 +104,9 @@ public:
 	//verify key using remote_key
 	bool sign_verify(unsigned char tru_in[]);
 	//caculate the protocol cmd MAC with counter
-	void sign_cmd(unsigned char label1[], unsigned char label2[], unsigned int op, unsigned char tru_out[], unsigned int &data_len_out);
+	void sign_cmd(unsigned char label1[], unsigned int lab_len1, unsigned char label2[], unsigned int lab_len2, unsigned int op, unsigned char tru_out[], unsigned int &data_len_out);
 	//caculate the protocol cmd MAC
-	void sign_cmd_without_counter(unsigned char label1[], unsigned char label2[], unsigned int op, unsigned char tru_out[], unsigned int &data_len_out);
+	void sign_cmd_without_counter(unsigned char label1[], unsigned int lab_len1, unsigned char label2[], unsigned int lab_len2, unsigned int op, unsigned char tru_out[], unsigned int &data_len_out);
 	//verify MAC for cmd counter
 	/*
 	Trusted hardware will matain a cmd counter.
@@ -139,7 +144,7 @@ private:
 	void serialize(ECCPUBLICKEYBLOB pu_key, unsigned char tru_out[]);
 	void serialize_signature(ECCSIGNATUREBLOB sign, unsigned char tru_out[]);
 	//check if the mac is legal
-	bool mac_verification(unsigned char text[], unsigned int text_len, unsigned char mac[], unsigned int mac_len);
+	bool mac_verification(unsigned char text[], unsigned int text_len, unsigned char mac[], unsigned int mac_len, bool remote);
 	
 	void query_signature(unsigned char tru_out[], bool verify);
 	/*

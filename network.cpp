@@ -27,6 +27,7 @@ void netTool::deal_data(Json::Value value){
             key_part = value["key"];
             data = value["data"];
             mac = value["mac"];
+
             accept_data(key_part, data, mac);
             break;
         case cmd_mac_action:
@@ -53,16 +54,18 @@ void netTool::accept_data(Json::Value key_paty, Json::Value data_part, Json::Val
         unsigned int len_temp;
         to_byte(arr, CIPHER_LEN/4, data_dic[key], len_temp);
     }
+
     uint32_t arr_mac[MAC_LEN/4];
     Json::Value::Members memb = mac.getMemberNames();
     for (Json::Value::Members::iterator iterMember = memb.begin(); iterMember != memb.end(); iterMember++){
         std::string key = *iterMember;
         for(int i = 0; i < MAC_LEN/4; i++){
-            arr[i] = mac[key][i].asUInt();
+            arr_mac[i] = mac[key][i].asUInt();
         }
         unsigned int len_temp;
-        to_byte(arr, MAC_LEN/4, data_mac_dic[key], len_temp);
+        to_byte(arr_mac, MAC_LEN/4, data_mac_dic[key], len_temp);
     }
+    printf("accept data\n");
     is_data_store = true;
     // unsigned char test[16];
     // unsigned int len;
@@ -71,6 +74,7 @@ void netTool::accept_data(Json::Value key_paty, Json::Value data_part, Json::Val
 void netTool::accept_mac(Json::Value value){
     mac_dir = std::vector<unsigned char[MAC_LEN]>(value.size());
     for(int i = 0; i < value.size(); i++){
+
         for(int j = 0; j < MAC_LEN; j++){
             mac_dir[i][j] = value[i][j].asUInt();
         }

@@ -46,6 +46,8 @@ int tran_op(std::string op){
         return LE_OP;
     }else if(op == "=="){
         return EQ_OP;
+    }else if(op == "out"){
+        return END_CMD;
     }else{
         return 0;
     }
