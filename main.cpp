@@ -30,18 +30,42 @@ void sign_key(void *tmp,void *tmp2){
 void send_cmd_mac(void *tmp, std::vector<unsigned char[MAC_LEN]> data){
  
     netTool* nettool = (netTool*) tmp;
-    Json::Value  json;
-    Json::Value  jdata;
-    for(int i = 0; i < data.size(); i++){
-        Json::Value mid;
-        for(int j = 0; j < MAC_LEN; j++){
-            mid[j] = data[i][j];
+    int n = data.size();
+    int t = 0;
+    while(n > 0){
+        if(n < 100){
+            Json::Value  json;
+            Json::Value  jdata;
+            for(int i = 0; i < n; i++){
+                Json::Value mid;
+                for(int j = 0; j < MAC_LEN; j++){
+                    mid[j] = data[100*t + i][j];
+                }
+                jdata[i] = mid;
+            }
+            json["action"] = Json::Value(cmd_mac_action);
+            json["data"] = jdata;
+            nettool->send_data(json);
+            break;
+        }else{
+            Json::Value  json;
+            Json::Value  jdata;
+            for(int i = 0; i < 100; i++){
+                Json::Value mid;
+                for(int j = 0; j < MAC_LEN; j++){
+                    mid[j] = data[100*t + i][j];
+                }
+                jdata[i] = mid;
+            }
+            json["action"] = Json::Value(cmd_mac_action);
+            json["data"] = jdata;
+            nettool->send_data(json);
+            t ++;
+            n-=100;
         }
-        jdata[i] = mid;
+        
     }
-    json["action"] = Json::Value(cmd_mac_action);
-    json["data"] = jdata;
-    nettool->send_data(json);
+    
 }
 
 void send_pub_key(void *tmp,void *tmp2){
@@ -87,30 +111,7 @@ void send_data(void *tmp, unsigned char key_data[], int key_len, std::map<std::s
 
     nettool->send_data(json);
 }
-/*
-//This function is designed for conversion of array index items
-    Because array index needs to be guaranteed to be plaintext, search from plaintext dictionary(org_dir)
-*/
-std::string get_item(std::map<std::string,int> dic, std::string str){
-    if(str.find("[") == str.npos){
-        return str;
-    }else{
-        std::string arr = str.substr(0,str.find("["));
-        std::string num = str.substr(str.find("[")+1, str.find("]") - str.find("[")-1);
-        //std::cout<<"num is "<<num<<"|"<<std::endl;
-        int now_num;char ans[10];
-        if(num[0]>='0' && num[0]<='9'){
-            arr = arr + "_" + num;
-        }else if(dic.find(num) != dic.end()){
-            sprintf(ans, "%d", dic[num]);
-            arr = arr + "_" + ans;
-        }else{
-            printf("index error(%s):array index is cipher text.\n", num.c_str());
-        }
-        return arr;
 
-    }
-}
 //Determine which collection the data belongs to
 int judge(std::string str,std::map<std::string, unsigned char[16]>remote_dir, std::map<std::string, unsigned char[16]>local_dir, std::map<std::string, int> org_dir){
     if(local_dir.find(str) != local_dir.end()){
@@ -131,15 +132,7 @@ int judge(std::string str, std::map<std::string, unsigned char[16]>local_dir, st
         return 3;
     }
 }
-//check if the operand is number 
-bool is_num(std::string data , int &num){
-    if((data[0]>='0' && data[0]<='9' )||data[0]=='-' ){
-        num = atoi(data.c_str());
-        return true;
-    }else{
-        return false;
-    }
-}
+
 /*
 rewrite cmd deal function :
 
@@ -309,7 +302,8 @@ void deal_cmd(truple_mac now_trp_mac, int &now_step, void *tmp, std::map<std::st
 
     }
 }
-void deal_cmd(truple now_trp, int &now_step, void *tmp, std::map<std::string,int>goto_dir, std::map<std::string, unsigned char[16]>&remote_dir, std::map<std::string, unsigned char[16]>&local_dir, std::map<std::string, int> &org_dir){
+//old version
+/*void deal_cmd(truple now_trp, int &now_step, void *tmp, std::map<std::string,int>goto_dir, std::map<std::string, unsigned char[16]>&remote_dir, std::map<std::string, unsigned char[16]>&local_dir, std::map<std::string, int> &org_dir){
     int temp;
     unsigned int data_len;
     unsigned char temp_msg[16];
@@ -334,13 +328,13 @@ void deal_cmd(truple now_trp, int &now_step, void *tmp, std::map<std::string,int
 
     }else{
         if(now_trp.op == "out"){
-            /*
+            
             tru->decrypto(local_dir[now_trp.output],16,temp_msg,data_len);
             uint64_t answer;
             to_ll(temp_msg,answer);
             std::cout<<now_trp.output<<" is "<<answer<<std::endl;
             return;
-            */
+            
         }
         if(now_trp.op == ""){
             int tp = judge(now_trp.output, remote_dir, local_dir, org_dir);
@@ -432,13 +426,15 @@ void deal_cmd(truple now_trp, int &now_step, void *tmp, std::map<std::string,int
             }
         }
     }
-}
+}*/
 
 int main(){
     
 	pthread_t   recv_tid;
     truthtee* tru = new truthtee();
-    PotocolRead* protocol = new PotocolRead("./protocol_file/org.jimple");
+    printf("checking protocol file.....\n");
+    PotocolRead* protocol = new PotocolRead("./protocol_file/org2.jimple");
+    printf("protocol file length:%d\n",protocol->size_of_protocol());
     netTool* nettool = new netTool(tru);
     
     printf("please input port to listen:\n");
@@ -511,7 +507,6 @@ int main(){
                     if(key_po == "0" && value == 0){
                         break;
                     }
-
                     to_byte16(value,msg);
                     unsigned char label[LABEL_LEN];
                     memcpy(label, key_po.c_str(), key_po.length());
@@ -529,7 +524,6 @@ int main(){
        //              printf("wait for data exchage");
        //              continue;
        //          }
-
                 if(!nettool->is_data_store || !nettool->is_data_send){
                     //sign data hash and send it
                     printf("before run protocol, plz send data or receive data\n");
@@ -540,6 +534,7 @@ int main(){
                     printf("before run protocol, plz send protocol\n");
                     break;
                 }
+                
                 protocol->load_mac(nettool->mac_dir);
                 printf("load protocol successfully......\n");
                 protocol->clear_iteam();
@@ -626,6 +621,8 @@ int main(){
     			break;
     		case 4:
     			exit(1);
+            default:
+                printf("illegal instruction\n");
     	}
     }
 }

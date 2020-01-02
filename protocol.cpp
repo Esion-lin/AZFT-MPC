@@ -137,10 +137,16 @@ void PotocolRead::Reader(std::string file_path){
     	
     }
 
-   	transfer();
+   	if(transfer()){
+        if(!expand()){
+            printf("protocol error: illegal, Grammatical errors\n");
+        }
+    }else{
+        printf("protocol error: illegal, Grammatical errors\n");
+    }
 }
 
-void PotocolRead::transfer(){
+bool PotocolRead::transfer(){
     //remove the branch statement which contain cipher text
 	int ch = 0;
 
@@ -207,23 +213,148 @@ void PotocolRead::transfer(){
         //cout<<i<<" "<<cmd[i].operand1<<" "<<cmd[i].op<<" "<<cmd[i].operand2<<" = "<<cmd[i].output<<endl;
     	if(index(cmd[i].operand1)!=cmd[i].operand1 && dic_var[index(cmd[i].operand1)] == 1){
     		cout<<"index of arr is cipher text:"<<cmd[i].operand1;
+            return false;
     	}else if(index(cmd[i].operand2)!=cmd[i].operand2 && dic_var[index(cmd[i].operand2)] == 1){
     		cout<<"index of arr is cipher text:"<<cmd[i].operand2;
+            return false;
     	}else if(index(cmd[i].output)!=cmd[i].output && dic_var[index(cmd[i].output)] == 1){
     		cout<<"index of arr is cipher text:"<<cmd[i].output;
+            return false;
     	}
     }
-    for(auto &v : dic_var){
+    dic_var["m0"] = 1;dic_var["m1"] = 1;dic_var["m2"] = 1;dic_var["m3"] = 1;
+    /*for(auto &v:dic_var){
         cout<<v.first<<" "<<v.second<<endl;
-    }
+    }*/
+    return true;
+    
     
 	
+}
+bool PotocolRead::expand(){
+    std::map<std::string, int> org_dir;
+    int number_temp;
+    std::vector<truple> cmd_cp;
+    clear_iteam();
+    while(now_step < size_of_protocol()){
+        if(now_step < cmd.size()){
+            now_step ++;
+        }
+        truple now_trp = cmd[now_step-1];
+        int op1 = dic_var[middle(now_trp.operand1)];
+        int op2 = dic_var[middle(now_trp.operand2)];
+        int op = dic_var[middle(now_trp.output)];
+        now_trp.operand1 = get_item(org_dir,now_trp.operand1);
+        now_trp.operand2 = get_item(org_dir,now_trp.operand2);
+        now_trp.output = get_item(org_dir,now_trp.output);
+        if(now_trp.is_goto){
+            if(now_trp.op == "goto"){
+                now_step = dic_goto[now_trp.output];
+            }else{
+                //make sure all goto statement is under the plaintext
+                if(is_num(now_trp.operand2,number_temp)){
+                    if(org_dir.find(now_trp.operand1) == org_dir.end()){
+                        printf("protocol expend error: in [%d]: %s = %s %s %s, invalid variable: %s\n", now_step, now_trp.output.c_str(), now_trp.operand1.c_str(), now_trp.op.c_str(), now_trp.operand2.c_str(), now_trp.operand1.c_str());
+                        return false;
+                    }
+                    if(tran_op(org_dir[now_trp.operand1],number_temp,now_trp.op)){
+                        now_step = dic_goto[now_trp.output];
+                    }
+                }else{
+                    if(org_dir.find(now_trp.operand1) == org_dir.end()){
+                        printf("protocol expend error: in [%d]: %s = %s %s %s, invalid variable: %s\n", now_step, now_trp.output.c_str(), now_trp.operand1.c_str(), now_trp.op.c_str(), now_trp.operand2.c_str(), now_trp.operand1.c_str());
+                        return false;
+                    }else if(org_dir.find(now_trp.operand2) == org_dir.end()){
+                        printf("protocol expend error: in [%d]: %s = %s %s %s, invalid variable: %s\n", now_step, now_trp.output.c_str(), now_trp.operand1.c_str(), now_trp.op.c_str(), now_trp.operand2.c_str(), now_trp.operand2.c_str());
+                        return false;
+                    }
+                    if(tran_op(org_dir[now_trp.operand1],org_dir[now_trp.operand2],now_trp.op)){
+                        now_step = dic_goto[now_trp.output];
+                    }
+                }
+            }
+        }else{
+            if(now_trp.op == "out"){
+                cmd_cp.push_back(now_trp);
+            }else if(now_trp.op == ""){
+                if(op == 0){
+                    if(is_num(now_trp.operand1,number_temp)){
+                        org_dir[now_trp.output] = number_temp;
+                    }else{
+                        org_dir[now_trp.output] = org_dir[now_trp.operand1];
+                    }
+                }else{
+                    if(!is_num(now_trp.operand1,number_temp) && op1 == 0){
+                        now_trp.operand1 = std::to_string(org_dir[now_trp.operand1]);
+                    }
+                    cmd_cp.push_back(now_trp);
+                }
+            }else{
+                /*
+                General instructions
+                The case of two number is illegal for example: a = 0x00 op 0x00
+                */
+                //to make sure operand1 is not a number
+                if(is_num(now_trp.operand1,number_temp)){
+                    int number_temp2;
+                    if(is_num(now_trp.operand2,number_temp2)){
+                        if(op == 0){
+                            org_dir[now_trp.output] = tran_op(number_temp, number_temp2, now_trp.op);
+                        }else{
+                            cmd_cp.push_back({false,to_string(tran_op(number_temp, number_temp2, now_trp.op)),"",now_trp.output,""});
+                        }
+                    }else{
+                        std::string mid = now_trp.operand1;
+                        now_trp.operand1 = now_trp.operand2;
+                        now_trp.operand2 = mid;
+                    }
+                }
+                if(is_num(now_trp.operand2,number_temp)){
+                    if(op1 == 0){
+                        if(op == 0){
+                            org_dir[now_trp.output] = tran_op(org_dir[now_trp.operand1], number_temp, now_trp.op);
+                        }else{
+                            now_trp.operand1 = std::to_string(org_dir[now_trp.operand1]);
+                            cmd_cp.push_back(now_trp);
+                        }
+                    }else{
+                        cmd_cp.push_back(now_trp);
+                    }
+                }else{
+                    if(op == 0){
+                        org_dir[now_trp.output] = tran_op(org_dir[now_trp.operand1], org_dir[now_trp.operand2], now_trp.op);
+                    }else{
+                        if(op1 == 0 && op2 == 0){
+                            cmd_cp.push_back({false,to_string(tran_op(org_dir[now_trp.operand1], org_dir[now_trp.operand2], now_trp.op)),"",now_trp.output,""});
+                        }else{
+                            if(op1 == 0){
+                                now_trp.operand1 = std::to_string(org_dir[now_trp.operand1]);
+                            }
+                            if(op2 == 0){
+                                now_trp.operand2 = std::to_string(org_dir[now_trp.operand2]);
+                            }
+                            cmd_cp.push_back(now_trp);
+                        }
+                        
+                    }
+                }
+
+            }
+        }
+        
+    }
+    /*for(int i = 0; i < cmd_cp.size(); i++){
+        cout<<i<<" "<<cmd_cp[i].operand1<<" "<<cmd_cp[i].op<<" "<<cmd_cp[i].operand2<<" = "<<cmd_cp[i].output<<endl;
+    }*/
+    cmd.clear();
+    cmd.swap(cmd_cp);
+    return true;
 }
 
 PotocolRead::PotocolRead(std::string file_path, bool do_mac){
 	Reader(file_path);
     is_cmd_mac = do_mac;
-
+    store();
 }
 std::vector<unsigned char[MAC_LEN]> PotocolRead::tran_mac(truthtee *tru){
     std::vector<unsigned char[MAC_LEN]> mac_vector(cmd.size());
@@ -243,7 +374,6 @@ std::vector<unsigned char[MAC_LEN]> PotocolRead::tran_mac(truthtee *tru){
             }
             
             
-            
             // truple_mac t1;
             // t1.trup = cmd[i];
             // memcpy(t1.mac, arr, MAC_LEN);
@@ -255,7 +385,15 @@ std::vector<unsigned char[MAC_LEN]> PotocolRead::tran_mac(truthtee *tru){
         
     return mac_vector;
 }
-void PotocolRead::load_mac(std::vector<unsigned char[MAC_LEN]> &mac_dir){
+void PotocolRead::store(){
+            ofstream file("staore_file");
+    for(int i = 0; i < cmd.size(); i++){
+
+        file<<cmd[i].operand1<<"|"<<cmd[i].op<<"|"<<cmd[i].operand2<<"|->"<<cmd[i].output<<std::endl;;
+    }
+    file.close();
+}
+void PotocolRead::load_mac(std::vector<unsigned char*> &mac_dir){
     //cmd_mac = std::vector<unsigned char[MAC_LEN]>(mac_dir.size());
     cmd_mac = std::vector<truple_mac>(mac_dir.size());
     if(mac_dir.size() != cmd.size()){
@@ -267,6 +405,10 @@ void PotocolRead::load_mac(std::vector<unsigned char[MAC_LEN]> &mac_dir){
         
         memcpy(cmd_mac[i].mac, mac_dir[i], MAC_LEN);
     }
+    for(int i = 0; i < mac_dir.size(); i++){
+        free(mac_dir[i]); 
+    }
+    mac_dir.clear();
 }
 void PotocolRead::clear_iteam(){
 	now_step = 0; 

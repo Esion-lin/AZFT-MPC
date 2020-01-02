@@ -73,8 +73,7 @@ public:
 
 	//generate key stream, store in serial[]
 	void query_pub_stream(unsigned char t_out[]);
-	//without verification(will moved to private function)
-	void operation(unsigned char tru_in1[],unsigned int in1_len, int swi_1, unsigned char tru_in2[],unsigned int in2_len, int swi_2, unsigned char tru_out[],unsigned int &out_len, int op);
+	
 	//use merkle tree to verify commend integrity
 	void operation(std::string label1, unsigned char tru_in1[],unsigned int in1_len, int swi_1, std::vector<std::string>path1, std::string label2, unsigned char tru_in2[],unsigned int in2_len, int swi_2, std::vector<std::string>path2, unsigned char tru_out[],unsigned int &out_len, int op, std::vector<std::string>path_protocol);
 	//verify MAC with count and verify data integrity with MAC
@@ -139,7 +138,8 @@ private:
 	*/
 	void to_ll(unsigned char input[], uint64_t &output);
 	void to_byte16(uint64_t org, unsigned char output[]);
-
+	//without verification
+	void operation(unsigned char tru_in1[],unsigned int in1_len, int swi_1, unsigned char tru_in2[],unsigned int in2_len, int swi_2, unsigned char tru_out[],unsigned int &out_len, int op);
 	//temporary function used to generate key stream
 	void serialize(ECCPUBLICKEYBLOB pu_key, unsigned char tru_out[]);
 	void serialize_signature(ECCSIGNATUREBLOB sign, unsigned char tru_out[]);

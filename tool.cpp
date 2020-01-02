@@ -85,6 +85,39 @@ int tran_op(int a, int b, std::string op){
     }
     return ans;
 }
+//check if the operand is number 
+bool is_num(std::string data , int &num){
+    if((data[0]>='0' && data[0]<='9' )||data[0]=='-' ){
+        num = atoi(data.c_str());
+        return true;
+    }else{
+        return false;
+    }
+}
+/*
+//This function is designed for conversion of array index items
+    Because array index needs to be guaranteed to be plaintext, search from plaintext dictionary(org_dir)
+*/
+std::string get_item(std::map<std::string,int> dic, std::string str){
+    if(str.find("[") == str.npos){
+        return str;
+    }else{
+        std::string arr = str.substr(0,str.find("["));
+        std::string num = str.substr(str.find("[")+1, str.find("]") - str.find("[")-1);
+        //std::cout<<"num is "<<num<<"|"<<std::endl;
+        int now_num;char ans[10];
+        if(num[0]>='0' && num[0]<='9'){
+            arr = arr + "_" + num;
+        }else if(dic.find(num) != dic.end()){
+            sprintf(ans, "%d", dic[num]);
+            arr = arr + "_" + ans;
+        }else{
+            printf("index error(%s):array index is cipher text.\n", num.c_str());
+        }
+        return arr;
+
+    }
+}
 void to_byte16(uint64_t org, unsigned char output[]){
     for(int i = 0; i < 8; i++){
         output[i] = 0;

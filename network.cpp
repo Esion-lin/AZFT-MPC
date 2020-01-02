@@ -72,13 +72,30 @@ void netTool::accept_data(Json::Value key_paty, Json::Value data_part, Json::Val
     // tru->decrypto(data_dic["A"],16,test,len);
 }
 void netTool::accept_mac(Json::Value value){
-    mac_dir = std::vector<unsigned char[MAC_LEN]>(value.size());
+    //std::vector<unsigned char[MAC_LEN]> dir_mac = std::vector<unsigned char[MAC_LEN]>(value.size());
     for(int i = 0; i < value.size(); i++){
-
+        unsigned char *arr = new unsigned char[MAC_LEN];
         for(int j = 0; j < MAC_LEN; j++){
-            mac_dir[i][j] = value[i][j].asUInt();
+            arr[j] = value[i][j].asUInt();
         }
+        mac_dir.push_back(arr);
     }
+/*    for(int i = 0 ; i < mac_dir.size(); i++){
+        for(int j = 0; j < MAC_LEN; j++){
+            std::cout<<mac_dir[i][j]<<" ";
+        }
+        std::cout<<std::endl;
+    }*/
+    //mac_dir.insert(mac_dir.end(),dir_mac.begin(),dir_mac.end());
+   /* for(int i = 0; i < value.size(); i++){
+        unsigned char middle[MAC_LEN];
+        for(int j = 0; j < MAC_LEN; j++){
+            middle[j] = value[i][j].asUInt();
+        }
+        mac_dir.insert(mac_dir.end(), middle);
+        
+    }*/
+    
     //copy(new_vec.begin(), new_vec.end(), mac_dir.begin());
     is_mac_store = true;
 }
@@ -167,7 +184,8 @@ void netTool::send_data(Json::Value js){
         perror("connect");
     } 
     std::string s = js.toStyledString();
-    send(conn_fd, s.c_str(), strlen(s.c_str()),0); ///send away
+    //printf("send data len:%u\n", s.length());
+    send(conn_fd, s.c_str(), s.length(),0);///send away
     close(conn_fd);
 }
 //for testing

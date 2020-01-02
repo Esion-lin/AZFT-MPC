@@ -37,7 +37,7 @@ public:
 	// some cache file
 	std::map<std::string, unsigned char[CIPHER_LEN]> data_dic;	
 	std::map<std::string, unsigned char[MAC_LEN]> data_mac_dic;	
-	std::vector<unsigned char[MAC_LEN]> mac_dir;
+	std::vector<unsigned char*> mac_dir;
 	bool 	is_data_store = false;
 	bool	is_data_send = false;
 	bool	is_key_store = false;

@@ -19,4 +19,6 @@ void to_ll(unsigned char input[], uint64_t &output);
 void to_ll(unsigned char input[], uint64_t &output1, uint64_t &output2);
 void to_int(unsigned char input[], uint32_t &output1, uint32_t &output2,uint32_t &output3,uint32_t &output4);
 void to_int(unsigned char input[], unsigned int arr_len, uint32_t arr[]);
+bool is_num(std::string data , int &num);
+std::string get_item(std::map<std::string,int> dic, std::string str);
 #endif

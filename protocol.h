@@ -51,15 +51,18 @@ class PotocolRead{
 		~PotocolRead();
 		void Reader(std::string file_path);
 		std::vector<unsigned char[MAC_LEN]> tran_mac(truthtee *tru);
-		void load_mac(std::vector<unsigned char[MAC_LEN]> &mac_dir);
+		void load_mac(std::vector<unsigned char*> &mac_dir);
 		truple next();
 		truple_mac next_mac();
 		int size_of_protocol();
 		void clear_iteam();
+		//store cmd expand file
+		void store();
 		//merkleTree *cmd_merkle_tree;
 	private:
 		//this function is desigened for conversion of data independence
-		void transfer();
+		bool transfer();
+		bool expand();
 		std::string arr2item(std::string str); 
 		std::vector<std::string> output;
 		std::vector<truple> cmd;
