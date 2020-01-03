@@ -135,10 +135,6 @@ int judge(std::string str, std::map<std::string, unsigned char[16]>local_dir, st
 
 /*
 rewrite cmd deal function :
-
-
-
-
 */
 void deal_cmd(truple_mac now_trp_mac, int &now_step, void *tmp, std::map<std::string,int>goto_dir, std::map<std::string, unsigned char[CIPHER_LEN]>&local_dir, std::map<std::string, unsigned char[MAC_LEN]>&local_mac_dir, std::map<std::string, int> &org_dir){
     //get the cmd 
@@ -433,7 +429,11 @@ int main(){
 	pthread_t   recv_tid;
     truthtee* tru = new truthtee();
     printf("checking protocol file.....\n");
-    PotocolRead* protocol = new PotocolRead("./protocol_file/org2.jimple");
+    bool load_succ;
+    PotocolRead* protocol = new PotocolRead("./protocol_file/org2.jimple", load_succ);
+    if(!load_succ){
+        exit(0);
+    }
     printf("protocol file length:%d\n",protocol->size_of_protocol());
     netTool* nettool = new netTool(tru);
     

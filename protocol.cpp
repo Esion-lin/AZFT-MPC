@@ -17,11 +17,13 @@ string index(string str){
 	return str;
 }
 //this reader function is data dependence, so if the jimple file style is changed, please rewrite this function
-void PotocolRead::Reader(std::string file_path){
+bool PotocolRead::Reader(std::string file_path){
 	ifstream file;
 	file.open(file_path,ios::in);
-	if(!file.is_open())
-        return ;
+	if(!file.is_open()){
+        printf("protocol file does not exist\n");
+        return false;
+    }
     std::string strLine;
     int step = 0;
     while(getline(file,strLine)){
@@ -139,11 +141,14 @@ void PotocolRead::Reader(std::string file_path){
 
    	if(transfer()){
         if(!expand()){
-            printf("protocol error: illegal, Grammatical errors\n");
+            printf("Protocol error: Illegal input instruction\n");
+            return false;
         }
     }else{
-        printf("protocol error: illegal, Grammatical errors\n");
+        printf("Protocol error: Illegal input instruction\n");
+        return false;
     }
+    return true;
 }
 
 bool PotocolRead::transfer(){
@@ -175,6 +180,11 @@ bool PotocolRead::transfer(){
 	for(int i = 0; i < cmd.size(); i++){
 		if(cmd[i].is_goto){
 			if(cmd[i].op != "goto" && dic_var[middle(cmd[i].operand1)] + dic_var[middle(cmd[i].operand2)] >= 1){
+                if(start_if){
+                    printf("Branch error: invalid jump [%d] if %s %s %s goto %s\n", i, cmd[i].operand1.c_str(), cmd[i].op.c_str(), cmd[i].operand2.c_str(), cmd[i].output.c_str());
+                    return false;
+                }
+
 				start_if = true;
 				start_end = dic_goto_cp[cmd[i].output];
 				for(auto &v : dic_goto_cp){
@@ -343,6 +353,7 @@ bool PotocolRead::expand(){
         }
         
     }
+    //for test
     /*for(int i = 0; i < cmd_cp.size(); i++){
         cout<<i<<" "<<cmd_cp[i].operand1<<" "<<cmd_cp[i].op<<" "<<cmd_cp[i].operand2<<" = "<<cmd_cp[i].output<<endl;
     }*/
@@ -351,8 +362,8 @@ bool PotocolRead::expand(){
     return true;
 }
 
-PotocolRead::PotocolRead(std::string file_path, bool do_mac){
-	Reader(file_path);
+PotocolRead::PotocolRead(std::string file_path, bool &init_succ, bool do_mac){
+	init_succ = Reader(file_path);
     is_cmd_mac = do_mac;
     store();
 }
@@ -367,12 +378,17 @@ std::vector<unsigned char[MAC_LEN]> PotocolRead::tran_mac(truthtee *tru){
             memcpy(label2, cmd[i].operand2.c_str(), cmd[i].operand2.length());
             if(cmd[i].op == "out"){
                 memcpy(label1, cmd[i].output.c_str(), cmd[i].output.length());
+                 //if use counter
+                //tru->sign_cmd(label1, cmd[i].output.length(), label2, cmd[i].operand2.length(), tran_op(cmd[i].op), mac_vector[i], mac_len);
                 tru->sign_cmd_without_counter(label1, cmd[i].output.length(), label2, cmd[i].operand2.length(), tran_op(cmd[i].op), mac_vector[i], mac_len);
             }else{
                 memcpy(label1, cmd[i].operand1.c_str(), cmd[i].operand1.length());
+                //if use counter
+                //tru->sign_cmd(label1, cmd[i].operand1.length(), label2, cmd[i].operand2.length(), tran_op(cmd[i].op), mac_vector[i], mac_len);
                 tru->sign_cmd_without_counter(label1, cmd[i].operand1.length(), label2, cmd[i].operand2.length(), tran_op(cmd[i].op), mac_vector[i], mac_len);
             }
-            
+           
+
             
             // truple_mac t1;
             // t1.trup = cmd[i];
@@ -380,13 +396,13 @@ std::vector<unsigned char[MAC_LEN]> PotocolRead::tran_mac(truthtee *tru){
             // cmd_mac.push_back(t1);
         }
     }else{
-        printf("Do not need make MAC. please use mac option when create instance.\n");
+        printf("No need to call this function, or you use MAC option when create instance.\n");
     }
         
     return mac_vector;
 }
 void PotocolRead::store(){
-            ofstream file("staore_file");
+            ofstream file("stored_file");
     for(int i = 0; i < cmd.size(); i++){
 
         file<<cmd[i].operand1<<"|"<<cmd[i].op<<"|"<<cmd[i].operand2<<"|->"<<cmd[i].output<<std::endl;;

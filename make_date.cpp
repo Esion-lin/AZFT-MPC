@@ -5,8 +5,8 @@
 // #include <time.h>
 // using namespace std;
 // int main(){
-// 	ofstream out("./A.date");
-// 	ofstream out2("./B.date");
+// 	ofstream out("./A.data");
+// 	ofstream out2("./B.data");
 // 	if(!out.is_open()) return 0;
 // 	srand((unsigned)time(NULL));
 // 	for(int i = 0; i < 200 ; i ++){

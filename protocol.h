@@ -47,9 +47,9 @@ class PotocolRead{
 	public:
 		int now_step = 0;
 		std::map<std::string, int> dic_goto;
-		PotocolRead(std::string file_path, bool do_mac = true);
+		PotocolRead(std::string file_path, bool &init_succ, bool do_mac = true);
 		~PotocolRead();
-		void Reader(std::string file_path);
+		bool Reader(std::string file_path);
 		std::vector<unsigned char[MAC_LEN]> tran_mac(truthtee *tru);
 		void load_mac(std::vector<unsigned char*> &mac_dir);
 		truple next();
