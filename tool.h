@@ -7,8 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "HW/crypto.h"
-Json::Value stream2json(unsigned char stream[]);
-unsigned char * json2stream(Json::Value value);
+
 int tran_op(std::string op);
 int tran_op(int a, int b, std::string op);
 void to_byte16(uint64_t org, unsigned char output[]);

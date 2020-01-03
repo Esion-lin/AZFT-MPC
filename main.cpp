@@ -430,7 +430,7 @@ int main(){
     truthtee* tru = new truthtee();
     printf("checking protocol file.....\n");
     bool load_succ;
-    PotocolRead* protocol = new PotocolRead("./protocol_file/org2.jimple", load_succ);
+    PotocolRead* protocol = new PotocolRead("./protocol_file/orgin.jimple", load_succ);
     if(!load_succ){
         exit(0);
     }

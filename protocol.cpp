@@ -402,7 +402,7 @@ std::vector<unsigned char[MAC_LEN]> PotocolRead::tran_mac(truthtee *tru){
     return mac_vector;
 }
 void PotocolRead::store(){
-            ofstream file("stored_file");
+            ofstream file("store_file");
     for(int i = 0; i < cmd.size(); i++){
 
         file<<cmd[i].operand1<<"|"<<cmd[i].op<<"|"<<cmd[i].operand2<<"|->"<<cmd[i].output<<std::endl;;

@@ -1,0 +1,7 @@
+interface  MPCAnnotation extends java.lang.Object
+{
+
+    public abstract void OUT(int);
+
+    public abstract int IN();
+}

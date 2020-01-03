@@ -54,7 +54,55 @@ MPC(Secure multi-party computation) 可以用于解决一组互不信任的参�
 
 
 ## 代码实现
+#### 项目结构
+- compiler
+	- mixedProtocolsAnalysis
+	- Protocols_Analysis
+- sootOutput
+- HW
+- *.cpp
+ 	- main
+ 	-  network
+ 	-  protocol
 
+>**HW** hardware 中是模拟可信硬件的类文件。
+
+>**compiler** 负责将java code 编译成电路语句，输出到sootOutput文件夹，其中mixedProtocolsAnalysis是编译程序的编译运行文件，Protocols_Analysis是源文件。
+
+>**protocol** 程序负责读入电路语句，对电路语句进行展开、去除数据依赖，与HW交互对指令进行MAC操作等。
+
+>**network** 程序负责整个网络的通信，对数据进行序列化，提供缓冲区，储存交互的数据等。
+
+>**main** 程序中运行了整个程序的业务流程，包括多次的数据交互，秘钥交换，指令的运行等。
+
+>**其他文件** 包括了编译安装的脚本，一些中间函数等。
+
+--------
+
+#### 运行环境
+
+系统环境：Linux
+
+运行：
+```shell
+cd install_tool
+#检查环境，或手动安装jsoncpp
+bash ./install.sh
+#编译java code 文件 bash ./compile.sh java_code项目路径  如
+bash ./compile.sh ./compiler/Protocols_Analysis/src/programs/mexp
+#运行程序
+./main
+```
+#### Java code编译成电路语句
+将java code 编译成电路语句，涉及到代码块的拼接，代码参数、宏定义的展开等。使用Protocols_Analysis程序对java文件进行编译得到电路程序，输出在sootOutput文件中。使用file_deal函数对该文件进行裁剪获取运行有效部分。
+#### 电路语句展开实现
+由于需要对指令进行数据有效性检查，需要添加MAC，在系统对指令进行签名时，需要对指令变量进行展开（针对数组变量等），此时要对程序段进行预运行，该预运行（展开）包括了
+1. 对分支语句进行展开，以确保得到的指令可以添加计数器。
+2. 对不合法指令进行检查，密文不能出现在分支语句中、密文不能出现在数组索引中等。 
+3. 对数组元素进行改写，如arr[i11], 先确保i11是明文数据，不然返回报错，在用密文改写数组，如i11在运行到此指令时value为100，则得到arr_100。
+4. 对代码进行预展开能确保程序是数据独立的，只有通过了预展开，才能证明代码段在输入密文数据前数据流已经确定了。
+
+#### 协议运行实现
 <center>![protocol1][protocol1]</center> 
 <center>协议运行</center> 
 [protocol1]: ./image/protocol_1.png "协议运行"

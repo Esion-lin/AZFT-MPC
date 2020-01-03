@@ -1,0 +1,67 @@
+class MPCAnnotationImpl extends java.lang.Object implements MPCAnnotation
+{
+    private static MPCAnnotation v;
+
+    static void <clinit>()
+    {
+        <MPCAnnotationImpl: MPCAnnotation v> = null;
+
+        return;
+    }
+
+    private void <init>()
+    {
+        MPCAnnotationImpl this;
+
+        this := @this: MPCAnnotationImpl;
+
+        specialinvoke this.<java.lang.Object: void <init>()>();
+
+        return;
+    }
+
+    public void OUT(int)
+    {
+        MPCAnnotationImpl this;
+        int x;
+
+        this := @this: MPCAnnotationImpl;
+
+        x := @parameter0: int;
+
+        return;
+    }
+
+    public static MPCAnnotation v()
+    {
+        MPCAnnotation temp$0, temp$2;
+        MPCAnnotationImpl temp$1;
+
+        temp$0 = <MPCAnnotationImpl: MPCAnnotation v>;
+
+        if temp$0 == null goto label1;
+
+        goto label2;
+
+     label1:
+        temp$1 = new MPCAnnotationImpl;
+
+        specialinvoke temp$1.<MPCAnnotationImpl: void <init>()>();
+
+        <MPCAnnotationImpl: MPCAnnotation v> = temp$1;
+
+     label2:
+        temp$2 = <MPCAnnotationImpl: MPCAnnotation v>;
+
+        return temp$2;
+    }
+
+    public int IN()
+    {
+        MPCAnnotationImpl this;
+
+        this := @this: MPCAnnotationImpl;
+
+        return 57;
+    }
+}
