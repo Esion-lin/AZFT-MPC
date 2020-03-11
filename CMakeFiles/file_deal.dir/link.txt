@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/file_deal.dir/src/_file_deal.cpp.o  -o file_deal  -L/home/eason/doc_file/MPC硬件/lib 

@@ -1,0 +1,2 @@
+/usr/bin/ar qc libhardware.a  CMakeFiles/hardware.dir/crypto.cpp.o
+/usr/bin/ranlib libhardware.a

@@ -91,6 +91,10 @@ truthtee::truthtee(){
 		printf("init error\n");
 	}
 	gen_sym_key(sym_key_keep, sym_key_len/8);
+	for(int i = 0; i < MAC_LEN; i++){
+		now_mac[i] = 0;
+		remote_mac[i] = 0;
+	}
 }
 void truthtee::gen_sym_key(unsigned char tru_out[], unsigned int key_len){
 	srand((unsigned)time(NULL));
@@ -238,11 +242,23 @@ bool truthtee::decrypto(unsigned char label[], unsigned int lab_len, unsigned ch
 		printf("Get output error!!! Illegal data:make sure ciphertext '%s'\n",label);
 		return false;
 	}
-	check[lab_len] = END_CMD;
-	if(!mac_verification(check, lab_len + 1, mac_in_cmd, mac_cmd_len,true)){
-		printf("Get output error!!! Illegal output label:%s\n",label);
-		return false;
+	if(is_accumulative){
+		check_cmd_accu(label, lab_len, NULL, 0, END_CMD);
+		
+		for(int i = 0; i < MAC_LEN; i++){
+			if(mac_in_cmd[i] != remote_mac[i]){
+				printf("Get output error!!! Illegal output label:%s\n",label);
+				return false;
+			}
+		}
+	}else{
+		check[lab_len] = END_CMD;
+		if(!mac_verification(check, lab_len + 1, mac_in_cmd, mac_cmd_len,true)){
+			printf("Get output error!!! Illegal output label:%s\n",label);
+			return false;
+		}
 	}
+	
 	if(SG_SymDec(SGD_SMS4_ECB ,sym_key_keep,sym_key_len/8,sym_key_keep,sym_key_len/8,tru_data_in,data_in_len,tru_out,&out_len) != SAR_OK){
 		perror("decrypto data error\n");
 	}
@@ -296,6 +312,18 @@ void truthtee::to_byte16(uint64_t org, unsigned char output[]){
         output[i+8] = org>>((7-i)*8);
     }
 }
+void truthtee::to_ll(unsigned char input[], int64_t &output){
+    for(int i = 0; i < 8; i++){
+        output *= 256;
+        output += input[i+8];
+    }
+}
+void truthtee::to_byte16(int64_t org, unsigned char output[]){
+    for(int i = 0; i < 8; i++){
+        output[i] = 0;
+        output[i+8] = org>>((7-i)*8);
+    }
+}
 //sign operation
 void truthtee::sign_key(unsigned char tru_out[]){
 	//use sign key encrypt public key
@@ -333,6 +361,24 @@ void truthtee::sign_cmd(unsigned char label1[], unsigned int lab_len1, unsigned 
 	memcpy(over_all + lab_len1 + 3, label2, lab_len2);
 	SG_Hmac(SGD_SM3 , sym_key_keep, sym_key_len/8, over_all, lab_len1 + lab_len2 + 3, tru_out, &data_len_out);
 }
+void truthtee::sign_cmd_accu(unsigned char label1[], unsigned int lab_len1, unsigned char label2[], unsigned int lab_len2, unsigned int op, unsigned char tru_out[], unsigned int &data_len_out){
+	unsigned char over_all[100];
+	memcpy(over_all, label1, lab_len1);
+	over_all[lab_len1] = op;
+	memcpy(over_all + lab_len1 + 1, label2, lab_len2);
+	memcpy(over_all + lab_len1 + lab_len2 + 1, now_mac, MAC_LEN);
+	SG_Hmac(SGD_SM3 , sym_key_keep, sym_key_len/8, over_all, lab_len1 + lab_len2 + 1, tru_out, &data_len_out);
+	memcpy(now_mac, tru_out, MAC_LEN);
+}
+void truthtee::check_cmd_accu(unsigned char label1[], unsigned int lab_len1, unsigned char label2[], unsigned int lab_len2, unsigned int op){
+	unsigned char over_all[100];
+	unsigned int temp;
+	memcpy(over_all, label1, lab_len1);
+	over_all[lab_len1] = op;
+	memcpy(over_all + lab_len1 + 1, label2, lab_len2);
+	memcpy(over_all + lab_len1 + lab_len2 + 1, remote_mac, MAC_LEN);
+	SG_Hmac(SGD_SM3 , sym_key_remote, sym_key_len/8, over_all, lab_len1 + lab_len2 + 1, remote_mac, &temp);
+}
 void truthtee::sign_cmd_without_counter(unsigned char label1[], unsigned int lab_len1, unsigned char label2[], unsigned int lab_len2, unsigned int op, unsigned char tru_out[], unsigned int &data_len_out){
 	unsigned char over_all[50];
 	memcpy(over_all, label1, lab_len1);
@@ -349,6 +395,7 @@ std::string truthtee::check_mac(std::string hash, std::vector<std::string>hash_t
  		ans_hash = sha256(ans_hash + hash_table[i]);
 	}
 }
+
 bool truthtee::mac_verification(unsigned char text[], unsigned int text_len, unsigned char mac[], unsigned int mac_len, bool remote){
 	//call SG_Hmac API for mac check
 	unsigned char mac_out[50];
@@ -410,27 +457,32 @@ void truthtee::operation(unsigned char label1[], unsigned int lab_len1, unsigned
 	*/
 	//check cmd
 	//fixed length label :17 Bytes
-	cmd_counter ++;
-	unsigned char over_all[50];
-	unsigned int over_all_len;
-	if(is_check_counter){
-		over_all[0] = cmd_counter%256;
-		over_all[1] = cmd_counter/256;
-		memcpy(over_all + 2, label1, lab_len1);
-		over_all[lab_len1+2] = op;
-		memcpy(over_all + lab_len1+3, label2, lab_len2);
-		over_all_len = lab_len1 + lab_len2 + 3;
+	if(is_accumulative){
+		check_cmd_accu(label1, lab_len1, label2, lab_len2, op);
 	}else{
-		memcpy(over_all, label1, lab_len1);
-		over_all[lab_len1] = op;
-		memcpy(over_all + lab_len1 + 1, label2, lab_len2);
-		over_all_len = lab_len1 + lab_len2 + 1;
+		cmd_counter ++;
+		unsigned char over_all[50];
+		unsigned int over_all_len;
+		if(is_check_counter){
+			over_all[0] = cmd_counter%256;
+			over_all[1] = cmd_counter/256;
+			memcpy(over_all + 2, label1, lab_len1);
+			over_all[lab_len1+2] = op;
+			memcpy(over_all + lab_len1+3, label2, lab_len2);
+			over_all_len = lab_len1 + lab_len2 + 3;
+		}else{
+			memcpy(over_all, label1, lab_len1);
+			over_all[lab_len1] = op;
+			memcpy(over_all + lab_len1 + 1, label2, lab_len2);
+			over_all_len = lab_len1 + lab_len2 + 1;
+		}
+		
+		if(!mac_verification(over_all, over_all_len, mac_op, macop_len, true)){
+			printf("Instruction error!!! Illegal cmd:%s = %s %d %s\n",out_label, label1, op, label2);
+			return;
+		}
 	}
 	
-	if(!mac_verification(over_all, over_all_len, mac_op, macop_len, true)){
-		printf("Instruction error!!! Illegal cmd:%s = %s %d %s\n",out_label, label1, op, label2);
-		return;
-	}
 	//check data
 
 	unsigned char check[50];
@@ -494,9 +546,9 @@ void truthtee::operation(unsigned char tru_in1[],unsigned int in1_len, int swi_1
 		printf("Illegal swi \n");
 	}
 	//Convert to Int
-	uint64_t ud1 = 0;
-	uint64_t ud2 = 0;
-	uint64_t uan = 0;
+	int64_t ud1 = 0;
+	int64_t ud2 = 0;
+	int64_t uan = 0;
 	if(in1_len != 0){
 		to_ll(d1,ud1);
 	}

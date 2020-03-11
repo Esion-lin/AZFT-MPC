@@ -1,0 +1,5 @@
+include_directories(include)
+aux_source_directory(. DIR_LIB_SRCS)
+add_library(hardware ${DIR_LIB_SRCS})
+link_directories(.)
+target_link_libraries(hardware crypto libSG.so)

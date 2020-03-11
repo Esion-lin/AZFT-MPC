@@ -1,0 +1,44 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/eason/doc_file/MPC硬件/HW/crypto.cpp
+crypto.h
+/home/eason/doc_file/MPC硬件/HW/crypto.h
+iostream
+-
+algorithm
+-
+cstdlib
+-
+time.h
+-
+unistd.h
+-
+
+HW/include/SG_API.h
+
+HW/include/crypto.h
+stdio.h
+-
+stdlib.h
+-
+memory.h
+-
+time.h
+-
+vector
+-
+string
+-
+openssl/sha.h
+-
+stdint.h
+-
+SG_API.h
+HW/include/SG_API.h
+
