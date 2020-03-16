@@ -9,23 +9,26 @@ struct Shape{
 class Truple{
 public:
 	Shape shape;
-	truple(Shape shape);
-	serialize(unsigned char * output, int &length);
-	unserialize(unsigned char * input);
-	unsigned char &operator*(const Truple & trp);
+	Truple(Shape shape);
+	~Truple();
+	void serialize(unsigned char * output, int &length);
+	void unserialize(unsigned char * input);
+	unsigned char operator*(const Truple & trp);
+	const unsigned char& operator[] (const int index);
+	/*h-Dimension cannot be subed*/
+	Truple sub_truple(unsigned int x, unsigned int y, unsigned int x_len, unsigned int y_len);
 private:
 	unsigned char  * data;
 };
-class Kernel:public Truple{
 
-};
 class Image: public Truple{
 	unsigned int stride;
 	bool pending;
-	Shape kerneL_shape;
+	Shape kernel_shape;
 public:
 	void split(Shape shape, bool pending, unsigned int stride);
 	Truple convolution(std::vector<Truple> truples);
+	Truple convolution(Truple truple);
 };
 
 #endif
