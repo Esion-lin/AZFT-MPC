@@ -20,6 +20,12 @@ time.h
 unistd.h
 -
 
+/home/eason/doc_file/MPC硬件/HW/tuple.cpp
+tuple.h
+/home/eason/doc_file/MPC硬件/HW/tuple.h
+stdio.h
+-
+
 HW/include/SG_API.h
 
 HW/include/crypto.h
@@ -41,4 +47,14 @@ stdint.h
 -
 SG_API.h
 HW/include/SG_API.h
+
+HW/include/tuple.h
+vector
+-
+string.h
+-
+stdio.h
+-
+math.h
+-
 

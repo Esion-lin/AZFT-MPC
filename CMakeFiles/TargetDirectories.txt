@@ -1,4 +1,5 @@
 /home/eason/doc_file/MPC硬件/CMakeFiles/rebuild_cache.dir
+/home/eason/doc_file/MPC硬件/CMakeFiles/test_ex.dir
 /home/eason/doc_file/MPC硬件/CMakeFiles/file_deal.dir
 /home/eason/doc_file/MPC硬件/CMakeFiles/hardware_lib.dir
 /home/eason/doc_file/MPC硬件/CMakeFiles/edit_cache.dir

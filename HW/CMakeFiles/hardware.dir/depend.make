@@ -5,3 +5,6 @@ HW/CMakeFiles/hardware.dir/crypto.cpp.o: HW/crypto.cpp
 HW/CMakeFiles/hardware.dir/crypto.cpp.o: HW/include/SG_API.h
 HW/CMakeFiles/hardware.dir/crypto.cpp.o: HW/include/crypto.h
 
+HW/CMakeFiles/hardware.dir/tuple.cpp.o: HW/tuple.cpp
+HW/CMakeFiles/hardware.dir/tuple.cpp.o: HW/include/tuple.h
+

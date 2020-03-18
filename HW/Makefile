@@ -152,6 +152,33 @@ crypto.cpp.s:
 	cd /home/eason/doc_file/MPC硬件 && $(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/crypto.cpp.s
 .PHONY : crypto.cpp.s
 
+tuple.o: tuple.cpp.o
+
+.PHONY : tuple.o
+
+# target to build an object file
+tuple.cpp.o:
+	cd /home/eason/doc_file/MPC硬件 && $(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/tuple.cpp.o
+.PHONY : tuple.cpp.o
+
+tuple.i: tuple.cpp.i
+
+.PHONY : tuple.i
+
+# target to preprocess a source file
+tuple.cpp.i:
+	cd /home/eason/doc_file/MPC硬件 && $(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/tuple.cpp.i
+.PHONY : tuple.cpp.i
+
+tuple.s: tuple.cpp.s
+
+.PHONY : tuple.s
+
+# target to generate assembly for a file
+tuple.cpp.s:
+	cd /home/eason/doc_file/MPC硬件 && $(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/tuple.cpp.s
+.PHONY : tuple.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -164,6 +191,9 @@ help:
 	@echo "... crypto.o"
 	@echo "... crypto.i"
 	@echo "... crypto.s"
+	@echo "... tuple.o"
+	@echo "... tuple.i"
+	@echo "... tuple.s"
 .PHONY : help
 
 
