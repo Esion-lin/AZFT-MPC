@@ -10,6 +10,13 @@ Tuple::~Tuple(){
 	delete data;
 	data = NULL;
 }
+void Tuple::reshape(Shape shape, baseInt * input){
+	delete data;
+	data = NULL;
+	this->shape = shape;
+	data = new baseInt[shape.l*shape.w*shape.h];
+	unserialize(input);
+}
 void Tuple::serialize(baseInt * output) const{
 	/**/
 	int length = shape.l*shape.w*shape.h;

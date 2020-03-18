@@ -31,6 +31,7 @@ public:
 		shape = {biggest_kenel,biggest_kenel,biggest_kenel};
 	}
 	~Tuple();
+	void reshape(Shape shape, baseInt * input);
 	void serialize(baseInt * output) const;
 	void unserialize(baseInt * input);
 	baseInt& operator[] (const int index){
