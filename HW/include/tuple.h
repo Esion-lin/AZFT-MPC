@@ -13,6 +13,9 @@ struct Shape{
 	int l;
 	int w;
 	int h;
+	int size(){
+		return l*w*h;
+	}
 	bool operator!=(const Shape other) const{  
         return this->l != other.l || this->w != other.w;  
     }  
@@ -82,6 +85,11 @@ protected:
 class Image: public Tuple{
 public:
 	Image(Shape shape):Tuple(shape){};
+	Image(const Image &other){
+		this->shape = other.shape;
+		data = new baseInt[shape.l*shape.w*shape.h];
+		other.serialize(data);
+	};
 	Image(std::vector<Tuple> subtuple);
 	Image convolution(std::vector<Tuple> tuples, bool pending, unsigned int stride);
 	Tuple convolution(Tuple tuple,bool pending, unsigned int stride);
