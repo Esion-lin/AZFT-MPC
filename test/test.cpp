@@ -35,8 +35,15 @@ int main(){
 	structure[itr ++] = 3;
 	structure[itr ++] = 3;
 	structure[itr ++] = 3;
-	
-	
+	/*add pooling*/
+	structure[itr ++] = layer ++;
+	structure[itr ++] = layer;
+	structure[itr ++] = POOLING;
+	structure[itr ++] = max_pooling;
+	structure[itr ++] = false;
+	structure[itr ++] = 1;
+	structure[itr ++] = 3;
+	structure[itr ++] = 3;
 	itr = 0;
 	for(int i = 0; i < 3; i++){
 		for(int j = 0; j < 8; j++){

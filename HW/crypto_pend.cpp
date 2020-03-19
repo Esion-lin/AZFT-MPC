@@ -111,6 +111,7 @@ int truthtee_pend::block(unsigned char W[], unsigned int W_len, unsigned char st
 				int l = structure[itr++];
 				int w = structure[itr++];
 				dic.push_back(dic[target_layer].pooling({l,w,1},is_pending == 0? false:true, stride, type_pooling));
+				dic[layer_id].output_data();
 			}
 				break;
 			case RELU:
