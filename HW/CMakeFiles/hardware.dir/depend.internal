@@ -5,6 +5,12 @@ HW/CMakeFiles/hardware.dir/crypto.cpp.o
  /home/eason/doc_file/MPC硬件/HW/crypto.cpp
  HW/include/SG_API.h
  HW/include/crypto.h
+HW/CMakeFiles/hardware.dir/crypto_pend.cpp.o
+ /home/eason/doc_file/MPC硬件/HW/crypto_pend.cpp
+ HW/include/SG_API.h
+ HW/include/crypto.h
+ HW/include/crypto_pend.h
+ HW/include/tuple.h
 HW/CMakeFiles/hardware.dir/tuple.cpp.o
  /home/eason/doc_file/MPC硬件/HW/tuple.cpp
  HW/include/tuple.h

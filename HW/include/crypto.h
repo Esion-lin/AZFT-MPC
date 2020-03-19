@@ -59,7 +59,7 @@ class truthtee{
 
 public:
 	truthtee();
-	~truthtee();
+	~truthtee(){};
 
 	//public key for data encrytion(send to other party) 
 	ECCPUBLICKEYBLOB 	pub_key1;
@@ -121,6 +121,8 @@ public:
 	*/
 	//from stream decode keys
 	void stream_to_key(unsigned char tru_in[]);
+protected:	
+	void transfer_data(unsigned char tru_in[],unsigned int in_len, unsigned char tru_out[],unsigned int &out_len, bool tr, int signal);
 private:
 
 	/*
@@ -132,7 +134,7 @@ private:
 	void gen_sym_key(unsigned char tru_out[], unsigned int key_len);
 	
 	//This function do temporary decryption and encryption operations, in operation 
-	void transfer_data(unsigned char tru_in[],unsigned int in_len, unsigned char tru_out[],unsigned int &out_len, bool tr, int signal);
+	
 	/*
 	When doing operations, the byte stream is first converted to 64 digits with to_ll().
 	And after that, turn back to stream with to_byte16().

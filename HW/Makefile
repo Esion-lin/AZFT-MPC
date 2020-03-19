@@ -152,6 +152,33 @@ crypto.cpp.s:
 	cd /home/eason/doc_file/MPC硬件 && $(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/crypto.cpp.s
 .PHONY : crypto.cpp.s
 
+crypto_pend.o: crypto_pend.cpp.o
+
+.PHONY : crypto_pend.o
+
+# target to build an object file
+crypto_pend.cpp.o:
+	cd /home/eason/doc_file/MPC硬件 && $(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/crypto_pend.cpp.o
+.PHONY : crypto_pend.cpp.o
+
+crypto_pend.i: crypto_pend.cpp.i
+
+.PHONY : crypto_pend.i
+
+# target to preprocess a source file
+crypto_pend.cpp.i:
+	cd /home/eason/doc_file/MPC硬件 && $(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/crypto_pend.cpp.i
+.PHONY : crypto_pend.cpp.i
+
+crypto_pend.s: crypto_pend.cpp.s
+
+.PHONY : crypto_pend.s
+
+# target to generate assembly for a file
+crypto_pend.cpp.s:
+	cd /home/eason/doc_file/MPC硬件 && $(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/crypto_pend.cpp.s
+.PHONY : crypto_pend.cpp.s
+
 tuple.o: tuple.cpp.o
 
 .PHONY : tuple.o
@@ -191,6 +218,9 @@ help:
 	@echo "... crypto.o"
 	@echo "... crypto.i"
 	@echo "... crypto.s"
+	@echo "... crypto_pend.o"
+	@echo "... crypto_pend.i"
+	@echo "... crypto_pend.s"
 	@echo "... tuple.o"
 	@echo "... tuple.i"
 	@echo "... tuple.s"

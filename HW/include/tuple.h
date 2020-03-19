@@ -84,6 +84,7 @@ protected:
 
 class Image: public Tuple{
 public:
+	Image(){};
 	Image(Shape shape):Tuple(shape){};
 	Image(const Image &other){
 		this->shape = other.shape;
@@ -94,7 +95,7 @@ public:
 	Image convolution(std::vector<Tuple> tuples, bool pending, unsigned int stride);
 	Tuple convolution(Tuple tuple,bool pending, unsigned int stride);
 	void ReLU(bool simple = true, double alpha = 0);
-	void BN_for_test(double mu, double sigma, double gamma, double beta, double epsilon = 0.0001);
+	void BN_for_test(double mu, double sigma, double gamma, double beta, double epsilon);
 	void add_other(Image res);
 	Image pooling(Shape kenerl_shape, bool pending, unsigned int stride, int type);
 	void FC(baseInt * output, baseInt * weight, int weight_width);

@@ -3,16 +3,21 @@
 int truthtee_pend::data_input(unsigned char data[], unsigned int data_len, int l, int w, int h){
 	unsigned char data_internal[data_len * 2];
 	unsigned int data_in_len;
-	transfer_data(data, data_len, data_internal, data_in_len, DECRYPTO, remote_key);
+	transfer_data(data, data_len, data_internal, data_in_len, DECRYPTO, org_key);
 	baseInt data_in_type[data_in_len/sizeof(baseInt)];
 	memcpy(data_in_type, data_internal, data_in_len);
 	data_image.reshape({l,w,h}, data_in_type);
+	data_image.output_data();
 
 }
-int truthtee_pend::block(unsigned char W[], unsigned int W_len, unsigned char structure[], unsigned int struct_len, unsigned char output[]){
+int truthtee_pend::test_with_remote(unsigned char input_data[], unsigned int input_len, unsigned char output_data[], unsigned int &output_len){
+	transfer_data(input_data, input_len, output_data, output_len, ENCRYPTO, org_key);
+}
+int truthtee_pend::block(unsigned char W[], unsigned int W_len, unsigned char structure[], unsigned int struct_len, baseInt output[]){
 	/*structure:
-		layer:1
 		target_layer:1
+		layer:1
+		
 		type:1 s.t cov,pooling,ReLU,BN,FC
 		cov{
 			size_of_kenerl:1
@@ -54,21 +59,30 @@ int truthtee_pend::block(unsigned char W[], unsigned int W_len, unsigned char st
 		}
 		
 	*/
+
 	unsigned char w_internal[W_len * 2];
 	unsigned int w_in_len;
+
 	transfer_data(W, W_len, w_internal, w_in_len, DECRYPTO, org_key);
+	baseInt w_data[w_in_len / sizeof(baseInt)];
+	memcpy(w_data, w_internal, w_in_len);
 	//scran and transform the data;
 	int itr = 0;
 	int w_itr = 0;
 	int layers = 0;
-	std::map<int, Image> dic;
-	dic[0] = data_image;
+	std::vector<Image> dic;
+	dic.push_back(data_image);
 	int layer_id,target_layer;
-	while(itr >= struct_len){
-		layer_id = structure[itr++];
+	printf("start %d %d\n", itr, struct_len);
+	while(itr < struct_len){
 		target_layer = structure[itr++];
+		layer_id = structure[itr++];
+		
+		printf("layer : %d layer_id :%d\n", layer_id,target_layer);
+
 		switch(structure[itr++]){
-			case cov:
+			case COV:
+			{
 				int size_of_kenerl = structure[itr++];
 				std::vector<Tuple> tuples;
 				int is_pending = structure[itr++];
@@ -78,59 +92,66 @@ int truthtee_pend::block(unsigned char W[], unsigned int W_len, unsigned char st
 				int h = structure[itr++];
 				while(size_of_kenerl --){
 					Tuple kernel({l,w,h});
-					kernel.serialize(w_internal + w_itr);
+					kernel.unserialize(w_data + w_itr);
 					w_itr += l*w*h;
+					kernel.output_data();
 					tuples.push_back(kernel);
 				}
-				dic[layer_id] = dic[target_layer].convolution(tuples, is_pending == 0? false:true, stride);
+				dic[target_layer].output_data();
+				dic.push_back(dic[target_layer].convolution(tuples, is_pending == 0? false:true, stride));
+				printf("printf cov ans\n");
+				dic[layer_id].output_data();
+			}
 				break;
-			case pooling:
+			case POOLING:
+			{
 				int type_pooling = structure[itr++];
-				bool is_pending = (structure[itr++] == 0);
+				int is_pending = structure[itr++];
 				int stride = structure[itr++];
 				int l = structure[itr++];
 				int w = structure[itr++];
-				dic[layer_id] = dic[target_layer].pooling({l,w,1},is_pending, stride, type_pooling);
+				dic.push_back(dic[target_layer].pooling({l,w,1},is_pending == 0? false:true, stride, type_pooling));
+			}
 				break;
-			case ReLU:
+			case RELU:
+			{
+
 				double alpha;
-				memcpy(alpha, structure + itr, sizeof(baseInt)); 
+				memcpy(&alpha, structure + itr, sizeof(baseInt)); 
 				itr += sizeof(baseInt);
 				if(alpha == 0){
 					dic[target_layer].ReLU();	
 				}else{
 					dic[target_layer].ReLU(false, alpha);
 				}
+			}
 				break;
-			case BN:
-				double mu;
-				double sigma;
-				double gammma;
-				double beta;
-				double epsilon;
-				memcpy(mu, structure + w_itr, sizeof(baseInt));
-				w_itr += sizeof(baseInt);
-				memcpy(sigma, structure + w_itr, sizeof(baseInt));
-				w_itr += sizeof(baseInt); 
-				memcpy(gammma, structure + w_itr, sizeof(baseInt));
-				w_itr += sizeof(baseInt);
-				memcpy(beta, structure + w_itr, sizeof(baseInt));
-				w_itr += sizeof(baseInt);
-				memcpy(epsilon, structure + w_itr, sizeof(baseInt));
-				w_itr += sizeof(baseInt);
-				dic[target_layer].BN_for_test(mu, sigma, gamma, beta, 0.0001);
+			case BN_ID:
+			{
+				double mu = w_data[w_itr++];
+				double sigma = w_data[w_itr++];
+				double gamma = w_data[w_itr++];
+				double beta = w_data[w_itr++];
+				double epsilon = w_data[w_itr++];
+				dic[target_layer].BN_for_test(mu, sigma, gamma, beta, epsilon);
+			}
 				break;
-			case FC:
-				int weight_width = structure[itr++];
+			case FC_ID:
+			{	int weight_width = structure[itr++];
 				baseInt weight[weight_width*dic[target_layer].shape.size()];
+				memcpy(weight, w_data + w_itr, weight_width*dic[target_layer].shape.size()*sizeof(baseInt));
 				dic[target_layer].FC(output, weight, weight_width);
+			}
 				break;
-			case shortcut:
+			case SHORTCUT:
+			{
 				int layer_num = structure[itr++];
 				dic[target_layer].add_other(dic[layer_num]);
+			}
 				break;
 		}
 	}
+
 	return 0;
 
 }
