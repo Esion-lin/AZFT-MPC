@@ -266,24 +266,85 @@ bool truthtee::decrypto(unsigned char label[], unsigned int lab_len, unsigned ch
 
 }
 void truthtee::transfer_data(unsigned char tru_in[],unsigned int in_len, unsigned char tru_out[],unsigned int &out_len, bool tr, int signal){
-	if(tr){
-		if(signal == org_key){
-			if(SG_SymDec(SGD_SMS4_ECB ,sym_key_keep,sym_key_len/8,sym_key_keep,sym_key_len/8,tru_in,in_len,tru_out,&out_len) != SAR_OK){
-				perror("decrypto data error\n");
+	if(in_len >= 4000){
+		int tmp = in_len;
+		int itr = 0;
+		int out_p = 0;
+		while(tmp > 4000){
+			if(tr){
+				if(signal == org_key){
+					if(SG_SymDec(SGD_SMS4_ECB ,sym_key_keep,sym_key_len/8,sym_key_keep,sym_key_len/8,tru_in + itr*4000,4000,tru_out + out_p,&out_len) != SAR_OK){
+						printf("%d", tmp);
+						perror("decrypto data error\n");
+					}
+					out_p += out_len;
+				}else if(signal == remote_key){
+					if(SG_SymDec(SGD_SMS4_ECB ,sym_key_remote,sym_key_len/8,sym_key_remote,sym_key_len/8,tru_in + itr*4000,4000,tru_out + out_p,&out_len) != SAR_OK){
+						printf("%d", tmp);
+						perror("decrypto data error\n");
+					}
+					out_p += out_len;
+				}
+				
+				
+			}else{
+				if(SG_SymEnc(SGD_SMS4_ECB ,sym_key_keep,sym_key_len/8,sym_key_keep,sym_key_len/8,tru_in + itr*4000,4000,tru_out + out_p,&out_len) != SAR_OK){
+					printf("%d", tmp);
+					perror("encrypto data error\n");
+				}
+				out_p += out_len;
 			}
-		}else if(signal == remote_key){
-			if(SG_SymDec(SGD_SMS4_ECB ,sym_key_remote,sym_key_len/8,sym_key_remote,sym_key_len/8,tru_in,in_len,tru_out,&out_len) != SAR_OK){
-				perror("decrypto data error\n");
-			}
+			itr++;
+			tmp -= 4000;
 		}
-		
-		
-	}else{
-		if(SG_SymEnc(SGD_SMS4_ECB ,sym_key_keep,sym_key_len/8,sym_key_keep,sym_key_len/8,tru_in,in_len,tru_out,&out_len) != SAR_OK){
-			perror("decrypto data error\n");
-		}
+		if(tmp != 0){
+			if(tr){
+				if(signal == org_key){
+					if(SG_SymDec(SGD_SMS4_ECB ,sym_key_keep,sym_key_len/8,sym_key_keep,sym_key_len/8,tru_in + itr*4000,tmp,tru_out + out_p,&out_len) != SAR_OK){
+						printf("%d", tmp);
+						perror("decrypto data error\n");
+					}
+					out_p += out_len;
+				}else if(signal == remote_key){
+					if(SG_SymDec(SGD_SMS4_ECB ,sym_key_remote,sym_key_len/8,sym_key_remote,sym_key_len/8,tru_in + itr*4000,tmp,tru_out + out_p,&out_len) != SAR_OK){
+						printf("%d", tmp);
+						perror("decrypto data error\n");
+					}
+					out_p += out_len;
+				}
+				
+				
+			}else{
+				if(SG_SymEnc(SGD_SMS4_ECB ,sym_key_keep,sym_key_len/8,sym_key_keep,sym_key_len/8,tru_in + itr*4000,tmp,tru_out + out_p,&out_len) != SAR_OK){
+					printf("encrypto data len %d\n", tmp);
+					perror("encrypto data error\n");
+				}
+				out_p += out_len;
 
+			}
+		}
+		out_len = out_p;
+	}else{
+		if(tr){
+			if(signal == org_key){
+				if(SG_SymDec(SGD_SMS4_ECB ,sym_key_keep,sym_key_len/8,sym_key_keep,sym_key_len/8,tru_in,in_len,tru_out,&out_len) != SAR_OK){
+					perror("decrypto data error\n");
+				}
+			}else if(signal == remote_key){
+				if(SG_SymDec(SGD_SMS4_ECB ,sym_key_remote,sym_key_len/8,sym_key_remote,sym_key_len/8,tru_in,in_len,tru_out,&out_len) != SAR_OK){
+					perror("decrypto data error\n");
+				}
+			}
+			
+			
+		}else{
+			if(SG_SymEnc(SGD_SMS4_ECB ,sym_key_keep,sym_key_len/8,sym_key_keep,sym_key_len/8,tru_in,in_len,tru_out,&out_len) != SAR_OK){
+				perror("encrypto data error\n");
+			}
+
+		}
 	}
+	
 }
 int truthtee::test_and_op(unsigned char tru_out[], int &out_len){
 	if(!A_get){

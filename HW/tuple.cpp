@@ -85,6 +85,11 @@ Tuple Image::convolution(Tuple tuple, bool pending, unsigned int stride){
     	sprintf(error, "error:illegal shape, [%d,%d] is not square.",tuple.shape.l, tuple.shape.w);
 		throw error;
 	}
+	if(tuple.shape.h != shape.h){
+		char error[80];
+    	sprintf(error, "error:illegal cov, third dimension should be identical while [., ., %d] is not mapping [., ., %d].",tuple.shape.h, shape.h);
+		throw error;
+	}
 	Shape ans_shape = {0,0,1};
 	int start_x = 0;
 	int start_y = 0;
@@ -218,7 +223,7 @@ Image Image::convolution(std::vector<Tuple> tuples, bool pending, unsigned int s
 	Image result_img(ans_tmp);
 	return result_img;
 }
-void Image::ReLU(bool simple, double alpha){
+void Image::ReLU(bool simple, baseInt alpha){
 	if(simple){
 		for(int i = 0; i < shape.l*shape.w*shape.h; i++){
 			data[i] = data[i] < 0 ? 0:data[i];
@@ -229,7 +234,7 @@ void Image::ReLU(bool simple, double alpha){
 		}
 	}
 }
-void Image::BN_for_test(double mu, double sigma, double gamma, double beta, double epsilon){
+void Image::BN_for_test(baseInt mu, baseInt sigma, baseInt gamma, baseInt beta, baseInt epsilon){
 	for(int i = 0; i < shape.l*shape.w*shape.h; i++){
 		data[i] = gamma * (data[i] - mu) / sqrt(sigma + epsilon) + beta;
 	}

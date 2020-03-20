@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
-#define baseInt double
+#define baseInt float
 #define biggest_kenel 7
 #define max_pooling 0
 #define avg_pooling 1
@@ -41,6 +41,7 @@ public:
 		if(index >= shape.l*shape.w*shape.h){
 			char error[80];
 	    	sprintf(error, "error:out of range, should less [%d] but [%d].", shape.l*shape.w*shape.h,index);
+			printf(error);
 			throw error;
 		}
 		return data[index];
@@ -50,6 +51,7 @@ public:
 		if(trp.shape != this->shape){
 			char error[80];
 	    	sprintf(error, "error:shape not mapping, should have been [%d,%d,%d] but [%d,%d,%d].", this->shape.l,this->shape.w,this->shape.h,trp.shape.l,trp.shape.w,trp.shape.h);
+			printf(error);
 			throw error;
 		}
 		baseInt ans = 0;
@@ -58,7 +60,13 @@ public:
 		}
 		return ans;
 	}
-	
+	void operator=(Tuple trp){
+		/**/
+		shape = trp.shape;
+		delete data;
+		data = new baseInt[trp.shape.size()];
+		trp.serialize(data);
+	}
 	/*h-Dimension cannot be subed*/
 	Tuple sub_tuple(unsigned int x, unsigned int y, unsigned int x_len, unsigned int y_len);
 	baseInt find_max(unsigned int x, unsigned int y, unsigned int x_len, unsigned int y_len, unsigned int hight);
@@ -94,8 +102,8 @@ public:
 	Image(std::vector<Tuple> subtuple);
 	Image convolution(std::vector<Tuple> tuples, bool pending, unsigned int stride);
 	Tuple convolution(Tuple tuple,bool pending, unsigned int stride);
-	void ReLU(bool simple = true, double alpha = 0);
-	void BN_for_test(double mu, double sigma, double gamma, double beta, double epsilon);
+	void ReLU(bool simple = true, baseInt alpha = 0);
+	void BN_for_test(baseInt mu, baseInt sigma, baseInt gamma, baseInt beta, baseInt epsilon);
 	void add_other(Image res);
 	Image pooling(Shape kenerl_shape, bool pending, unsigned int stride, int type);
 	void FC(baseInt * output, baseInt * weight, int weight_width);
