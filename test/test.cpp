@@ -235,7 +235,7 @@ void make_structure_cov2(truthtee_pend *tee, bool projection){
 	int w_size;
 	if(projection){
 		struct_size = SIZE_COV * 4 + SIZE_BN * 4 + SIZE_RELU * 3 + SIZE_SHORTCUT;
-		w_size = (1*1*256*128 + 5 + 3*3*128*128 + 5 + 1*1*128*512 + 5 + 1*1*256*512 + 5) * sizeof(baseInt);
+		w_size = (1*1*256*128 + 5 + 3*3*128*128 + 5 + 1*1*128*512 + 5 + 1*1*256*512 + 5);
 	}else{
 		struct_size = SIZE_COV * 3 + SIZE_BN * 3 + SIZE_RELU * 3 + SIZE_SHORTCUT;
 		w_size = (1*1*512*128 + 5 + 3*3*128*128 + 5 + 1*1*128*512 + 5);
@@ -279,10 +279,10 @@ void make_structure_cov3(truthtee_pend *tee, bool projection){
 	int w_size;
 	if(projection){
 		struct_size = SIZE_COV * 4 + SIZE_BN * 4 + SIZE_RELU * 3 + SIZE_SHORTCUT;
-		w_size = (1*1*256*128 + 5 + 3*3*128*128 + 5 + 1*1*128*512 + 5 + 1*1*256*512 + 5) * sizeof(baseInt);
+		w_size = (1*1*512*256 + 5 + 3*3*256*256 + 5 + 1*1*256*1024 + 5 + 1*1*512*1024 + 5);
 	}else{
 		struct_size = SIZE_COV * 3 + SIZE_BN * 3 + SIZE_RELU * 3 + SIZE_SHORTCUT;
-		w_size = (1*1*512*128 + 5 + 3*3*128*128 + 5 + 1*1*128*512 + 5);
+		w_size = (1*1*1024*256 + 5 + 3*3*256*256 + 5 + 1*1*256*1024 + 5);
 	}
 	if(w_size % 32!=0){
 		w_size += (32 - w_size % 32);
@@ -295,20 +295,20 @@ void make_structure_cov3(truthtee_pend *tee, bool projection){
 	int offset_struct = 0;
 	int offset_w = 0;
 	if(projection){
-		add_cov(structure + offset_struct, W + offset_w, 128, layer, {1,1,256}, false, 2, offset_struct, offset_w, layer);	
+		add_cov(structure + offset_struct, W + offset_w, 256, layer, {1,1,512}, false, 2, offset_struct, offset_w, layer);	
 	}else{
-		add_cov(structure + offset_struct, W + offset_w, 128, layer, {1,1,512}, false, 1, offset_struct, offset_w, layer);
+		add_cov(structure + offset_struct, W + offset_w, 256, layer, {1,1,1024}, false, 1, offset_struct, offset_w, layer);
 	}
 	add_BN(structure + offset_struct, W + offset_w, layer, offset_struct, offset_w);
 	add_RELU(structure + offset_struct, layer, 0, offset_struct);
-	add_cov(structure + offset_struct, W + offset_w, 128, layer, {3,3,128}, true, 1, offset_struct, offset_w, layer);
+	add_cov(structure + offset_struct, W + offset_w, 256, layer, {3,3,256}, true, 1, offset_struct, offset_w, layer);
 	add_BN(structure + offset_struct, W + offset_w, layer, offset_struct, offset_w);
 	add_RELU(structure + offset_struct, layer, 0, offset_struct);
-	add_cov(structure + offset_struct, W + offset_w, 512, layer, {1,1,128}, false, 1, offset_struct, offset_w, layer);
+	add_cov(structure + offset_struct, W + offset_w, 1024, layer, {1,1,256}, false, 1, offset_struct, offset_w, layer);
 	add_BN(structure + offset_struct, W + offset_w, layer, offset_struct, offset_w);
 	addition_layer = layer;
 	if(projection){
-		add_cov(structure + offset_struct, W + offset_w, 512, layer, {1,1,256}, false, 2, offset_struct, offset_w, 0);
+		add_cov(structure + offset_struct, W + offset_w, 1024, layer, {1,1,512}, false, 2, offset_struct, offset_w, 0);
 		add_BN(structure + offset_struct, W + offset_w, layer, offset_struct, offset_w);
 		add_SHORTCUT(structure + offset_struct, layer, addition_layer, offset_struct);
 	}else{
@@ -318,8 +318,49 @@ void make_structure_cov3(truthtee_pend *tee, bool projection){
 	baseInt arr[100];
 	tee->block(W , W_len, structure, struct_size,arr);
 }
-void make_structure_cov4(){
-
+void make_structure_cov4(truthtee_pend *tee, bool projection){
+	int struct_size;
+	int w_size;
+	if(projection){
+		struct_size = SIZE_COV * 4 + SIZE_BN * 4 + SIZE_RELU * 3 + SIZE_SHORTCUT;
+		w_size = (1*1*512*256 + 5 + 3*3*256*256 + 5 + 1*1*256*1024 + 5 + 1*1*512*1024 + 5);
+	}else{
+		struct_size = SIZE_COV * 3 + SIZE_BN * 3 + SIZE_RELU * 3 + SIZE_SHORTCUT;
+		w_size = (1*1*1024*256 + 5 + 3*3*256*256 + 5 + 1*1*256*1024 + 5);
+	}
+	if(w_size % 32!=0){
+		w_size += (32 - w_size % 32);
+	}
+	unsigned char structure[struct_size];
+	baseInt W[w_size];
+	unsigned int W_len = w_size;
+	int layer = 0;
+	int addition_layer = 0;
+	int offset_struct = 0;
+	int offset_w = 0;
+	if(projection){
+		add_cov(structure + offset_struct, W + offset_w, 256, layer, {1,1,512}, false, 2, offset_struct, offset_w, layer);	
+	}else{
+		add_cov(structure + offset_struct, W + offset_w, 256, layer, {1,1,1024}, false, 1, offset_struct, offset_w, layer);
+	}
+	add_BN(structure + offset_struct, W + offset_w, layer, offset_struct, offset_w);
+	add_RELU(structure + offset_struct, layer, 0, offset_struct);
+	add_cov(structure + offset_struct, W + offset_w, 256, layer, {3,3,256}, true, 1, offset_struct, offset_w, layer);
+	add_BN(structure + offset_struct, W + offset_w, layer, offset_struct, offset_w);
+	add_RELU(structure + offset_struct, layer, 0, offset_struct);
+	add_cov(structure + offset_struct, W + offset_w, 1024, layer, {1,1,256}, false, 1, offset_struct, offset_w, layer);
+	add_BN(structure + offset_struct, W + offset_w, layer, offset_struct, offset_w);
+	addition_layer = layer;
+	if(projection){
+		add_cov(structure + offset_struct, W + offset_w, 1024, layer, {1,1,512}, false, 2, offset_struct, offset_w, 0);
+		add_BN(structure + offset_struct, W + offset_w, layer, offset_struct, offset_w);
+		add_SHORTCUT(structure + offset_struct, layer, addition_layer, offset_struct);
+	}else{
+		add_SHORTCUT(structure + offset_struct, layer, 0, offset_struct);	
+	}
+	add_RELU(structure + offset_struct, layer, 0, offset_struct);
+	baseInt arr[100];
+	tee->block(W , W_len, structure, struct_size,arr);
 }
 void make_structure_output(){
 
