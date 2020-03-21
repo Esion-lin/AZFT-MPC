@@ -13,14 +13,14 @@
 #include <sys/shm.h>
 #include <string>
 #include <json/json.h>
-#include "crypto.h"
+#include "crypto_pend.h"
 #include "config.h"
 #include <map>
 #include <iostream>
 #include "tool.h"
 class netTool{
 public:
-	netTool(truthtee *tru);
+	netTool(truthtee_pend *tru);
 	~netTool();
 
     char 	sendbuf[buffer_size];
@@ -31,6 +31,7 @@ public:
 	void 	acc_and_recv();
 	void 	init_conn();
 	void	send_data(Json::Value js);
+	void	send_data(unsigned char * data, int len_data);
 	void 	init();
 	void 	deal_data(Json::Value value);
 	//for test
@@ -48,7 +49,7 @@ public:
 	bool	is_mac_send = false;
 
 private:
-	truthtee 		*tru;
+	truthtee_pend 		*tru;
 	std::string		conn_host;
 	int 			conn_port;
 	bool 			rec_serial_data = true;

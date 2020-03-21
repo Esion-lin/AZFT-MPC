@@ -25,5 +25,5 @@ add_executable(main src/main.cpp)
 target_link_libraries(main ${CMAKE_THREAD_LIBS_INIT} hardware_lib)
 add_executable(file_deal src/_file_deal.cpp)
 add_executable(test_ex test/test.cpp)
-target_link_libraries(test_ex hardware)
+target_link_libraries(test_ex hardware hardware_lib)
 

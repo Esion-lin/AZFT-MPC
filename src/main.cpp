@@ -3,6 +3,8 @@
 #include "network.h"
 #include "protocol.h"
 #include "tool.h"
+#include <time.h>
+#include "model.h"
 bool debug_this = false;
 bool notify(){
 	printf("choose a operation:\n \t1.send encrypto msg\n \t2.run protocol\n \t3.send data file\n \t4.....\n");
@@ -16,16 +18,30 @@ void send_json(int action, unsigned char data[], int len, void *tmp){
 	for(int i = 0; i < len; i++){
         jdata[i] = data[i];
     }
+
     json["data"] = jdata;
     nettool->send_data(json);
 }
 void sign_key(void *tmp,void *tmp2){
-	truthtee* tru = (truthtee*) tmp;
+	truthtee_pend* tru = (truthtee_pend*) tmp;
     unsigned char data[ECC_MAX_XCOORDINATE_BITS_LEN/4];
     tru->sign_key(data);
    
 	send_json(sign_action, data, ECC_MAX_XCOORDINATE_BITS_LEN/4, tmp2);
     
+}
+void send_img(void *tmp, unsigned char key_data[], int key_len, unsigned char * data, int len_data){
+    netTool* nettool = (netTool*) tmp;
+    Json::Value  json;
+    Json::Value  jkey;
+    json["action"] = Json::Value(rec_img_data);
+    for(int i = 0; i < key_len; i++){
+        jkey[i] = key_data[i];
+    }
+    json["key"] =  jkey;
+    nettool->send_data(json);
+    sleep(2);
+    nettool->send_data(data, len_data);
 }
 void send_cmd_mac(void *tmp, std::vector<unsigned char[MAC_LEN]> data){
  
@@ -69,7 +85,7 @@ void send_cmd_mac(void *tmp, std::vector<unsigned char[MAC_LEN]> data){
 }
 
 void send_pub_key(void *tmp,void *tmp2){
-	truthtee* tru = (truthtee*) tmp;
+	truthtee_pend* tru = (truthtee_pend*) tmp;
 	unsigned char data[ECC_MAX_XCOORDINATE_BITS_LEN/2];
     tru->query_pub_stream(data);
 	send_json(key_ex_action, data, ECC_MAX_XCOORDINATE_BITS_LEN/2, tmp2);
@@ -143,7 +159,7 @@ void deal_cmd(truple_mac now_trp_mac, int &now_step, void *tmp, std::map<std::st
     unsigned int data_len;
     unsigned int mac_len;
     unsigned char temp_msg[CIPHER_LEN];
-    truthtee* tru = (truthtee*) tmp;
+    truthtee_pend* tru = (truthtee_pend*) tmp;
     //conversion of array element
     now_trp.operand1 = get_item(org_dir,now_trp.operand1);
     now_trp.operand2 = get_item(org_dir,now_trp.operand2);
@@ -431,7 +447,8 @@ void deal_cmd(truple_mac now_trp_mac, int &now_step, void *tmp, std::map<std::st
 int main(){
     
 	pthread_t   recv_tid;
-    truthtee* tru = new truthtee();
+    truthtee_pend *tru = new truthtee_pend();
+    //truthtee* tru = new truthtee();
     printf("checking protocol file.....\n");
     bool load_succ;
     PotocolRead* protocol = new PotocolRead("./protocol_file/orgin.jimple", load_succ);
@@ -459,7 +476,7 @@ int main(){
     while(!nettool->is_key_store){
     };
     printf("Key exchanging successfully.\n");
-    sleep(1);
+    sleep(2);
     /*sign the public key*/
     sign_key(tru,nettool);
     printf("Key verifing.......\n");
@@ -605,40 +622,76 @@ int main(){
                 // std::cout<<"get answer: "<<answer<<std::endl;
     			break;
     		case 3:
+            {
+
+                baseInt img_data[224*224*3];
                 std::cout<<"input file path and name \n";
                 std::cin>>file_path;
-                file.open(file_path,std::ios::in);
-                if(!file.is_open()){
-                    printf("no such file\n");
-                    break;    
-                }
-                dir.clear();
-                tru->encrypto_key(enc_key, key_len);
-
-                while(getline(file,line)){
-                    if(line.empty()) continue;
-                    key_po = line.substr(0,line.find(" "));
-                    mid = line.substr(line.find(" ")+1);
-                    value = atoi(mid.c_str());
-                    if(key_po == "0" && value == 0){
-                        break;
+                std::string file_suffix = file_path.substr(file_path.find_last_of('.') + 1);
+                if(file_suffix == "mdl"){
+                    tru->encrypto_key(enc_key, key_len);
+                    load_model<baseInt>(img_data, 224*224*3, "./save_data/data.mdl");
+                    /*printf("[");
+                    for(int i = 0; i < 224; i++){
+                        printf("%f,", img_data[i]);
                     }
-                    to_byte16(value,msg);
-                    unsigned char label[LABEL_LEN];
-                    memcpy(label, key_po.c_str(), key_po.length());
-                    tru->encrypt_MAC(label, key_po.length(), msg, CIPHER_LEN, dir[key_po], data_len, dir_mac[key_po], mac_len);
-
-                }
-                send_data(nettool, enc_key, key_len, dir, dir_mac);
-                nettool->is_data_send = true;
-                if(is_send_output_mac){
-                    send_cmd_mac(nettool, protocol->tran_mac_last(tru));
+                    printf("]\n");*/
+                    unsigned char data_of_img[224*224*3*sizeof(baseInt)];
+                    unsigned int data_of_img_len = 224*224*3*sizeof(baseInt);
+                    unsigned char data_of_img_en[224*224*3*sizeof(baseInt)];
+                    unsigned int data_of_img_en_len;
+                    memcpy(data_of_img,img_data,224*224*3*sizeof(baseInt));
+                    
+                    tru->encrypto(data_of_img, data_of_img_len, data_of_img_en, data_of_img_en_len);
+                    send_img(nettool,enc_key, key_len, data_of_img_en, data_of_img_en_len);
+                    printf("\n");
                 }else{
-                    send_cmd_mac(nettool, protocol->tran_mac(tru));
+                    file.open(file_path,std::ios::in);
+                    if(!file.is_open()){
+                        printf("no such file\n");
+                        break;    
+                    }
+                    dir.clear();
+                    tru->encrypto_key(enc_key, key_len);
+
+                    while(getline(file,line)){
+                        if(line.empty()) continue;
+                        key_po = line.substr(0,line.find(" "));
+                        mid = line.substr(line.find(" ")+1);
+                        value = atoi(mid.c_str());
+                        if(key_po == "0" && value == 0){
+                            break;
+                        }
+                        to_byte16(value,msg);
+                        unsigned char label[LABEL_LEN];
+                        memcpy(label, key_po.c_str(), key_po.length());
+                        tru->encrypt_MAC(label, key_po.length(), msg, CIPHER_LEN, dir[key_po], data_len, dir_mac[key_po], mac_len);
+
+                    }
+                    send_data(nettool, enc_key, key_len, dir, dir_mac);
+                    nettool->is_data_send = true;
+                    if(is_send_output_mac){
+                        send_cmd_mac(nettool, protocol->tran_mac_last(tru));
+                    }else{
+                        send_cmd_mac(nettool, protocol->tran_mac(tru));
+                    }
+                    nettool->is_mac_send = true;
                 }
-                nettool->is_mac_send = true;
+            }    
     			break;
-    		case 4:
+            case 4:
+            {
+                if(!nettool->is_data_store){
+                    //sign data hash and send it
+                    printf("before run protocol, plz send data or receive data\n");
+                    break;
+                }
+                
+                tru->data_input(nettool->rev_img_data, img_size, 224,224,3);
+                tru->data_image.output_data();
+                break;
+            }
+    		case 5:
     			exit(1);
             default:
                 printf("illegal instruction\n");

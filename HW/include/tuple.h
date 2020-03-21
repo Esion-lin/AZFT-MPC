@@ -73,18 +73,16 @@ public:
 	baseInt find_avg(unsigned int x, unsigned int y, unsigned int x_len, unsigned int y_len, unsigned int hight);
 	void output_data(){
 		int itr = 0;
-		for(int i = 0; i < shape.h; i++){
-			printf("{\n");
-			for(int j = 0; j < shape.w; j++){
+		
+			
 				printf("[");
 				for(int k = 0; k < shape.l; k++){
 					printf("%f,", data[itr++]);
 				}
 				printf("]\n");
-			}
-			printf("}\n");
+			
 
-		}
+		
 	}
 protected:
 	baseInt * data;

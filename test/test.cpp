@@ -7,6 +7,7 @@ this file is just for testing code
 #include "tuple.h"
 #include <time.h>
 #include "crypto_pend.h"
+#include "model.h"
 baseInt randf() { 
     return (baseInt)(rand()/(baseInt)RAND_MAX); 
 } 
@@ -154,6 +155,7 @@ void make_structure_input(truthtee_pend *tee){
 	}
 	unsigned char structure[struct_size];
 	unsigned char W[w_size];
+	baseInt W_base[w_size/sizeof(baseInt)];
 	unsigned int W_len = w_size;
 	unsigned char W_en[w_size];
 	unsigned int W_en_len;
@@ -208,33 +210,34 @@ void make_structure_input(truthtee_pend *tee){
 				}	
 			}
 		}
+		memcpy(W_base + i * 7*7*3, kernel_data, 7*7*3*sizeof(baseInt));
 		memcpy(W + i * 7*7*3*sizeof(baseInt), kernel_data, 7*7*3*sizeof(baseInt));
 	}
 	baseInt mu[5] = {5.8, 4.2, 2.5, 1.5, 0.00001};
 	memcpy(W + 64 * 7*7*3*sizeof(baseInt), mu, 5*sizeof(baseInt));
-
+	memcpy(W_base + 64 * 7*7*3, mu, 5*sizeof(baseInt));
 	tee->test_with_remote(W, W_len, W_en, W_en_len);
 	baseInt arr[100];
 	tee->block(W_en , W_en_len, structure, struct_size,arr);
+	save_model<unsigned char>(structure, struct_size, "./save_data/input_struct.mdl");
+	save_model<baseInt>(W_base, w_size/sizeof(baseInt), "./save_data/input_W.mdl");
 }
-void make_structure_cov1(truthtee_pend *tee, bool projection){
+void make_structure_cov1(truthtee_pend *tee, bool projection, int round){
 	int struct_size;
 	int w_size;
 	if(projection){
 		struct_size = SIZE_COV * 4 + SIZE_BN * 4 + SIZE_RELU * 3 + SIZE_SHORTCUT;
-		w_size = (1*1*64*64 + 5 + 3*3*64*64 + 5 + 1*1*64*256 + 5 + 1*1*64*256 + 5) * sizeof(baseInt);
+		w_size = (1*1*64*64 + 5 + 3*3*64*64 + 5 + 1*1*64*256 + 5 + 1*1*64*256 + 5);
 	}else{
 		struct_size = SIZE_COV * 3 + SIZE_BN * 3 + SIZE_RELU * 3 + SIZE_SHORTCUT;
-		w_size = (1*1*256*64 + 5 + 3*3*64*64 + 5 + 1*1*64*256 + 5) * sizeof(baseInt);
+		w_size = (1*1*256*64 + 5 + 3*3*64*64 + 5 + 1*1*64*256 + 5);
 	}
 	if(w_size % 32!=0){
 		w_size += (32 - w_size % 32);
 	}
 	unsigned char structure[struct_size];
-	unsigned char W[w_size];
+	baseInt W[w_size];
 	unsigned int W_len = w_size;
-	unsigned char W_en[w_size];
-	unsigned int W_en_len;
 	int layer = 0;
 	int addition_layer = 0;
 	int offset_struct = 0;
@@ -260,11 +263,14 @@ void make_structure_cov1(truthtee_pend *tee, bool projection){
 		add_SHORTCUT(structure + offset_struct, layer, 0, offset_struct);	
 	}
 	add_RELU(structure + offset_struct, layer, 0, offset_struct);
-	tee->test_with_remote(W, W_len, W_en, W_en_len);
 	baseInt arr[100];
-	tee->block(W_en , W_en_len, structure, struct_size,arr);
+	tee->block(W , w_size, structure, struct_size,arr);
+	
+	save_model<unsigned char>(structure, struct_size, "./save_data/cov1_struct" + std::to_string(round) + ".mdl");
+	save_model<baseInt>(W, w_size/sizeof(baseInt), "./save_data/cov1_W" + std::to_string(round) + ".mdl");
 }
-void make_structure_cov2(truthtee_pend *tee, bool projection){
+void make_structure_cov2(truthtee_pend *tee, bool projection, int round){
+	printf("save_model %d\n", round);
 	int struct_size;
 	int w_size;
 	if(projection){
@@ -307,8 +313,12 @@ void make_structure_cov2(truthtee_pend *tee, bool projection){
 	add_RELU(structure + offset_struct, layer, 0, offset_struct);
 	baseInt arr[100];
 	tee->block(W , W_len, structure, struct_size,arr);
+	printf("save_model %d\n", round);
+	save_model<unsigned char>(structure, struct_size, "./save_data/cov2_struct" + std::to_string(round) + ".mdl");
+	save_model<baseInt>(W, w_size/sizeof(baseInt), "./save_data/cov2_W" + std::to_string(round) + ".mdl");
 }
-void make_structure_cov3(truthtee_pend *tee, bool projection){
+void make_structure_cov3(truthtee_pend *tee, bool projection, int round){
+	printf("save_model %d\n", round);
 	int struct_size;
 	int w_size;
 	if(projection){
@@ -351,8 +361,11 @@ void make_structure_cov3(truthtee_pend *tee, bool projection){
 	add_RELU(structure + offset_struct, layer, 0, offset_struct);
 	baseInt arr[100];
 	tee->block(W , W_len, structure, struct_size,arr);
+	printf("save_model %d\n", round);
+	save_model<unsigned char>(structure, struct_size, "./save_data/cov3_struct" + std::to_string(round) + ".mdl");
+	save_model<baseInt>(W, w_size/sizeof(baseInt), "./save_data/cov3_W" + std::to_string(round) + ".mdl");
 }
-void make_structure_cov4(truthtee_pend *tee, bool projection){
+void make_structure_cov4(truthtee_pend *tee, bool projection, int round){
 	int struct_size;
 	int w_size;
 	if(projection){
@@ -395,6 +408,8 @@ void make_structure_cov4(truthtee_pend *tee, bool projection){
 	add_RELU(structure + offset_struct, layer, 0, offset_struct);
 	baseInt arr[100];
 	tee->block(W , W_len, structure, struct_size,arr);
+	save_model<unsigned char>(structure, struct_size, "./save_data/cov4_struct" + std::to_string(round) + ".mdl");
+	save_model<baseInt>(W, w_size/sizeof(baseInt), "./save_data/cov4_W" + std::to_string(round) + ".mdl");
 }
 void make_structure_output(truthtee_pend *tee, int input_size){
 	int struct_size;
@@ -412,9 +427,11 @@ void make_structure_output(truthtee_pend *tee, int input_size){
 	add_FC(structure + offset_struct, W + offset_w, layer, 1024, 1000, offset_struct, offset_w);
 	baseInt arr[1000];
 	tee->block(W , W_len, structure, struct_size,arr);
-	for(int i = 0; i < 1000; i++){
+	save_model<unsigned char>(structure, struct_size, "./save_data/output_struct.mdl");
+	save_model<baseInt>(W, w_size/sizeof(baseInt), "./save_data/output_W.mdl");
+	/*for(int i = 0; i < 1000; i++){
 		printf("%f ", arr[i]);
-	}
+	}*/
 }
 int main(){
 	//srand((unsigned)time(NULL));
@@ -435,7 +452,7 @@ int main(){
 			}
 		}
 	}
-
+	save_model<baseInt>(data, 224*224*3, "./save_data/data.mdl");
 	memcpy(data_of_img,data,224*224*3*sizeof(baseInt));
 	tee->test_with_remote(data_of_img, data_of_img_len, data_of_img_en, data_of_img_en_len);
 	tee->data_input(data_of_img_en, data_of_img_en_len, 224,224,3);
@@ -443,20 +460,20 @@ int main(){
 	make_structure_input(tee);
 	
 	printf("cov1\n");
-	make_structure_cov1(tee,true);
+	make_structure_cov1(tee,true, 0);
 	
-	make_structure_cov1(tee,false);
-	make_structure_cov1(tee,false);
+	make_structure_cov1(tee,false, 1);
+	make_structure_cov1(tee,false, 2);
 	
 	printf("cov2\n");
-	make_structure_cov2(tee, true);
+	make_structure_cov2(tee, true, 0);
 	for(int i = 0; i < 3; i++){
-		make_structure_cov2(tee, false);
+		make_structure_cov2(tee, false, i+1);
 	}
 	printf("cov3\n");
-	make_structure_cov3(tee, true);
+	make_structure_cov3(tee, true,0);
 	for(int i = 0; i < 5; i++){
-		make_structure_cov3(tee, false);	
+		make_structure_cov3(tee, false, i + 1);	
 	}
 
 	printf("output\n");

@@ -194,12 +194,33 @@ void truthtee::encrypto_key(unsigned char tru_key_out[],unsigned int &key_len_ou
 	}
 }
 void truthtee::encrypto(unsigned char tru_in[],unsigned int len, unsigned char tru_data_out[],unsigned int &data_len_out){
-
-	
-	if(SG_SymEnc(SGD_SMS4_ECB ,sym_key_keep,sym_key_len/8,sym_key_keep,sym_key_len/8,tru_in,len,tru_data_out,&data_len_out) != SAR_OK){
-		perror("encrypto data error\n");
+	if(len >= 4000){
+		int tmp = len;
+		int itr = 0;
+		int out_p = 0;
+		while(tmp > 4000){
+			if(SG_SymEnc(SGD_SMS4_ECB ,sym_key_keep,sym_key_len/8,sym_key_keep,sym_key_len/8,tru_in + itr*4000,4000,tru_data_out + out_p,&data_len_out) != SAR_OK){
+				printf("%d", tmp);
+				perror("encrypto data error\n");
+			}
+			out_p += data_len_out;
+			itr++;
+			tmp -= 4000;
+		}
+		if(tmp != 0){
+			if(SG_SymEnc(SGD_SMS4_ECB ,sym_key_keep,sym_key_len/8,sym_key_keep,sym_key_len/8,tru_in + itr*4000,tmp,tru_data_out + out_p,&data_len_out) != SAR_OK){
+				printf("encrypto data len %d\n", tmp);
+				perror("encrypto data error\n");
+			}
+			out_p += data_len_out;
+		}
+		data_len_out = out_p;
+	}else{
+		if(SG_SymEnc(SGD_SMS4_ECB ,sym_key_keep,sym_key_len/8,sym_key_keep,sym_key_len/8,tru_in,len,tru_data_out,&data_len_out) != SAR_OK){
+			perror("encrypto data error\n");
+		}
 	}
-
+	
 }
 void truthtee::encrypt_MAC(unsigned char label[], unsigned int lab_len, unsigned char tru_in[], unsigned int len, unsigned char tru_data_out[],unsigned int &data_len_out, unsigned char tru_mac_out[], unsigned int &mac_len_out){
 	//fixed label length :17 Bytes
@@ -270,6 +291,7 @@ void truthtee::transfer_data(unsigned char tru_in[],unsigned int in_len, unsigne
 		int tmp = in_len;
 		int itr = 0;
 		int out_p = 0;
+		
 		while(tmp > 4000){
 			if(tr){
 				if(signal == org_key){

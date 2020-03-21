@@ -63,6 +63,7 @@ CMAKE_BINARY_DIR = /home/eason/doc_file/MPC硬件
 # Target rules for target CMakeFiles/test_ex.dir
 
 # All Build rule for target.
+CMakeFiles/test_ex.dir/all: CMakeFiles/hardware_lib.dir/all
 CMakeFiles/test_ex.dir/all: HW/CMakeFiles/hardware.dir/all
 	$(MAKE) -f CMakeFiles/test_ex.dir/build.make CMakeFiles/test_ex.dir/depend
 	$(MAKE) -f CMakeFiles/test_ex.dir/build.make CMakeFiles/test_ex.dir/build
@@ -76,7 +77,7 @@ all: CMakeFiles/test_ex.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/test_ex.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/doc_file/MPC硬件/CMakeFiles 6
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/doc_file/MPC硬件/CMakeFiles 11
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/test_ex.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/doc_file/MPC硬件/CMakeFiles 0
 .PHONY : CMakeFiles/test_ex.dir/rule

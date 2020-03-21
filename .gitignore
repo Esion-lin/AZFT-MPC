@@ -2,4 +2,5 @@ CMakeFiles/
 cmake_install.cmake
 protocol_file/
 *.data
+*.mdl
 sootOutput/

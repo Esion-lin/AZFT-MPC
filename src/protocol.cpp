@@ -375,7 +375,7 @@ PotocolRead::PotocolRead(std::string file_path, bool &init_succ, bool do_mac){
     is_cmd_mac = do_mac;
     store();
 }
-std::vector<unsigned char[MAC_LEN]> PotocolRead::tran_mac(truthtee *tru){
+std::vector<unsigned char[MAC_LEN]> PotocolRead::tran_mac(truthtee_pend *tru){
     std::vector<unsigned char[MAC_LEN]> mac_vector(cmd.size());
     if(is_cmd_mac){
         for(int i = 0; i < cmd.size(); i++){
@@ -409,7 +409,7 @@ std::vector<unsigned char[MAC_LEN]> PotocolRead::tran_mac(truthtee *tru){
         
     return mac_vector;
 }
-std::vector<unsigned char[MAC_LEN]> PotocolRead::tran_mac_last(truthtee *tru){
+std::vector<unsigned char[MAC_LEN]> PotocolRead::tran_mac_last(truthtee_pend *tru){
     std::vector<unsigned char[MAC_LEN]> mac_vector(output.size());
     int j = 0; 
     unsigned char arr_vec[MAC_LEN];

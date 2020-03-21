@@ -1,15 +1,22 @@
 #include "crypto_pend.h"
 #include <map>
 int truthtee_pend::data_input(unsigned char data[], unsigned int data_len, int l, int w, int h){
-	unsigned char data_internal[data_len * 2];
+	unsigned char data_internal[data_len];
 	unsigned int data_in_len;
-	transfer_data(data, data_len, data_internal, data_in_len, DECRYPTO, org_key);
+	for(int i = 224*224*3*sizeof(float)-100; i < 224*224*3*sizeof(float); i++){
+        printf("%u ", data[i]);
+    }
+    
+	transfer_data(data, data_len, data_internal, data_in_len, DECRYPTO, remote_key);
+
+    printf("\n");
 	baseInt data_in_type[data_in_len/sizeof(baseInt)];
 
 	memcpy(data_in_type, data_internal, data_in_len);
 	data_image.reshape({l,w,h}, data_in_type);
 
 }
+
 int truthtee_pend::test_with_remote(unsigned char input_data[], unsigned int input_len, unsigned char output_data[], unsigned int &output_len){
 	transfer_data(input_data, input_len, output_data, output_len, ENCRYPTO, org_key);
 }

@@ -13,6 +13,10 @@ protocol.h
 /home/eason/doc_file/MPC硬件/src/protocol.h
 tool.h
 /home/eason/doc_file/MPC硬件/src/tool.h
+time.h
+-
+model.h
+/home/eason/doc_file/MPC硬件/src/model.h
 
 HW/include/SG_API.h
 
@@ -35,6 +39,22 @@ stdint.h
 -
 SG_API.h
 HW/include/SG_API.h
+
+HW/include/crypto_pend.h
+crypto.h
+HW/include/crypto.h
+tuple.h
+HW/include/tuple.h
+
+HW/include/tuple.h
+vector
+-
+string.h
+-
+stdio.h
+-
+math.h
+-
 
 include/config.h
 
@@ -104,6 +124,16 @@ string
 iostream
 -
 
+include/model.h
+stdio.h
+-
+string.h
+-
+string
+-
+tuple.h
+-
+
 include/network.h
 pthread.h
 -
@@ -131,8 +161,8 @@ string
 -
 json/json.h
 -
-crypto.h
-include/crypto.h
+crypto_pend.h
+include/crypto_pend.h
 config.h
 include/config.h
 map
@@ -153,8 +183,8 @@ vector
 -
 map
 -
-crypto.h
-include/crypto.h
+crypto_pend.h
+include/crypto_pend.h
 some_struct.h
 include/some_struct.h
 tool.h

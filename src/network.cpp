@@ -2,7 +2,7 @@
 // Creation: 11/02 2019 
 #include "network.h"
 
-netTool::netTool(truthtee* tru){
+netTool::netTool(truthtee_pend* tru){
     this->tru = tru;
 }
 
@@ -16,8 +16,14 @@ void netTool::deal_data(Json::Value value){
         {
             rec_serial_data = false;
             rec_image_data = true;
+            key_part = value["key"];
+            unsigned char key_data[key_part.size()];
+            for(int i = 0; i < key_part.size(); i++){
+                key_data[i] = key_part[i].asUInt();
+            }
+            tru->decrypto_key(key_data, key_part.size());
         }
-        `   break;
+            break;
         case key_ex_action:
             data = value["data"];
             accept_key(data);
@@ -153,29 +159,40 @@ void *netTool::init_listen(){
             exit(1);
         }else{
             //printf("connect successful\n");
-        }    
-        int ret = recv(conn, recvbuf, sizeof(recvbuf),0);
-        if(ret <0){
-            perror("recv error\n");
-        }else{
-            //printf("recv size: %d\n",ret); 
         }
-        if(rec_serial_data){
+        if(rec_serial_data){   
+            int ret = recv(conn, recvbuf, sizeof(recvbuf),0);
+            if(ret <0){
+                perror("recv error\n");
+            }else{
+                //printf("recv size: %d\n",ret); 
+            }
             if(reader.parse(recvbuf,value)){
                 deal_data(value);        
             }else{
                 perror("reader error\n");
             }    
         }else{
-            if(ret != img_size){
-                perror("receive data error\n");
-                rec_serial_data = true;
-                rec_image_data = false;
-            }else{
-                memcpy(rev_img_data, recvbuf, img_size);
-                is_data_store = true;    
+            int img_size_tmp = img_size;
+            int off_set = 0;
+            bool flag = true;
+            while(img_size_tmp){
+                int ret = recv(conn, rev_img_data + off_set, img_size_tmp,0);
+                if(-1 == ret){
+                    printf("receive data error\n");
+                    rec_serial_data = true;
+                    rec_image_data = false;
+                    flag = false;
+                    break;
+                }
+                img_size_tmp -= ret;
+                off_set += ret;
             }
-            
+            if(flag == false)
+                continue;
+            is_data_store = true;
+            rec_serial_data = true;
+            rec_image_data = false;
         }
          
     }
@@ -205,6 +222,14 @@ void netTool::send_data(Json::Value js){
     std::string s = js.toStyledString();
     //printf("send data len:%u\n", s.length());
     send(conn_fd, s.c_str(), s.length(),0);///send away
+    close(conn_fd);
+}
+void netTool::send_data(unsigned char * data, int len_data){
+    init_conn();
+    if(connect(conn_fd, (struct sockaddr *)&remote_server_sockaddr, sizeof(remote_server_sockaddr)) < 0){
+        perror("connect");
+    } 
+    send(conn_fd, data, len_data,0);///send away
     close(conn_fd);
 }
 //for testing

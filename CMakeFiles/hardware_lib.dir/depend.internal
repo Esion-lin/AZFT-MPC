@@ -11,6 +11,8 @@ CMakeFiles/hardware_lib.dir/src/network.cpp.o
  /home/eason/doc_file/MPC硬件/src/network.cpp
  HW/include/SG_API.h
  HW/include/crypto.h
+ HW/include/crypto_pend.h
+ HW/include/tuple.h
  include/config.h
  include/json/autolink.h
  include/json/features.h
@@ -25,6 +27,8 @@ CMakeFiles/hardware_lib.dir/src/protocol.cpp.o
  /home/eason/doc_file/MPC硬件/src/protocol.cpp
  HW/include/SG_API.h
  HW/include/crypto.h
+ HW/include/crypto_pend.h
+ HW/include/tuple.h
  include/json/autolink.h
  include/json/config.h
  include/json/features.h

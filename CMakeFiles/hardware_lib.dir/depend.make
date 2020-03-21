@@ -10,6 +10,8 @@ CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.o: include/some_struct.h
 CMakeFiles/hardware_lib.dir/src/network.cpp.o: src/network.cpp
 CMakeFiles/hardware_lib.dir/src/network.cpp.o: HW/include/SG_API.h
 CMakeFiles/hardware_lib.dir/src/network.cpp.o: HW/include/crypto.h
+CMakeFiles/hardware_lib.dir/src/network.cpp.o: HW/include/crypto_pend.h
+CMakeFiles/hardware_lib.dir/src/network.cpp.o: HW/include/tuple.h
 CMakeFiles/hardware_lib.dir/src/network.cpp.o: include/config.h
 CMakeFiles/hardware_lib.dir/src/network.cpp.o: include/json/autolink.h
 CMakeFiles/hardware_lib.dir/src/network.cpp.o: include/json/features.h
@@ -24,6 +26,8 @@ CMakeFiles/hardware_lib.dir/src/network.cpp.o: include/tool.h
 CMakeFiles/hardware_lib.dir/src/protocol.cpp.o: src/protocol.cpp
 CMakeFiles/hardware_lib.dir/src/protocol.cpp.o: HW/include/SG_API.h
 CMakeFiles/hardware_lib.dir/src/protocol.cpp.o: HW/include/crypto.h
+CMakeFiles/hardware_lib.dir/src/protocol.cpp.o: HW/include/crypto_pend.h
+CMakeFiles/hardware_lib.dir/src/protocol.cpp.o: HW/include/tuple.h
 CMakeFiles/hardware_lib.dir/src/protocol.cpp.o: include/json/autolink.h
 CMakeFiles/hardware_lib.dir/src/protocol.cpp.o: include/json/config.h
 CMakeFiles/hardware_lib.dir/src/protocol.cpp.o: include/json/features.h
