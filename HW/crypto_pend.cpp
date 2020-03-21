@@ -246,7 +246,6 @@ int truthtee_pend::block(baseInt w_data[], unsigned int W_len, unsigned char str
 				int l = structure[itr++];
 				int w = structure[itr++];
 				dic.push_back(dic[target_layer].pooling({l,w,1},is_pending == 0? false:true, stride, type_pooling));
-				printf("now print the pooling ans size [%d,%d,%d]\n", dic[layer_id].shape.l,dic[layer_id].shape.w, dic[layer_id].shape.h);
 			}
 				break;
 			case RELU:
@@ -273,10 +272,12 @@ int truthtee_pend::block(baseInt w_data[], unsigned int W_len, unsigned char str
 			}
 				break;
 			case FC_ID:
-			{	int weight_width = structure[itr++];
-				baseInt weight[weight_width*dic[target_layer].shape.size()];
-				memcpy(weight, w_data + w_itr, weight_width*dic[target_layer].shape.size()*sizeof(baseInt));
-				dic[target_layer].FC(output, weight, weight_width);
+			{	int weight_width;
+				memcpy(&weight_width, structure + itr, sizeof(int));
+				itr+=sizeof(int);
+				/*baseInt weight[weight_width*dic[target_layer].shape.size()];
+				memcpy(weight, w_data + w_itr, weight_width*dic[target_layer].shape.size()*sizeof(baseInt));*/
+				dic[target_layer].FC(output, w_data + w_itr, weight_width);
 			}
 				break;
 			case SHORTCUT:

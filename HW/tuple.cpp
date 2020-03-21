@@ -256,11 +256,22 @@ void Image::FC(baseInt * output, baseInt * weight, int weight_width){
 	*/
 	for(int i = 0; i < weight_width; i++){
 		output[i] = 0;
-		for(int j = 0; j < shape.l*shape.w*shape.h; j++){
-			output[i] += data[j] + weight[j + i*shape.l*shape.w*shape.h];
+		for(int j = 0; j < shape.size(); j++){
+			output[i] += data[j] * weight[j + i*shape.size()];
 		}	
 	}
 	
+}
+void Image::FC(baseInt * output, unsigned char * weight, int weight_width){
+	baseInt tmp;
+	for(int i = 0; i < weight_width; i++){
+		output[i] = 0;
+		for(int j = 0; j < shape.size(); j++){
+			memcpy(&tmp, weight + (j + i*shape.size())*sizeof(baseInt), sizeof(baseInt));
+			printf(" tmp : %f ",tmp);
+			output[i] += data[j] * tmp;
+		}	
+	}
 }
 void softmax(baseInt * input, baseInt * output, int input_len){
 	baseInt sum = 0;

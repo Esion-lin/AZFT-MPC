@@ -12,7 +12,7 @@
 #define SIZE_POOLING 8 
 #define SIZE_RELU 3 + sizeof(baseInt) 
 #define SIZE_BN 3
-#define SIZE_FC 7
+#define SIZE_FC 3 + sizeof(int)
 #define SIZE_SHORTCUT 4
 
 /*
@@ -29,6 +29,7 @@ public:
 	int data_input(unsigned char data[], unsigned int data_len, int l, int w, int h);
 	int block(unsigned char W[], unsigned int W_len, unsigned char structure[], unsigned int struct_len, baseInt output[]);
 	int block(baseInt w_data[], unsigned int W_len, unsigned char structure[], unsigned int struct_len, baseInt output[]);
+
 	Image data_image;
 };
 

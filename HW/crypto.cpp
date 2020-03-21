@@ -517,7 +517,7 @@ void truthtee::operation(unsigned char label1[], unsigned int lab_len1, unsigned
 		2. check cmd
 	*/
 	//check cmd
-	//fixed length label :17 Bytes
+	//fixed label length:17 Bytes
 	if(is_accumulative){
 		check_cmd_accu(label1, lab_len1, label2, lab_len2, op);
 	}else{

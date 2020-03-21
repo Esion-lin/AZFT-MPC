@@ -58,7 +58,7 @@ public:
 		for(int i = 0; i < shape.l*shape.w*shape.h; i++){
 			ans = ans + data[i] * trp[i];
 		}
-		return ans;
+		return fmod(ans,2000);
 	}
 	void operator=(Tuple trp){
 		/**/
@@ -107,7 +107,7 @@ public:
 	void add_other(Image res);
 	Image pooling(Shape kenerl_shape, bool pending, unsigned int stride, int type);
 	void FC(baseInt * output, baseInt * weight, int weight_width);
-
+	void FC(baseInt * output, unsigned char * weight, int weight_width);
 
 };
 void softmax(baseInt * input, baseInt * output, int input_len);

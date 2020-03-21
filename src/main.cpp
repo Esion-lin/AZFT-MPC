@@ -5,7 +5,7 @@
 #include "tool.h"
 bool debug_this = false;
 bool notify(){
-	printf("choose a operation:\n \t1.send encrypto msg\n \t2.run protocol\n \t3.other\n \t4.....\n");
+	printf("choose a operation:\n \t1.send encrypto msg\n \t2.run protocol\n \t3.send data file\n \t4.....\n");
 	return true;
 }
 void send_json(int action, unsigned char data[], int len, void *tmp){

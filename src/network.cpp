@@ -12,6 +12,12 @@ void netTool::deal_data(Json::Value value){
     Json::Value data;
     Json::Value mac;
     switch(action){
+        case rec_img_data:
+        {
+            rec_serial_data = false;
+            rec_image_data = true;
+        }
+        `   break;
         case key_ex_action:
             data = value["data"];
             accept_key(data);
@@ -154,11 +160,24 @@ void *netTool::init_listen(){
         }else{
             //printf("recv size: %d\n",ret); 
         }
-        if(reader.parse(recvbuf,value)){
-            deal_data(value);        
+        if(rec_serial_data){
+            if(reader.parse(recvbuf,value)){
+                deal_data(value);        
+            }else{
+                perror("reader error\n");
+            }    
         }else{
-            perror("reader error\n");
-        } 
+            if(ret != img_size){
+                perror("receive data error\n");
+                rec_serial_data = true;
+                rec_image_data = false;
+            }else{
+                memcpy(rev_img_data, recvbuf, img_size);
+                is_data_store = true;    
+            }
+            
+        }
+         
     }
 	
 }

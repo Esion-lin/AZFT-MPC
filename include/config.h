@@ -9,9 +9,10 @@
 #define sign_ex 1
 #define encrpyt_msg 2
 
-
+#define img_size 224*224*3*sizeof(float)
 
 #define key_ex_action 1
+#define rec_img_data 10
 #define sign_action 2
 #define data_action 3
 #define cmd_mac_action 22

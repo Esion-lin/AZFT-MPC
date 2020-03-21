@@ -2,10 +2,14 @@
 this file is just for testing code
 
 */
-
+#include <stdlib.h> 
+#include <stdio.h> 
 #include "tuple.h"
 #include <time.h>
 #include "crypto_pend.h"
+baseInt randf() { 
+    return (baseInt)(rand()/(baseInt)RAND_MAX); 
+} 
 void add_cov(unsigned char * structure, unsigned char * W, int size_of_kenerl, int& layer, Shape shape, int pending, int stride, int & offset_struct, int & offset_w, int target_layer){
 	if(target_layer == layer){
 		structure[0] = layer ++;	
@@ -25,19 +29,24 @@ void add_cov(unsigned char * structure, unsigned char * W, int size_of_kenerl, i
 	structure[10] = shape.h % 256;
 /*	printf("[%u %u]\n",structure[9],structure[10]);*/
 	baseInt kernel_data[shape.size()];
-	int itr = 0;
-	for(int i = 0; i < shape.h; i++){
-		for(int j = 0; j < shape.w; j++){
-			for(int k = 0; k < shape.l; k++){
-				kernel_data[itr ++] = i * j * 0.3 + k*0.005 + 0.007;
-			}	
+	
+	for(int i = 0; i < size_of_kenerl; i++){
+		int itr = 0;
+		for(int i = 0; i < shape.h; i++){
+			for(int j = 0; j < shape.w; j++){
+				for(int k = 0; k < shape.l; k++){
+					if(k%2==0)
+						kernel_data[itr ++] = randf();
+					else{
+						kernel_data[itr ++] = - randf();
+					}
+				}	
+			}
 		}
-	}
-	for(int i = 0; i < 64; i++){
 		memcpy(W + i * shape.size()*sizeof(baseInt), kernel_data, shape.size()*sizeof(baseInt));
 	}
 	offset_struct += SIZE_COV;
-	offset_w += 64 * shape.size()*sizeof(baseInt);
+	offset_w += size_of_kenerl * shape.size()*sizeof(baseInt);
 }
 void add_cov(unsigned char * structure, baseInt * W, int size_of_kenerl, int& layer, Shape shape, int pending, int stride, int & offset_struct, int & offset_w, int target_layer){
 	if(target_layer == layer){
@@ -58,26 +67,31 @@ void add_cov(unsigned char * structure, baseInt * W, int size_of_kenerl, int& la
 	structure[10] = shape.h % 256;
 /*	printf("[%u %u]\n",structure[9],structure[10]);*/
 	baseInt kernel_data[shape.size()];
-	int itr = 0;
-	for(int i = 0; i < shape.h; i++){
-		for(int j = 0; j < shape.w; j++){
-			for(int k = 0; k < shape.l; k++){
-				kernel_data[itr ++] = i * j * 0.3 + k*0.005 + 0.007;
-			}	
+	
+	for(int i = 0; i < size_of_kenerl; i++){
+		int itr = 0;
+		for(int i = 0; i < shape.h; i++){
+			for(int j = 0; j < shape.w; j++){
+				for(int k = 0; k < shape.l; k++){
+					if(k%2==0)
+						kernel_data[itr ++] = randf();
+					else{
+						kernel_data[itr ++] = - randf();
+					}
+				}	
+			}
 		}
-	}
-	for(int i = 0; i < 64; i++){
 		memcpy(W + i * shape.size(), kernel_data, shape.size()*sizeof(baseInt));
 	}
 	offset_struct += SIZE_COV;
-	offset_w += 64 * shape.size();
+	offset_w += size_of_kenerl * shape.size();
 }
 void add_BN(unsigned char * structure, unsigned char * W, int& layer, int & offset_struct, int & offset_w){
 	structure[0] = layer;
 	structure[1] = layer;
 	structure[2] = BN_ID;
 
-	baseInt mu[5] = {5.8, 4.2, 2.5, 1.5, 0.00001};
+	baseInt mu[5] = {5.8, 4.2, 2.5, 0, 0.00001};
 	memcpy(W, mu, 5*sizeof(baseInt));
 	offset_struct += SIZE_BN;
 	offset_w += 5*sizeof(baseInt);
@@ -87,7 +101,7 @@ void add_BN(unsigned char * structure,  baseInt * W, int& layer, int & offset_st
 	structure[1] = layer;
 	structure[2] = BN_ID;
 
-	baseInt mu[5] = {5.8, 4.2, 2.5, 1.5, 0.00001};
+	baseInt mu[5] = {5.8, 4.2, 2.5, 0, 0.00001};
 	memcpy(W, mu, 5*sizeof(baseInt));
 	offset_struct += SIZE_BN;
 	offset_w += 5;
@@ -116,6 +130,21 @@ void add_POOLING(unsigned char * structure, int& layer, Shape shape, int pending
 	structure[6] = shape.l;
 	structure[7] = shape.w;
 	offset_struct += SIZE_POOLING;
+}
+void add_FC(unsigned char * structure, baseInt * W, int& layer, int last_layer_len, int width_of_output, int & offset_struct, int & offset_w){
+	structure[0] = layer;
+	structure[1] = layer;
+	structure[2] = FC_ID;
+	memcpy(structure + 3, &width_of_output, sizeof(int));
+	for(int i = 0; i < last_layer_len*width_of_output; i ++){
+		if(randf()<0.95){
+			W[i] = 0;
+		}else
+			W[i] = randf()/1000;
+	}
+	offset_struct += SIZE_FC;
+	offset_w += (last_layer_len*width_of_output);
+
 }
 void make_structure_input(truthtee_pend *tee){
 	int struct_size = SIZE_COV + SIZE_BN + SIZE_RELU + SIZE_POOLING;
@@ -165,15 +194,20 @@ void make_structure_input(truthtee_pend *tee){
 	structure[itr ++] = 3;
 	structure[itr ++] = 3;
 	/*add weight cov*/
-	itr = 0;
-	for(int i = 0; i < 3; i++){
-		for(int j = 0; j < 7; j++){
-			for(int k = 0; k < 7; k++){
-				kernel_data[itr ++] = i * j * 0.3 + k*0.005 + 0.007;
-			}	
-		}
-	}
+	
 	for(int i = 0; i < 64; i++){
+		itr = 0;
+		for(int i = 0; i < 3; i++){
+			for(int j = 0; j < 7; j++){
+				for(int k = 0; k < 7; k++){
+					if(k%2==0)
+						kernel_data[itr ++] = randf()/2;
+					else{
+						kernel_data[itr ++] = -randf()/2;
+					}
+				}	
+			}
+		}
 		memcpy(W + i * 7*7*3*sizeof(baseInt), kernel_data, 7*7*3*sizeof(baseInt));
 	}
 	baseInt mu[5] = {5.8, 4.2, 2.5, 1.5, 0.00001};
@@ -323,10 +357,10 @@ void make_structure_cov4(truthtee_pend *tee, bool projection){
 	int w_size;
 	if(projection){
 		struct_size = SIZE_COV * 4 + SIZE_BN * 4 + SIZE_RELU * 3 + SIZE_SHORTCUT;
-		w_size = (1*1*512*256 + 5 + 3*3*256*256 + 5 + 1*1*256*1024 + 5 + 1*1*512*1024 + 5);
+		w_size = (1*1*1024*512 + 5 + 3*3*512*512 + 5 + 1*1*512*2048 + 5 + 1*1*1024*2048 + 5);
 	}else{
 		struct_size = SIZE_COV * 3 + SIZE_BN * 3 + SIZE_RELU * 3 + SIZE_SHORTCUT;
-		w_size = (1*1*1024*256 + 5 + 3*3*256*256 + 5 + 1*1*256*1024 + 5);
+		w_size = (1*1*2048*512 + 5 + 3*3*512*512 + 5 + 1*1*512*2048 + 5);
 	}
 	if(w_size % 32!=0){
 		w_size += (32 - w_size % 32);
@@ -339,20 +373,20 @@ void make_structure_cov4(truthtee_pend *tee, bool projection){
 	int offset_struct = 0;
 	int offset_w = 0;
 	if(projection){
-		add_cov(structure + offset_struct, W + offset_w, 256, layer, {1,1,512}, false, 2, offset_struct, offset_w, layer);	
+		add_cov(structure + offset_struct, W + offset_w, 512, layer, {1,1,1024}, false, 2, offset_struct, offset_w, layer);	
 	}else{
-		add_cov(structure + offset_struct, W + offset_w, 256, layer, {1,1,1024}, false, 1, offset_struct, offset_w, layer);
+		add_cov(structure + offset_struct, W + offset_w, 512, layer, {1,1,2048}, false, 1, offset_struct, offset_w, layer);
 	}
 	add_BN(structure + offset_struct, W + offset_w, layer, offset_struct, offset_w);
 	add_RELU(structure + offset_struct, layer, 0, offset_struct);
-	add_cov(structure + offset_struct, W + offset_w, 256, layer, {3,3,256}, true, 1, offset_struct, offset_w, layer);
+	add_cov(structure + offset_struct, W + offset_w, 512, layer, {3,3,512}, true, 1, offset_struct, offset_w, layer);
 	add_BN(structure + offset_struct, W + offset_w, layer, offset_struct, offset_w);
 	add_RELU(structure + offset_struct, layer, 0, offset_struct);
-	add_cov(structure + offset_struct, W + offset_w, 1024, layer, {1,1,256}, false, 1, offset_struct, offset_w, layer);
+	add_cov(structure + offset_struct, W + offset_w, 2048, layer, {1,1,512}, false, 1, offset_struct, offset_w, layer);
 	add_BN(structure + offset_struct, W + offset_w, layer, offset_struct, offset_w);
 	addition_layer = layer;
 	if(projection){
-		add_cov(structure + offset_struct, W + offset_w, 1024, layer, {1,1,512}, false, 2, offset_struct, offset_w, 0);
+		add_cov(structure + offset_struct, W + offset_w, 2048, layer, {1,1,1024}, false, 2, offset_struct, offset_w, 0);
 		add_BN(structure + offset_struct, W + offset_w, layer, offset_struct, offset_w);
 		add_SHORTCUT(structure + offset_struct, layer, addition_layer, offset_struct);
 	}else{
@@ -362,8 +396,25 @@ void make_structure_cov4(truthtee_pend *tee, bool projection){
 	baseInt arr[100];
 	tee->block(W , W_len, structure, struct_size,arr);
 }
-void make_structure_output(){
-
+void make_structure_output(truthtee_pend *tee, int input_size){
+	int struct_size;
+	int w_size;
+	struct_size = SIZE_POOLING + SIZE_FC;
+	w_size = 1024*1000;
+	unsigned char structure[struct_size];
+	baseInt W[w_size];
+	unsigned int W_len = w_size;
+	int layer = 0;
+	int addition_layer = 0;
+	int offset_struct = 0;
+	int offset_w = 0;
+	add_POOLING(structure + offset_struct, layer, {input_size,input_size,1}, 0, 2, avg_pooling, offset_struct);
+	add_FC(structure + offset_struct, W + offset_w, layer, 1024, 1000, offset_struct, offset_w);
+	baseInt arr[1000];
+	tee->block(W , W_len, structure, struct_size,arr);
+	for(int i = 0; i < 1000; i++){
+		printf("%f ", arr[i]);
+	}
 }
 int main(){
 	//srand((unsigned)time(NULL));
@@ -380,21 +431,37 @@ int main(){
 	for(int i = 0; i < 3; i++){
 		for(int j = 0; j < 224; j++){
 			for(int k = 0; k < 224; k++){
-				data[itr ++] = 0.1*k + 0.0386 + j * 0.8 + i * 0.003 + 0.007 * i * j * k;
+				data[itr ++] = randf() ;
 			}
 		}
 	}
+
 	memcpy(data_of_img,data,224*224*3*sizeof(baseInt));
 	tee->test_with_remote(data_of_img, data_of_img_len, data_of_img_en, data_of_img_en_len);
 	tee->data_input(data_of_img_en, data_of_img_en_len, 224,224,3);
+	
 	make_structure_input(tee);
+	
+	printf("cov1\n");
 	make_structure_cov1(tee,true);
+	
 	make_structure_cov1(tee,false);
 	make_structure_cov1(tee,false);
+	
+	printf("cov2\n");
 	make_structure_cov2(tee, true);
-	make_structure_cov2(tee, false);
-	make_structure_cov2(tee, false);
-	make_structure_cov2(tee, false);
+	for(int i = 0; i < 3; i++){
+		make_structure_cov2(tee, false);
+	}
+	printf("cov3\n");
+	make_structure_cov3(tee, true);
+	for(int i = 0; i < 5; i++){
+		make_structure_cov3(tee, false);	
+	}
+
+	printf("output\n");
+	make_structure_output(tee, 14);
+	//tee->data_image.output_data();
 	printf("now shape is [%d,%d,%d]",tee->data_image.shape.l,tee->data_image.shape.w,tee->data_image.shape.h);
 	/*std::vector<Tuple> tuples;
 	Tuple kernel({3,3,3});

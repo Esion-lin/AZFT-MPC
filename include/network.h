@@ -38,6 +38,7 @@ public:
 	// some cache file
 	std::map<std::string, unsigned char[CIPHER_LEN]> data_dic;	
 	std::map<std::string, unsigned char[MAC_LEN]> data_mac_dic;	
+	unsigned char rev_img_data[img_size];
 	std::vector<unsigned char*> mac_dir;
 	bool 	is_data_store = false;
 	bool	is_data_send = false;
@@ -50,7 +51,8 @@ private:
 	truthtee 		*tru;
 	std::string		conn_host;
 	int 			conn_port;
-	
+	bool 			rec_serial_data = true;
+	bool			rec_image_data = false;
 	// socket port;
 	int 	listen_fd , conn_fd;
 	bool 	is_listen;
