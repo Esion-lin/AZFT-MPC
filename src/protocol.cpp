@@ -369,11 +369,81 @@ bool PotocolRead::expand(){
     cmd.swap(cmd_cp);
     return true;
 }
+bool PotocolRead::store_filepath(std::string path){
+    std::vector<std::string> files = getFiles(path);
+    std::map<std::string, int> layers;
+    std::map<std::string, int> layers_w;
+    data_path = path;
+    for(int i = 0; i < files.size(); i++){
+        if(files[i].find("_") != files[i].npos){
+            string prefix = files[i].substr(0,files[i].find("_"));
+            string suffix = files[i].substr(files[i].find("_") + 1,files[i].find(".") - files[i].find("_") - 1);
+            int tmp = suffix[suffix.length() - 1] - '0';
+            if(tmp >= 0 && tmp <= 9){
+                suffix = suffix.substr(0, suffix.length() - 1);
+                if(suffix == "W"){
+                    if(tmp != layers_w[prefix]){
+                        return false;
+                    }
+                    layers_w[prefix] = tmp + 1;
+                }else if(suffix == "struct"){
+                    if(tmp != layers[prefix]){
+                        return false;
+                    }
+                    layers[prefix] = tmp + 1;
+                }
+                
+            }else{
+                if(suffix == "W"){
+                    layers_w[prefix] = 1;
+                }else if(suffix == "struct"){
+                    layers[prefix] = 1;
+                }
+            }
+        }
+       
+    }
+    if(layers["input"] == 1 && layers_w["input"] == 1){
+        structures.push_back(path + "/input_struct.mdl");
+        weights.push_back(path + "/input_W.mdl");
+    }else{
+        return false;
+    }
+    int itr = 1;
+    while(true){
+        string tmp = "cov" + to_string(itr);
 
-PotocolRead::PotocolRead(std::string file_path, bool &init_succ, bool do_mac){
-	init_succ = Reader(file_path);
-    is_cmd_mac = do_mac;
-    store();
+        if(layers[tmp] == 0){
+            break;
+        }
+        if(layers[tmp] != layers_w[tmp]){
+            return false;
+        }
+        for(int i = 0; i < layers[tmp];i++){
+            structures.push_back(path + "/" + tmp + "_struct" + to_string(i) + ".mdl");
+            weights.push_back(path + "/" + tmp + "_W" + to_string(i) + ".mdl");
+        }
+        itr ++;
+    }
+    if(layers["output"] == 1 && layers_w["output"] == 1){
+        structures.push_back(path + "/output_struct.mdl");
+        weights.push_back(path + "/output_W.mdl");
+    }else{
+        return false;
+    }
+    return true;
+}
+PotocolRead::PotocolRead(std::string file_path, bool &init_succ, bool do_mac, bool ML){
+    if(ML){
+        is_ML = ML;
+        is_cmd_mac = do_mac;
+        init_succ = store_filepath(file_path);
+    }else{
+        init_succ = Reader(file_path);
+        is_cmd_mac = do_mac;
+        store();    
+    }
+	
 }
 std::vector<unsigned char[MAC_LEN]> PotocolRead::tran_mac(truthtee_pend *tru){
     std::vector<unsigned char[MAC_LEN]> mac_vector(cmd.size());
@@ -512,7 +582,11 @@ truple_mac PotocolRead::next_mac(){
     return cmd_mac[now_step-1];
 }
 int PotocolRead::size_of_protocol(){
-	return cmd.size();
+    if(!is_ML)
+	   return cmd.size();
+    else{
+        return structures.size();
+    }
 }
 //for test
 /*int main(){

@@ -444,14 +444,23 @@ void deal_cmd(truple_mac now_trp_mac, int &now_step, void *tmp, std::map<std::st
     }
 }*/
 
-int main(){
+int main(int argc, char* argv[]){
     
 	pthread_t   recv_tid;
     truthtee_pend *tru = new truthtee_pend();
     //truthtee* tru = new truthtee();
     printf("checking protocol file.....\n");
+    bool is_ML = false;
+    std::string path = "./protocol_file/orgin.jimple";
+    if(argc>=3){
+        if(0 == strcmp(argv[1], "ML")){
+            is_ML = true;
+            path = argv[2];
+        }
+
+    }
     bool load_succ;
-    PotocolRead* protocol = new PotocolRead("./protocol_file/orgin.jimple", load_succ);
+    PotocolRead* protocol = new PotocolRead(path, load_succ, true, is_ML);
     if(!load_succ){
         exit(0);
     }
@@ -686,9 +695,23 @@ int main(){
                     printf("before run protocol, plz send data or receive data\n");
                     break;
                 }
-                
+                baseInt arr[1000];
                 tru->data_input(nettool->rev_img_data, img_size, 224,224,3);
-                tru->data_image.output_data();
+                for(int i = 0; i < protocol->structures.size(); i++){
+                    printf("struct %s\n",  protocol->structures[i].c_str());
+                    int len;
+                    load_model_len(len, protocol->structures[i]);
+                    unsigned char structure[len];
+                    load_model<unsigned char>(structure,len,protocol->structures[i]);
+                    int W_len;
+                    load_model_len(W_len, protocol->weights[i]);
+                    baseInt *weight = new baseInt[W_len];
+                    load_model<baseInt>(weight,W_len,protocol->weights[i]);
+
+                    tru->block(weight, W_len, structure, len,arr);
+                    delete weight;
+                    weight = NULL;
+                }
                 break;
             }
     		case 5:

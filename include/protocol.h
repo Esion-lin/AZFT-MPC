@@ -47,7 +47,9 @@ class PotocolRead{
 	public:
 		int now_step = 0;
 		std::map<std::string, int> dic_goto;
-		PotocolRead(std::string file_path, bool &init_succ, bool do_mac = true);
+		std::vector<std::string>structures;
+		std::vector<std::string>weights;
+		PotocolRead(std::string file_path, bool &init_succ, bool do_mac = true, bool ML = false);
 		~PotocolRead();
 		bool Reader(std::string file_path);
 		std::vector<unsigned char[MAC_LEN]> tran_mac(truthtee_pend *tru);
@@ -62,6 +64,9 @@ class PotocolRead{
 		void store();
 		//merkleTree *cmd_merkle_tree;
 	private:
+		bool is_ML;
+		//this function is designed for reading ML structure and Weight 
+		bool store_filepath(std::string path);
 		//this function is desigened for conversion of data independence
 		bool transfer();
 		bool expand();
@@ -70,6 +75,8 @@ class PotocolRead{
 		std::vector<truple> cmd;
 		std::vector<truple_mac> cmd_mac;
 		bool is_cmd_mac = true;
+		std::string data_path;
+		
 		/*
 		dic_var record whether the variable is ciphertext or not
 		0:plaintext

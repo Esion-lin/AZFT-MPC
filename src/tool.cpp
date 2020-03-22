@@ -181,3 +181,50 @@ void to_int(unsigned char input[], unsigned int arr_len, uint32_t arr[]){
         }
     }
 }
+std::vector<std::string> getFiles(std::string path){
+    std::vector<std::string> files;//存放文件名
+ 
+#ifdef WIN32
+    _finddata_t file;
+    long lf;
+    if ((lf=_findfirst(path.c_str(), &file)) == -1) {
+        cout<<path<<" not found!!!"<<endl;
+    } else {
+        while(_findnext(lf, &file) == 0) {
+            if (strcmp(file.name, ".") == 0 || strcmp(file.name, "..") == 0)
+                continue;
+            files.push_back(file.name);
+        }
+    }
+    _findclose(lf);
+#endif
+ 
+#ifdef linux
+    DIR *dir;
+    struct dirent *ptr;
+    char base[1000];
+ 
+    if ((dir=opendir(path.c_str())) == NULL)
+        {
+        perror("Open dir error...");
+                exit(1);
+        }
+ 
+    while ((ptr=readdir(dir)) != NULL)
+    {
+        if(strcmp(ptr->d_name,".")==0 || strcmp(ptr->d_name,"..")==0)    ///current dir OR parrent dir
+                continue;
+        else if(ptr->d_type == 8)    ///file
+            files.push_back(ptr->d_name);
+        else if(ptr->d_type == 10)    ///link file
+            continue;
+        else if(ptr->d_type == 4)    ///dir
+        {
+            files.push_back(ptr->d_name);
+        }
+    }
+    closedir(dir);
+#endif
+    sort(files.begin(), files.end());
+    return files;
+}

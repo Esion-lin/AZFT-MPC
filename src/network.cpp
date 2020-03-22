@@ -193,6 +193,7 @@ void *netTool::init_listen(){
             is_data_store = true;
             rec_serial_data = true;
             rec_image_data = false;
+            printf("receive data successful\n");
         }
          
     }

@@ -3,9 +3,9 @@
 int truthtee_pend::data_input(unsigned char data[], unsigned int data_len, int l, int w, int h){
 	unsigned char data_internal[data_len];
 	unsigned int data_in_len;
-	for(int i = 224*224*3*sizeof(float)-100; i < 224*224*3*sizeof(float); i++){
+	/*for(int i = 224*224*3*sizeof(float)-100; i < 224*224*3*sizeof(float); i++){
         printf("%u ", data[i]);
-    }
+    }*/
     
 	transfer_data(data, data_len, data_internal, data_in_len, DECRYPTO, remote_key);
 
@@ -80,7 +80,7 @@ int truthtee_pend::block(unsigned char W[], unsigned int W_len, unsigned char st
 	std::vector<Image> dic;
 	dic.push_back(data_image);
 	int layer_id,target_layer;
-	printf("start %d %d\n", itr, struct_len);
+	printf("block size [%d], start block....\n",struct_len);
 	while(itr < struct_len){
 		target_layer = structure[itr++];
 		layer_id = structure[itr++];
@@ -162,7 +162,7 @@ int truthtee_pend::block(unsigned char W[], unsigned int W_len, unsigned char st
 	return 0;
 
 }
-int truthtee_pend::block(baseInt w_data[], unsigned int W_len, unsigned char structure[], unsigned int struct_len, baseInt output[]){
+int truthtee_pend::block(baseInt* w_data, unsigned int W_len, unsigned char structure[], unsigned int struct_len, baseInt output[]){
 	/*structure:
 		target_layer:1
 		layer:1

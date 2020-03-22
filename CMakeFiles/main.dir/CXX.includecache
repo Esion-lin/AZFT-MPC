@@ -205,4 +205,16 @@ stdlib.h
 -
 crypto.h
 include/crypto.h
+vector
+-
+algorithm
+-
+unistd.h
+-
+dirent.h
+-
+direct.h
+-
+io.h
+-
 
