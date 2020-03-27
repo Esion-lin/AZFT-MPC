@@ -369,8 +369,8 @@ void make_structure_cov3(truthtee_pend *tee, bool projection, int round){
 	//tee->block(W , W_len, structure, struct_size,arr);
 
 	printf("save_model %d\n", round);
-	save_model<unsigned char>(structure, struct_size, "./save_data/cov3_struct" + std::to_string(round) + ".mdl");
-	save_model<baseInt>(W, w_size, "./save_data/cov3_W" + std::to_string(round) + ".mdl");
+	save_model<unsigned char>(structure, struct_size, "./save_data/cov"+ std::to_string(3+round / 10)+"_struct" + std::to_string(round%10) + ".mdl");
+	save_model<baseInt>(W, w_size, "./save_data/cov"+ std::to_string(3+round / 10)+"_W" + std::to_string(round%10) + ".mdl");
 }
 void make_structure_cov4(truthtee_pend *tee, bool projection, int round){
 	int struct_size;
@@ -477,7 +477,7 @@ int main(){
 	}
 	printf("cov3\n");
 	make_structure_cov3(tee, true,0);
-	for(int i = 0; i < 5; i++){
+	for(int i = 0; i < 22; i++){
 		make_structure_cov3(tee, false, i + 1);	
 	}
 

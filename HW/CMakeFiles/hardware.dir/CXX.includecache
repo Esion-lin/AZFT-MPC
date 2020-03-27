@@ -31,6 +31,10 @@ tuple.h
 /home/eason/doc_file/MPC硬件/HW/tuple.h
 stdio.h
 -
+time.h
+-
+omp.h
+/home/eason/doc_file/MPC硬件/HW/omp.h
 
 HW/include/SG_API.h
 

@@ -77,22 +77,7 @@ MPC(Secure multi-party computation) 可以用于解决一组互不信任的参�
 
 >**其他文件** 包括了编译安装的脚本，一些中间函数等。
 
---------
 
-#### 运行环境
-
-系统环境：Linux
-
-运行：
-```shell
-cd install_tool
-#检查环境，或手动安装jsoncpp
-bash ./install.sh
-#编译java code 文件 bash ./compile.sh java_code项目路径  如
-bash ./compile.sh ./java_code_demo/mexp
-#运行程序
-./main
-```
 #### Java code编译成电路语句
 将java code 编译成电路语句，涉及到代码块的拼接，代码参数、宏定义的展开等。使用Protocols_Analysis程序对java文件进行编译得到电路程序，输出在sootOutput文件中。使用file_deal函数对该文件进行裁剪获取运行有效部分。
 #### 电路语句展开实现
@@ -101,6 +86,7 @@ bash ./compile.sh ./java_code_demo/mexp
 2. 对不合法指令进行检查，密文不能出现在分支语句中、密文不能出现在数组索引中等。 
 3. 对数组元素进行改写，如arr[i11], 先确保i11是明文数据，不然返回报错，在用密文改写数组，如i11在运行到此指令时value为100，则得到arr_100。
 4. 对代码进行预展开能确保程序是数据独立的，只有通过了预展开，才能证明代码段在输入密文数据前数据流已经确定了。
+
 
 #### 协议运行实现
 
@@ -131,8 +117,62 @@ bash ./compile.sh ./java_code_demo/mexp
 - 相关优化 对协议进行了优化，如数据交互中的数据流压缩，指令签名交互过程中对指令 MAC的重新设计等，
 如上图对计算流程的优化，去除了输出结果前的签名交互流程，减少了网络开销。
 
+#### 代码块和深度学习算法支持
+<center>![code_block][code_block]</center> 
+<center>代码块实现</center> 
+[code_block]: ./image/code_block.png "协议运行"
+由于深度学习算法，存在大量的矩阵乘法操作等，使得使用原来的构架（每次运行一次指令进行一次加解密的操作）大量的时间用于密码学加解密操作。同时由于采用原来的接口（支持三元组操作符），不支持多参数输入，使得矩阵乘法需要分解为大量的基础运算指令，列如，
+> 两个100*100 的矩阵乘法需要分解成10000 + 5000 + 2500 + ... + 13 + 7 + 4 + 2 + 1 = 20000个三元指令。而一次卷积操作需要矩阵乘法至少需要2000个类似的卷积操作。
+
+针对这一问题本系统采用代码块的方式，用户向trusted hardware输入的不再是单独的指令，而是指令集（代码块），与之前的指令密码学保护方式类似的采用hash链的方式来保护可信硬件的输入指令和数据的对应关系。hardware检查数据、输入的权重和指令集完整性，在hardware内部运行指令集，指令分析代码块，依次调用内部的运算模块，计算结果，运行完成后向用户输出密文数据。
+
+--------
+
+#### 运行
+本系统支持linux运行或使用docker容器运行。
+##### Linux
+
+运行：
+```bash
+cd install_tool
+#检查环境，或手动安装jsoncpp
+bash ./install.sh
+#编译java code 文件 bash ./compile.sh java_code项目路径  如
+bash ./compile.sh ./java_code_demo/mexp
+#编译
+cmake -DCMAKE_BUILD_TYPE=Release
+make
+#运行程序
+./main
+#若运行神经网络模型 添加模型储存路径
+./main ML ./datapath
+```
+
+##### dockerfile
+
+```bash
+docker bulid -t azft_mpc_demo .
+#运行docker
+docker run -it --net azft_mpc_hw 
+#使用test文件夹下的的test程序生成测试用的resnet模型数据
+./test_ex
+#运行
+./main ML ./save_data
+#这个的ＭＬ是支持机器学习算法的参数，./save_data是算法对应的结构文件和参数文件的储存目录。
+#input listen port
+#输入监听端口,列如6000
+#input connect host
+#输入链接host和端口,如10.111.45.46:6001, 如果在本地则直接输入端口号，如6001,
+#程序会提示下一步指令，按要求输入来继续下一步。
+#进行运算前先使用1或3选项向网络发送数据，然后选择2或4运行普通协议和代码块协议。
+```
 #### Release
 - Jan 2, 2020
 <br>实现了基本逻辑，可以运行大部分指令，目前已经实现了array的所有功能，但java code累计从命令行输入变量到数组中的代码，编译成电路语句时由于需要用户交互输入，而框架设计为non-interactive，无法支持此类代码，需要在下一步进行改写。
 - Jan 6, 2020
 <br> 修改了移位操作时计算错误的BUG，修改了验证指令完整性MAC的逻辑，改为使用链式计算MAC的方法，记录累计MAC值，进行指令MAC发送时只发送结束MAC，可信硬件只有在检查到结束MAC时才进行明文输出，该方案减少了网络通信量。
+- March 1, 2020
+<br> 添加了对神经网络的支持，实现了在Hardware内进行神经网络卷积，池化等操作的支持。
+<br>设计了代码块指令，用户可以使用代码块作为输入指令向Hardware进行命令输入。
+- March 20, 2020
+<br>实现了resnet模型，在该框架下实现了resnet预测模型。具体使用为

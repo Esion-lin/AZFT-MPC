@@ -1,6 +1,7 @@
 #include "tuple.h"
 #include <stdio.h>
-
+#include <time.h>
+#include"omp.h"
 Tuple::Tuple(Shape shape){
 	this->shape = shape;
 	data = new baseInt[shape.l*shape.w*shape.h];
@@ -79,6 +80,7 @@ Image::Image(std::vector<Tuple> subtuple){
 
 }
 Tuple Image::convolution(Tuple tuple, bool pending, unsigned int stride){
+	
 	/*from left to right, from up to down*/
 	if(tuple.shape.l != tuple.shape.w){
 		char error[80];
@@ -216,9 +218,10 @@ Image Image::pooling(Shape kenerl_shape, bool pending, unsigned int stride, int 
 Image Image::convolution(std::vector<Tuple> tuples, bool pending, unsigned int stride){
 	/*tuples size -> result tuple.h*/
 	/*from left to right, from up to down*/
-	std::vector<Tuple> ans_tmp;
+	std::vector<Tuple> ans_tmp(tuples.size());
+	#pragma omp parallel for
 	for(int i = 0; i < tuples.size(); i++){
-		ans_tmp.push_back(convolution(tuples[i], pending, stride)); 
+		ans_tmp[i] = convolution(tuples[i], pending, stride); 
 	}
 	Image result_img(ans_tmp);
 	return result_img;

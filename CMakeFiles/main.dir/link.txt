@@ -1,1 +1,1 @@
-/usr/bin/c++  -g   CMakeFiles/main.dir/src/main.cpp.o  -o main  -L/home/eason/doc_file/MPC硬件/lib -Wl,-rpath,/home/eason/doc_file/MPC硬件/lib -lpthread libhardware_lib.a -ljson HW/libhardware.a -lcrypto -lSG 
+/usr/bin/c++   -fopenmp -g    CMakeFiles/main.dir/src/main.cpp.o  -o main  -L/home/eason/doc_file/MPC硬件/lib -Wl,-rpath,/home/eason/doc_file/MPC硬件/lib -lpthread libhardware_lib.a -ljson HW/libhardware.a -lcrypto -lSG 

@@ -5,6 +5,7 @@
 #include "tool.h"
 #include <time.h>
 #include "model.h"
+#include <ctime>
 bool debug_this = false;
 bool notify(){
 	printf("choose a operation:\n \t1.send encrypto msg\n \t2.run protocol\n \t3.send data file\n \t4.....\n");
@@ -690,6 +691,8 @@ int main(int argc, char* argv[]){
     			break;
             case 4:
             {
+                time_t t;
+                t = time(NULL);
                 if(!nettool->is_data_store){
                     //sign data hash and send it
                     printf("before run protocol, plz send data or receive data\n");
@@ -707,11 +710,16 @@ int main(int argc, char* argv[]){
                     load_model_len(W_len, protocol->weights[i]);
                     baseInt *weight = new baseInt[W_len];
                     load_model<baseInt>(weight,W_len,protocol->weights[i]);
-
                     tru->block(weight, W_len, structure, len,arr);
                     delete weight;
                     weight = NULL;
                 }
+                double cost_t = time(NULL) - t;
+                /*printf("output:\n[");
+                for(int i = 0; i < 1000; i ++ ){
+                    printf("%f ", arr[i]);
+                }*/
+                printf("running time %f\n", cost_t);
                 break;
             }
     		case 5:

@@ -216,12 +216,12 @@ int truthtee_pend::block(baseInt* w_data, unsigned int W_len, unsigned char stru
 	std::vector<Image> dic;
 	dic.push_back(data_image);
 	int layer_id,target_layer;
-	printf("block size [%d], start block....\n",struct_len);
+	//printf("block size [%d], start block....\n",struct_len);
 	while(itr < struct_len){
 		target_layer = structure[itr++];
 		layer_id = structure[itr++];
 		
-		printf("layer : %d layer_id :%d\n", layer_id,target_layer);
+		//printf("layer : %d layer_id :%d\n", layer_id,target_layer);
 
 		switch(structure[itr++]){
 			case COV:

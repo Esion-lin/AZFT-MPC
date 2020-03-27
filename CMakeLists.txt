@@ -8,6 +8,14 @@ include_directories(include/jsoncpp)
 
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
+find_package(OpenMP REQUIRED)
+if(OPENMP_FOUND)
+    message("OPENMP FOUND")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+endif()
+
 add_subdirectory(HW)
 include_directories(HW/include)
 

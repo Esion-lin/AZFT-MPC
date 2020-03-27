@@ -63,8 +63,8 @@ CMAKE_BINARY_DIR = /home/eason/doc_file/MPC硬件
 # Target rules for target CMakeFiles/test_ex.dir
 
 # All Build rule for target.
-CMakeFiles/test_ex.dir/all: CMakeFiles/hardware_lib.dir/all
 CMakeFiles/test_ex.dir/all: HW/CMakeFiles/hardware.dir/all
+CMakeFiles/test_ex.dir/all: CMakeFiles/hardware_lib.dir/all
 	$(MAKE) -f CMakeFiles/test_ex.dir/build.make CMakeFiles/test_ex.dir/depend
 	$(MAKE) -f CMakeFiles/test_ex.dir/build.make CMakeFiles/test_ex.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/eason/doc_file/MPC硬件/CMakeFiles --progress-num=14,15 "Built target test_ex"
@@ -175,8 +175,8 @@ clean: CMakeFiles/hardware_lib.dir/clean
 # Target rules for target CMakeFiles/main.dir
 
 # All Build rule for target.
-CMakeFiles/main.dir/all: CMakeFiles/hardware_lib.dir/all
 CMakeFiles/main.dir/all: HW/CMakeFiles/hardware.dir/all
+CMakeFiles/main.dir/all: CMakeFiles/hardware_lib.dir/all
 	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/depend
 	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/eason/doc_file/MPC硬件/CMakeFiles --progress-num=12,13 "Built target main"
