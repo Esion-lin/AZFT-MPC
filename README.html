@@ -1055,7 +1055,7 @@ body .markdown-body
 .codehilite .vi{color:teal}
 .codehilite .il{color:#009999}
 .codehilite .gc{color:#999;background-color:#EAF2F5}
-</style><title>README</title></head><body><article class="markdown-body"><h1 id="mpc">MPC可信硬件<a class="headerlink" href="#mpc" title="Permanent link"></a></h1>
+</style><title>README</title></head><body><article class="markdown-body"><h1 id="mpc">MPC可信硬件说明文档<a class="headerlink" href="#mpc" title="Permanent link"></a></h1>
 <blockquote>
 <p>Secure multi-party computation (MPC) enable a group to jointly perform a
 computation without disclosing any participant’s private inputs. The participants agree on a function to compute, and then can use an MPC protocol
@@ -1064,9 +1064,11 @@ revealing them. </p>
 </blockquote>
 <p>MPC(Secure multi-party computation) 可以用于解决一组互不信任的参与方之间保护隐私的协同计算问题，SMPC 要确保输入的独立性，计算的正确性，同时不泄露各输入值给参与计算的其他成员。本项目实现了可信硬件下的安全多方计算通用框架。</p>
 <h4 id="_1">项目优势<a class="headerlink" href="#_1" title="Permanent link"></a></h4>
-<p><strong>目前的MPC框架存在大量的问题</strong>
-- 计算效率低下。
-- 无法保证可证明安全或安全性较低</p>
+<p><strong>目前的MPC框架存在大量的问题</strong></p>
+<ul>
+<li>计算效率低下。</li>
+<li>无法保证可证明安全或安全性较低</li>
+</ul>
 <p>尽管近年来研究者努力进行实用化技术的研究，并取得一些成果，但是离真正的大规模产业化应用还有一段距离。</p>
 <p><strong>使用可信硬件的MPC</strong></p>
 <p>将可信硬件用于安全多方计算是一种有效提高计算速度的方法，并且在安全性假设下，其相较于传统交互式的MPC具有更高的安全性优势。但目前主流的可信硬件大多采用SGX，但由于英特尔的信任源问题，无法保证数据安全。本系统开发了通用的可信硬件支持框架，可以嵌入任何可信硬件。</p>
@@ -1076,83 +1078,52 @@ revealing them. </p>
 * 高效性：该框架可支持全部通用安全多方计算任务，性能(通信量与运行时间)超过目前最先进的非可信软硬件的通用安全多方计算系统2~3个数量级。
 * 强鲁棒性以及高安全性：在任意n-1计算方恶意攻击的情况下，仍然保证输出计算结果的正确性。该框架超过现有已和安全多方计算方案的安全水平。该框架可以做到mobile下的malicious安全。</p>
 <p><em>可证明安全下的异构</em>
-<center> <img alt="logical" src="/home/eason/doc_file/MPC%E7%A1%AC%E4%BB%B6/image/logical.png" title="框架逻辑、物理结构" /></center> 
+<center> <img alt="logical" src="/Users/esion/AZFT-MPC/image/logical.png" title="框架逻辑、物理结构" /></center> 
 <center>框架的逻辑结果和物理结构对比 </center> </p>
 <p>不同的公司采用各自的底层可信硬件平台参与计算，信任源由单一的SGX到多信任源。在逻辑上可以规约到所有计算方直接与可信第三方交互。</p>
 <p><em>同类型安全性比较</em></p>
 <p>本框架与同类型相比在安全性上有较大优势，做到了mobile下的malicious安全，远远超过了目前市面上的主流框架。
-<center><img alt="tableofadvantage" src="/home/eason/doc_file/MPC%E7%A1%AC%E4%BB%B6/image/table.png" title="与同类型框架比较" /></center> 
+<center><img alt="tableofadvantage" src="/Users/esion/AZFT-MPC/image/table.png" title="与同类型框架比较" /></center> 
 <center>与同类型框架安全性比较 </center> </p>
 <h2 id="_2">协议说明<a class="headerlink" href="#_2" title="Permanent link"></a></h2>
-<p>协议流程分为秘钥交换， 运行指令交换，数据交换，以及进行多方计算四个流程。
-- 秘钥交换
-<br>协议需要两个非对称密钥对，以及一个对称秘钥对。在秘钥交换流程中，用户向网络广播其非对称密钥对：I.用户查询自己的可信硬件，可信硬件将在可信硬件中生成的公钥对中的公钥一起返回给用户，用户将该公钥分享到MPC网络上。同时用户监听MPC信道，收集所有收到的公钥对，并告知可信硬件。II.在I稳定后，可信硬件使用可信硬件中生成的签名私钥对所知的所有公钥进行签名。再由用户将该签名发送到MPC网络。同时检查收到的签名，检查正确后储存对应的公钥。
-- 运行指令交换
-<br> 运行指令交换目的是交换用户的运行协议以保证用户无法使用其他指令来进行作弊操作，向可信硬件发起签署请求，可信硬件对指令添加计数器，并使用生成的对称秘钥进行MAC，返回使用非对称秘钥对中用于加密的私钥对对称秘钥进行加密，并将该密文和MAC数据一起返回给用户。用户向MPC网络广播该密文。并监听MPC网络，储存接收的其他方发送的MAC数据。
-- 数据交换
-<br>与指令交换类似的，需要进行数据交换来确保用户运行的指令中的数据的正确性。可信硬件同样使用非对称秘钥对中用于加密的私钥对对称秘钥进行加密，然后使用对称秘钥对数据进行加密，最后使用该秘钥对数据和指令中使用的标签整合内容进行MAC计算。用户广播并监听。
-<center> <img alt="protocol0" src="/home/eason/doc_file/MPC%E7%A1%AC%E4%BB%B6/image/protocol_0.png" title="秘钥、数据等的交换" /></center> 
-<center>秘钥、数据交换过程 </center> </p>
+<p>协议流程分为秘钥交换， 运行指令交换，数据交换，以及进行多方计算四个流程。</p>
 <ul>
-<li>计算
-<br>用户需要进行计算时将标签、数据密文，指令，以及标签-数据密文的MAC、指令的MAC输入到可信硬件，可信硬件返回输出标签对应的密文结果和标签-密文MAC。</li>
-</ul>
-<h2 id="_3">代码实现<a class="headerlink" href="#_3" title="Permanent link"></a></h2>
-<h4 id="_4">项目结构<a class="headerlink" href="#_4" title="Permanent link"></a></h4>
-<ul>
-<li>compiler<ul>
-<li>mixedProtocolsAnalysis</li>
-<li>Protocols_Analysis</li>
-</ul>
+<li>
+<p>秘钥交换
+<br>协议需要两个非对称密钥对，以及一个对称秘钥对。在秘钥交换流程中，用户向网络广播其非对称密钥对：I.用户查询自己的可信硬件，可信硬件将在可信硬件中生成的公钥对中的公钥一起返回给用户，用户将该公钥分享到MPC网络上。同时用户监听MPC信道，收集所有收到的公钥对，并告知可信硬件。II.在I稳定后，可信硬件使用可信硬件中生成的签名私钥对所知的所有公钥进行签名。再由用户将该签名发送到MPC网络。同时检查收到的签名，检查正确后储存对应的公钥。</p>
 </li>
-<li>sootOutput</li>
-<li>HW</li>
-<li>*.cpp<ul>
-<li>main</li>
-<li>network</li>
-<li>protocol</li>
-</ul>
-</li>
-</ul>
-<blockquote>
-<p><strong>HW</strong> hardware 中是模拟可信硬件的类文件。</p>
-<p><strong>compiler</strong> 负责将java code 编译成电路语句，输出到sootOutput文件夹，其中mixedProtocolsAnalysis是编译程序的编译运行文件，Protocols_Analysis是源文件。</p>
-<p><strong>protocol</strong> 程序负责读入电路语句，对电路语句进行展开、去除数据依赖，与HW交互对指令进行MAC操作等。</p>
-<p><strong>network</strong> 程序负责整个网络的通信，对数据进行序列化，提供缓冲区，储存交互的数据等。</p>
-<p><strong>main</strong> 程序中运行了整个程序的业务流程，包括多次的数据交互，秘钥交换，指令的运行等。</p>
-<p><strong>其他文件</strong> 包括了编译安装的脚本，一些中间函数等。</p>
-</blockquote>
-<hr />
-<h4 id="_5">运行环境<a class="headerlink" href="#_5" title="Permanent link"></a></h4>
-<h5 id="linux">Linux<a class="headerlink" href="#linux" title="Permanent link"></a></h5>
-<p>运行：
-<div class="codehilite"><pre><span class="nb">cd </span>install_tool
-<span class="c1">#检查环境，或手动安装jsoncpp</span>
-bash ./install.sh
-<span class="c1">#编译java code 文件 bash ./compile.sh java_code项目路径  如</span>
-bash ./compile.sh ./java_code_demo/mexp
-<span class="c1">#编译</span>
-cmake -DCMAKE_BUILD_TYPE<span class="o">=</span>Release
-make
-<span class="c1">#运行程序</span>
-./main
-<span class="c1">#若运行神经网络模型 添加模型储存路径</span>
-./main ML ./datapath
-</pre></div></p>
-<h5 id="dockerfile">dockerfile<a class="headerlink" href="#dockerfile" title="Permanent link"></a></h5>
-<div class="codehilite"><pre>docker bulid -t azft_mpc_demo .
+<li>
+<p>运行指令交换
+<br> 运行指令交换目的是交换用户的运行协议以保证用户无法使用其他指令来进行作弊操作，向可信硬件发起签署请求，可信硬件对指令添加计数器，并使用生成的对称秘钥进行MAC，返回使用非对称秘钥对中用于加密的私钥对对称秘钥进行加密，并将该密文和MAC数据一起返回给用户。用户向MPC网络广播该密文。并监听MPC网络，储存接收的其他方发送的MAC数据。由于出于对指令运行顺序的保护(如下代码段，修改指令运行顺序会造成巨大的安全漏洞)，为此采用hash链的方式来确保运行时指令的顺序。 <br>
+<div class="codehilite"><pre><span class="nv">d</span> <span class="o">=</span> 1
+...
+<span class="nv">d</span> <span class="o">=</span> a + d
+...
+<span class="nv">b</span> <span class="o">=</span> b ^ d
+<span class="c1">#修改顺序后不断调用</span>
+<span class="nv">d</span> <span class="o">=</span> 1
+<span class="nv">b</span> <span class="o">=</span> b ^ d
+<span class="c1">#可以进行选择明文攻击</span>
 </pre></div>
-
-<h4 id="java-code">Java code编译成电路语句<a class="headerlink" href="#java-code" title="Permanent link"></a></h4>
-<p>将java code 编译成电路语句，涉及到代码块的拼接，代码参数、宏定义的展开等。使用Protocols_Analysis程序对java文件进行编译得到电路程序，输出在sootOutput文件中。使用file_deal函数对该文件进行裁剪获取运行有效部分。</p>
-<h4 id="_6">电路语句展开实现<a class="headerlink" href="#_6" title="Permanent link"></a></h4>
-<p>由于需要对指令进行数据有效性检查，需要添加MAC，在系统对指令进行签名时，需要对指令变量进行展开（针对数组变量等），此时要对程序段进行预运行，该预运行（展开）包括了
-1. 对分支语句进行展开，以确保得到的指令可以添加计数器。
-2. 对不合法指令进行检查，密文不能出现在分支语句中、密文不能出现在数组索引中等。 
-3. 对数组元素进行改写，如arr[i11], 先确保i11是明文数据，不然返回报错，在用密文改写数组，如i11在运行到此指令时value为100，则得到arr_100。
-4. 对代码进行预展开能确保程序是数据独立的，只有通过了预展开，才能证明代码段在输入密文数据前数据流已经确定了。</p>
-<h4 id="_7">协议运行实现<a class="headerlink" href="#_7" title="Permanent link"></a></h4>
-<h5 id="_8">系统流程设计<a class="headerlink" href="#_8" title="Permanent link"></a></h5>
+指令与nonce连接通过hash函数生成新的nonce，与下一条指令继续进行连接hash操作，这样形成了链式的hash结构，最后，输出的nonce作为可信硬件检测指令完整性的凭据，输入到可信硬件中，可信硬件在计算指令时重新构建hash链验证一致后输出运输结果。
+<center> <img alt="hash" src="/Users/esion/AZFT-MPC/image/Hash.png" title="hash链结构" /></center> 
+<center>hash链结构 </center> </p>
+</li>
+<li>
+<p>数据交换
+<br>与指令交换类似的，需要进行数据交换来确保用户运行的指令中的数据的正确性。可信硬件同样使用非对称秘钥对中用于加密的私钥对对称秘钥进行加密，然后使用对称秘钥对数据进行加密，最后使用该秘钥对数据和指令中使用的标签整合内容进行MAC计算。用户广播并监听。
+<center> <img alt="protocol0" src="/Users/esion/AZFT-MPC/image/protocol_0.png" title="秘钥、数据等的交换" /></center> 
+<center>秘钥、数据交换过程 </center> </p>
+</li>
+<li>
+<p>计算
+<br>用户需要进行计算时将标签、数据密文，指令，以及标签-数据密文的MAC、指令的MAC输入到可信硬件，可信硬件返回输出标签对应的密文结果和标签-密文MAC。</p>
+</li>
+</ul>
+<h2 id="_3">项目实现<a class="headerlink" href="#_3" title="Permanent link"></a></h2>
+<h4 id="_4">系统流程设计<a class="headerlink" href="#_4" title="Permanent link"></a></h4>
+<p><center><img alt="struct" src="/Users/esion/AZFT-MPC/image/struct.png" title="系统实现" /></center> 
+<center>系统实现</center> </p>
 <ul>
 <li>
 <p>代码编译成电路指令模块
@@ -1161,7 +1132,7 @@ make
 <li>
 <p>网络层模块设计
 网络实现了数据的接受和发送，以及对数据的序列化和对象化，主程序将数据对象交付给该模块后，该模块转换为二进制流发送到网络；该模块将在网络上监听到的二进制数据流转换为数据对象供主程序查询。
-<center><img alt="protocol1" src="/home/eason/doc_file/MPC%E7%A1%AC%E4%BB%B6/image/protocol_1.png" title="协议运行" /></center> 
+<center><img alt="protocol1" src="/Users/esion/AZFT-MPC/image/protocol_1.png" title="协议运行" /></center> 
 <center>协议运行</center> </p>
 </li>
 <li>
@@ -1179,12 +1150,96 @@ make
 </ul>
 </li>
 </ul>
-<p><center><img alt="protocol2" src="/home/eason/doc_file/MPC%E7%A1%AC%E4%BB%B6/image/protocol_2.png" title="协议运行优化" /></center> 
+<p><center><img alt="protocol2" src="/Users/esion/AZFT-MPC/image/protocol_2.png" title="协议运行优化" /></center> 
 <center>协议运行优化</center> </p>
 <ul>
 <li>相关优化 对协议进行了优化，如数据交互中的数据流压缩，指令签名交互过程中对指令 MAC的重新设计等，
 如上图对计算流程的优化，去除了输出结果前的签名交互流程，减少了网络开销。</li>
 </ul>
+<h4 id="_5">代码块和深度学习算法支持<a class="headerlink" href="#_5" title="Permanent link"></a></h4>
+<p><center><img alt="code_block" src="/Users/esion/AZFT-MPC/image/code_block.png" title="协议运行" /></center> 
+<center>代码块实现</center> </p>
+<p>由于深度学习算法，存在大量的矩阵乘法操作等，使得使用原来的构架（每次运行一次指令进行一次加解密的操作）大量的时间用于密码学加解密操作。同时由于采用原来的接口（支持三元组操作符），不支持多参数输入，使得矩阵乘法需要分解为大量的基础运算指令，列如，</p>
+<blockquote>
+<p>两个100*100 的矩阵乘法需要分解成10000 + 5000 + 2500 + &hellip; + 13 + 7 + 4 + 2 + 1 = 20000个三元指令。而一次卷积操作需要矩阵乘法至少需要2000个类似的卷积操作。</p>
+</blockquote>
+<p>针对这一问题本系统采用代码块的方式，用户向trusted hardware输入的不再是单独的指令，而是指令集（代码块），与之前的指令密码学保护方式类似的采用hash链的方式来保护可信硬件的输入指令和数据的对应关系。hardware检查数据、输入的权重和指令集完整性，在hardware内部运行指令集，指令分析代码块，依次调用内部的运算模块，计算结果，运行完成后向用户输出密文数据。</p>
+<h4 id="_6">项目结构<a class="headerlink" href="#_6" title="Permanent link"></a></h4>
+<ul>
+<li>compiler<ul>
+<li>mixedProtocolsAnalysis</li>
+<li>Protocols_Analysis</li>
+</ul>
+</li>
+<li>sootOutput</li>
+<li>HW<ul>
+<li>crypto</li>
+<li>crypto_pend</li>
+<li>&hellip;</li>
+</ul>
+</li>
+<li>src<ul>
+<li>main</li>
+<li>network</li>
+<li>protocol</li>
+<li>&hellip;  </li>
+</ul>
+</li>
+<li>include</li>
+<li>test</li>
+</ul>
+<blockquote>
+<p><strong>HW</strong> hardware 中是模拟可信硬件的类文件。其中主要的两个文件：crypto为模拟可信硬件API函数，crypto_pend为添加了机器学习支持的crypto子类函数，调用crypto_pend即可。</p>
+<p><strong>compiler</strong> 负责将java code 编译成电路语句，输出到sootOutput文件夹，其中mixedProtocolsAnalysis是编译程序的编译运行文件，Protocols_Analysis是源文件。</p>
+<p><strong>protocol</strong> 程序负责读入电路语句，对电路语句进行展开、去除数据依赖，与HW交互对指令进行MAC操作等。</p>
+<p><strong>network</strong> 程序负责整个网络的通信，对数据进行序列化，提供缓冲区，储存交互的数据等。</p>
+<p><strong>main</strong> 程序中运行了整个程序的业务流程，包括多次的数据交互，秘钥交换，指令的运行等。</p>
+<p><strong>test</strong> 编写了一些测试用例。</p>
+<p><strong>其他文件</strong> 包括了编译安装的脚本，一些中间函数等。</p>
+</blockquote>
+<h4 id="java-code">Java code编译成电路语句<a class="headerlink" href="#java-code" title="Permanent link"></a></h4>
+<p>将java code 编译成电路语句，涉及到代码块的拼接，代码参数、宏定义的展开等。使用Protocols_Analysis程序对java文件进行编译得到电路程序，输出在sootOutput文件中。使用file_deal函数对该文件进行裁剪获取运行有效部分。</p>
+<h4 id="_7">电路语句展开实现<a class="headerlink" href="#_7" title="Permanent link"></a></h4>
+<p>由于需要对指令进行数据有效性检查，需要添加MAC，在系统对指令进行签名时，需要对指令变量进行展开（针对数组变量等），此时要对程序段进行预运行，该预运行（展开）包括了
+1. 对分支语句进行展开，以确保得到的指令可以添加计数器。
+2. 对不合法指令进行检查，密文不能出现在分支语句中、密文不能出现在数组索引中等。 
+3. 对数组元素进行改写，如arr[i11], 先确保i11是明文数据，不然返回报错，在用密文改写数组，如i11在运行到此指令时value为100，则得到arr_100。
+4. 对代码进行预展开能确保程序是数据独立的，只有通过了预展开，才能证明代码段在输入密文数据前数据流已经确定了。</p>
+<hr />
+<h4 id="_8">运行<a class="headerlink" href="#_8" title="Permanent link"></a></h4>
+<p>本系统支持linux运行或使用docker容器运行。</p>
+<h5 id="linux">Linux<a class="headerlink" href="#linux" title="Permanent link"></a></h5>
+<p>运行：
+<div class="codehilite"><pre><span class="nb">cd </span>install_tool
+<span class="c1">#检查环境，或手动安装jsoncpp</span>
+bash ./install.sh
+<span class="c1">#编译java code 文件 bash ./compile.sh java_code项目路径  如</span>
+bash ./compile.sh ./java_code_demo/mexp
+<span class="c1">#编译</span>
+cmake -DCMAKE_BUILD_TYPE<span class="o">=</span>Release
+make
+<span class="c1">#运行程序</span>
+./main
+<span class="c1">#若运行神经网络模型 添加模型储存路径</span>
+./main ML ./datapath
+</pre></div></p>
+<h5 id="dockerfile">dockerfile<a class="headerlink" href="#dockerfile" title="Permanent link"></a></h5>
+<div class="codehilite"><pre>docker bulid -t azft_mpc_demo .
+<span class="c1">#运行docker</span>
+docker run -it --net azft_mpc_hw 
+<span class="c1">#使用test文件夹下的的test程序生成测试用的resnet模型数据</span>
+./test_ex
+<span class="c1">#运行</span>
+./main ML ./save_data
+<span class="c1">#这里的ML参数代表是否支持机器学习算法，./save_data是算法对应的结构文件和参数文件的储存目录。</span>
+<span class="c1">#input listen port</span>
+<span class="c1">#输入监听端口,列如6000</span>
+<span class="c1">#input connect host</span>
+<span class="c1">#输入链接host和端口,如10.111.45.46:6001, 如果在本地则直接输入端口号，如6001,</span>
+<span class="c1">#程序会提示下一步指令，按要求输入来继续下一步。</span>
+<span class="c1">#进行运算前先使用1或3选项向网络发送数据，然后选择2或4运行普通协议和代码块协议。</span>
+</pre></div>
+
 <h4 id="release">Release<a class="headerlink" href="#release" title="Permanent link"></a></h4>
 <ul>
 <li>Jan 2, 2020
@@ -1195,12 +1250,107 @@ make
 <br> 添加了对神经网络的支持，实现了在Hardware内进行神经网络卷积，池化等操作的支持。
 <br>设计了代码块指令，用户可以使用代码块作为输入指令向Hardware进行命令输入。</li>
 <li>March 20, 2020
-<br>实现了resnet模型，在该框架下实现了resnet预测模型。具体使用为
-<div class="codehilite"><pre><span class="c1">#运行docker</span>
-docker run -it --net azft_mpc_hw 
-<span class="c1">#使用test文件夹下的的test程序生成测试用的resnet模型数据</span>
-./test_ex
-<span class="c1">#运行</span>
-./main ML ./save_data
-</pre></div></li>
-</ul></article></body></html>
+<br>实现了resnet模型，在该框架下实现了resnet预测模型。具体使用为</li>
+</ul>
+<h2 id="_9">性能测试<a class="headerlink" href="#_9" title="Permanent link"></a></h2>
+<p>相较前人的协议，本系统性能上有较大的提升。</p>
+<h4 id="_10">添加代码块后性能比较<a class="headerlink" href="#_10" title="Permanent link"></a></h4>
+<p>在单核cpu下，针对简单算法（gcd）和复杂算法（resnet50），对系统运行的两种模式进行了测试。分别记录两种模式下cpu运行时间、测试时间（加上网络传输数据延迟）、网络消耗流量</p>
+<table>
+<thead>
+<tr>
+<th align="left">运行方式</th>
+<th align="left">指令复杂度(行)</th>
+<th align="left">cpu计算耗时(s)</th>
+<th align="left">测试耗时(s)</th>
+<th align="left">网络流量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">non_block_gcd</td>
+<td align="left">65675</td>
+<td align="left">3.56</td>
+<td align="left">6.27</td>
+<td align="left">1051.5 KB</td>
+</tr>
+<tr>
+<td align="left">non_block_res</td>
+<td align="left">1017685</td>
+<td align="left">221.55</td>
+<td align="left">226.71</td>
+<td align="left">8080.9 KB</td>
+</tr>
+<tr>
+<td align="left">block_gcd</td>
+<td align="left">75</td>
+<td align="left">0.0021</td>
+<td align="left">0.05</td>
+<td align="left">0.332 KB</td>
+</tr>
+<tr>
+<td align="left">block_res</td>
+<td align="left">152</td>
+<td align="left">27.36</td>
+<td align="left">4.09</td>
+<td align="left">602.1KB</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_11">与前人系统性能比较<a class="headerlink" href="#_11" title="Permanent link"></a></h4>
+<p>前人的系统提供的性能报告运行在24核cpu下，本系统采用的为16核cpu，给出以下的对应的运行resnet101的性能比较。</p>
+<table>
+<thead>
+<tr>
+<th align="left">运行方式</th>
+<th align="left">网络延时</th>
+<th align="left">cpu计算耗时(s)</th>
+<th align="left">测试耗时(s)</th>
+<th align="left">网络流量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">proposed_protocol_16核</td>
+<td align="left">0.03ms</td>
+<td align="left">6.01</td>
+<td align="left">6.88</td>
+<td align="left">602.1KB</td>
+</tr>
+<tr>
+<td align="left">secureNN_24核</td>
+<td align="left">0.03ms</td>
+<td align="left">141.5</td>
+<td align="left">170.404</td>
+<td align="left">22851.7MB</td>
+</tr>
+<tr>
+<td align="left">proposed_protocol_16核</td>
+<td align="left">100ms</td>
+<td align="left">6.09</td>
+<td align="left">7.27</td>
+<td align="left">602.1KB</td>
+</tr>
+<tr>
+<td align="left">secureNN_24核</td>
+<td align="left">100ms</td>
+<td align="left">156.49</td>
+<td align="left">1719.84</td>
+<td align="left">22851.7MB</td>
+</tr>
+<tr>
+<td align="left">proposed_protocol_16核</td>
+<td align="left">500ms</td>
+<td align="left">6.19</td>
+<td align="left">8.21</td>
+<td align="left">602.1KB</td>
+</tr>
+<tr>
+<td align="left">secureNN_24核</td>
+<td align="left">500ms</td>
+<td align="left">156.449</td>
+<td align="left">9694.77</td>
+<td align="left">22851.7MB</td>
+</tr>
+</tbody>
+</table></article></body></html>
