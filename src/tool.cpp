@@ -228,3 +228,11 @@ std::vector<std::string> getFiles(std::string path){
     sort(files.begin(), files.end());
     return files;
 }
+void sha3(unsigned char *digest, const unsigned char *message, size_t message_len){
+    EVP_MD_CTX *mdctx;
+    mdctx = EVP_MD_CTX_create();
+    EVP_DigestInit_ex(mdctx, EVP_sha3_256(), NULL);
+    EVP_DigestUpdate(mdctx, message, message_len);
+    EVP_DigestFinal_ex(mdctx, digest, &SHALEN);
+    EVP_MD_CTX_destroy(mdctx);
+}

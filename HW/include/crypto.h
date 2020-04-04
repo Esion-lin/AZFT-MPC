@@ -84,7 +84,8 @@ public:
 	thinks to hybrid encryption
 	encrypt symmetric key with encrypto_key(), encrypt data with encrypto()
 	*/
-
+	//Generate a symmetric key
+	void gen_sym_key(unsigned char tru_out[], unsigned int key_len);
 	void encrypto_key(unsigned char tru_key_out[],unsigned int &key_len_out);
 	void encrypto(unsigned char tru_in[], unsigned int len, unsigned char tru_data_out[],unsigned int &data_len_out);
 	//using AE instead Encryption
@@ -130,8 +131,7 @@ private:
 	*/
 	//This is command counter
 	unsigned int cmd_counter;
-	//Generate a symmetric key
-	void gen_sym_key(unsigned char tru_out[], unsigned int key_len);
+	
 	
 	//This function do temporary decryption and encryption operations, in operation 
 	

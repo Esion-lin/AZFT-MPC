@@ -9,6 +9,9 @@
 #include "crypto.h"
 #include <vector>
 #include <algorithm>
+#include <stdio.h>
+#include <openssl/evp.h>
+
 #ifdef linux
 #include <unistd.h>
 #include <dirent.h>
@@ -30,4 +33,6 @@ void to_int(unsigned char input[], unsigned int arr_len, uint32_t arr[]);
 bool is_num(std::string data , int64_t &num);
 std::string get_item(std::map<std::string,int64_t> dic, std::string str);
 std::vector<std::string> getFiles(std::string path);
+unsigned int SHALEN=32;
+void sha3(unsigned char *digest, const unsigned char *message, size_t message_len);
 #endif

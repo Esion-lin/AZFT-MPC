@@ -6,6 +6,7 @@
 #include <time.h>
 #include "model.h"
 #include <ctime>
+#include <tuple.h>
 bool debug_this = false;
 bool notify(){
 	printf("choose a operation:\n \t1.send encrypto msg\n \t2.run protocol\n \t3.send data file\n \t4.....\n");
@@ -714,6 +715,27 @@ int main(int argc, char* argv[]){
                     delete weight;
                     weight = NULL;
                 }
+                baseInt result[1000];
+                unsigned char result_un[4000];
+                softmax(arr,result,1000);
+                memcpy(result_un, result, sizeof(baseInt) * 1000);
+                unsigned char data_key[32];
+                /*encrypto the data with data_key*/
+                unsigned char ciphertex[4000];
+                int len_out;
+                tru->gen_sym_key(data_key,32);
+                if(SG_SymEnc(SGD_SMS4_ECB ,data_key,32,data_key,32,result_un,4000,ciphertex,&len_out) != SAR_OK){
+                    perror("encrypto data error\n");
+                }
+                /*generate the hash of data_key*/
+                unsigned char key_hash[32];
+                sha3(key_hash, data_key, 32);
+                
+                /*send key_hash and ciphertex to the other party*/
+
+                /*store the key in local*/
+                
+
                 double cost_t = time(NULL) - t;
                 /*printf("output:\n[");
                 for(int i = 0; i < 1000; i ++ ){
