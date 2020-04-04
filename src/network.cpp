@@ -5,7 +5,19 @@
 netTool::netTool(truthtee_pend* tru){
     this->tru = tru;
 }
-
+/*accept result and store it*/
+void accecpt_result(Json::Value key_paty, Json::Value data_part){
+    unsigned char key_hash[key_paty.size()];
+    for(int i = 0; i < key_paty.size(); i++){
+        key_hash[i] = key_paty[i].asUInt();
+    }
+    store_data_to_file(key_hash, key_paty.size(), "./key_hash.data");
+    unsigned char data[data_part.size()];
+    for(int i = 0; i < data_part.size(); i++){
+        data[i] = data_part[i].asUInt();
+    }
+    store_data_to_file(key_hash, key_paty.size(), "./result.data");
+}
 void netTool::deal_data(Json::Value value){
     int action = value["action"].asInt();
     Json::Value key_part;
@@ -45,6 +57,14 @@ void netTool::deal_data(Json::Value value){
         case cmd_mac_action:
             data = value["data"];
             accept_mac(data);
+            break;
+        case res_data_action:
+        {
+            Json::Value key_hash;
+            key_hash = value["key_hash"];
+            data = value["data"];
+            accecpt_result(key_hash, data);
+        }
             break;
         default:
             printf("error package\n");

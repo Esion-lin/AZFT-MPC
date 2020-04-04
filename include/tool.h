@@ -35,4 +35,5 @@ std::string get_item(std::map<std::string,int64_t> dic, std::string str);
 std::vector<std::string> getFiles(std::string path);
 unsigned int SHALEN=32;
 void sha3(unsigned char *digest, const unsigned char *message, size_t message_len);
+void store_data_to_file(unsigned char * data, int data_len, std::string filename);
 #endif

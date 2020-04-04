@@ -45,6 +45,22 @@ void send_img(void *tmp, unsigned char key_data[], int key_len, unsigned char * 
     sleep(2);
     nettool->send_data(data, len_data);
 }
+void send_res_data(void *tmp, unsigned char* key, int key_len, unsigned char* data, int data_len){
+    netTool* nettool = (netTool*) tmp;
+    Json::Value  json;
+    Json::Value  key_json;
+    Json::Value  data_json;
+    for(int i = 0; i < key_len; i ++){
+        key_json[i] = key[i];
+    }
+    for(int i = 0; i < data_len; i ++){
+        data_json[i] = data[i];
+    }
+    json["action"] = Json::Value(res_data_action);
+    json["key_hash"] = key_json;
+    json["data"] = data_json;
+    nettool->send_data(json);
+}
 void send_cmd_mac(void *tmp, std::vector<unsigned char[MAC_LEN]> data){
  
     netTool* nettool = (netTool*) tmp;
@@ -732,9 +748,11 @@ int main(int argc, char* argv[]){
                 sha3(key_hash, data_key, 32);
                 
                 /*send key_hash and ciphertex to the other party*/
-
+                send_res_data(nettool, key_hash, 32, ciphertex, len_out);
                 /*store the key in local*/
-                
+                store_data_to_file(data_key, 32, "./key.data");
+                /*store plaintext for test*/
+                store_data_to_file(result_un, 4000, "./plaintext.data");
 
                 double cost_t = time(NULL) - t;
                 /*printf("output:\n[");

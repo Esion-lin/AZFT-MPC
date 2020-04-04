@@ -236,3 +236,12 @@ void sha3(unsigned char *digest, const unsigned char *message, size_t message_le
     EVP_DigestFinal_ex(mdctx, digest, &SHALEN);
     EVP_MD_CTX_destroy(mdctx);
 }
+void store_data_to_file(unsigned char * data, int data_len, std::string filename){
+    FILE * pFile;
+    if((pFile = fopen (filename.c_str(), "wb"))==NULL){
+        printf("cant open the file\n");
+        exit(0);
+    }
+    fwrite (data , 1, data_len, pFile);
+    fclose (pFile);
+};

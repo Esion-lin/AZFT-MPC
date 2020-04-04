@@ -17,6 +17,7 @@
 #define data_action 3
 #define cmd_mac_action 22
 #define data_sign_action 4
+#define res_data_action 15
 #define is_debug true
 #define is_send_output_mac true
 #ifndef _CONFIGFILE_H_
