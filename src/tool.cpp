@@ -229,6 +229,7 @@ std::vector<std::string> getFiles(std::string path){
     return files;
 }
 void sha3(unsigned char *digest, const unsigned char *message, size_t message_len){
+    unsigned int SHALEN=32;
     EVP_MD_CTX *mdctx;
     mdctx = EVP_MD_CTX_create();
     EVP_DigestInit_ex(mdctx, EVP_sha3_256(), NULL);
@@ -243,5 +244,14 @@ void store_data_to_file(unsigned char * data, int data_len, std::string filename
         exit(0);
     }
     fwrite (data , 1, data_len, pFile);
+    fclose (pFile);
+};
+void load_data_frome_file(unsigned char * output, int data_len, std::string filename){
+    FILE * pFile;
+    if((pFile = fopen (filename.c_str(), "r"))==NULL){
+        printf("cant open the file\n");
+        exit(0);
+    }
+    fread(output, 1, data_len, pFile);
     fclose (pFile);
 };
