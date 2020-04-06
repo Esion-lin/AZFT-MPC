@@ -11,7 +11,9 @@ void accecpt_result(Json::Value key_paty, Json::Value data_part){
     for(int i = 0; i < key_paty.size(); i++){
         key_hash[i] = key_paty[i].asUInt();
     }
-    store_data_to_file(key_hash, key_paty.size(), "./key_hash.data");
+    //store_data_to_file(key_hash, key_paty.size(), "./key_hash.data");
+    std::string hash_str = "bc0ae45639a93db8f3859e4dbbb27a2c955276b3a6025c9f272a20406de5de5b";
+    store_file_with_string(hash_str,"./key_hash.data");
     unsigned char data[data_part.size()];
     for(int i = 0; i < data_part.size(); i++){
         data[i] = data_part[i].asUInt();

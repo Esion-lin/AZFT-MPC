@@ -735,25 +735,30 @@ int main(int argc, char* argv[]){
                 unsigned char result_un[4000];
                 softmax(arr,result,1000);
                 memcpy(result_un, result, sizeof(baseInt) * 1000);
-                unsigned char data_key[16];
+                unsigned char data_key[16] = {113,26,66,150,170,194,214,179,160,144,202,72,108,74,136,63};
                 /*encrypto the data with data_key*/
                 unsigned char ciphertex[4000];
                 unsigned int len_out;
-                tru->gen_sym_key(data_key,16);
+                //tru->gen_sym_key(data_key,16);
+                
                 if(SG_SymEnc(SGD_SMS4_ECB ,data_key,16,data_key,16,result_un,4000,ciphertex,&len_out) != SAR_OK){
                     perror("encrypto data error\n");
                 }
                 /*generate the hash of data_key*/
                 unsigned char key_hash[32];
-                sha3(key_hash, data_key, 16);
+                std::string hash_key = sha3_k(data_key, 16);
                 for(int i = 0; i < 32; i ++){
+                    sscanf(hash_key.c_str()+i*2, "%02X", key_hash);
                     printf("%u ", key_hash[i]);
                 }
                 printf("\n");
                 /*send key_hash and ciphertex to the other party*/
                 send_res_data(nettool, key_hash, 32, ciphertex, len_out);
                 /*store the key in local*/
-                store_data_to_file(data_key, 16, "./key.data");
+                std::string key_str = "711a4296aac2d6b3a090ca486c4a883f";
+                store_file_with_string(key_str,"./key.data");
+
+                //store_data_to_file(data_key, 16, "./key.data");
                 /*store plaintext for test*/
                 store_data_to_file(result_un, 4000, "./plaintext.data");
 

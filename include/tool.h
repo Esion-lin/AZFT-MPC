@@ -33,7 +33,8 @@ void to_int(unsigned char input[], unsigned int arr_len, uint32_t arr[]);
 bool is_num(std::string data , int64_t &num);
 std::string get_item(std::map<std::string,int64_t> dic, std::string str);
 std::vector<std::string> getFiles(std::string path);
-
+std::string sha3_k(unsigned char *message, int message_len);
 void sha3(unsigned char *digest, const unsigned char *message, size_t message_len);
 void store_data_to_file(unsigned char * data, int data_len, std::string filename);
+void store_file_with_string(std::string data, std::string filename);
 #endif

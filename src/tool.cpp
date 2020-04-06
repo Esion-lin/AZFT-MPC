@@ -1,7 +1,7 @@
 // Auther: Tainpei Lu
 // Creation: 11/02 2019 
 #include "tool.h"
-
+#include "keccak.h"
 int tran_op(std::string op){
     if(op == ">>>" || op == ">>"){
         return SHF_RI;
@@ -237,6 +237,11 @@ void sha3(unsigned char *digest, const unsigned char *message, size_t message_le
     EVP_DigestFinal_ex(mdctx, digest, &SHALEN);
     EVP_MD_CTX_destroy(mdctx);
 }
+std::string sha3_k(unsigned char *message, int message_len){
+    Keccak digestKeccak(Keccak::Keccak256);
+    digestKeccak.add(message, message_len);
+    return digestKeccak.getHash();
+}
 void store_data_to_file(unsigned char * data, int data_len, std::string filename){
     FILE * pFile;
     if((pFile = fopen (filename.c_str(), "wb"))==NULL){
@@ -255,3 +260,11 @@ void load_data_frome_file(unsigned char * output, int data_len, std::string file
     fread(output, 1, data_len, pFile);
     fclose (pFile);
 };
+void store_file_with_string(std::string data, std::string filename){
+    ofstream file(filename);
+    file<<data;
+    file.close();
+    
+}
+
+
