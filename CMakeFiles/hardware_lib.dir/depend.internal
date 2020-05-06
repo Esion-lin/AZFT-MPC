@@ -7,6 +7,9 @@ CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.o
  HW/include/crypto.h
  include/Merkle_Hash.h
  include/some_struct.h
+CMakeFiles/hardware_lib.dir/src/keccak.cpp.o
+ /home/eason/doc_file/MPC硬件/src/keccak.cpp
+ include/keccak.h
 CMakeFiles/hardware_lib.dir/src/network.cpp.o
  /home/eason/doc_file/MPC硬件/src/network.cpp
  HW/include/SG_API.h
@@ -52,4 +55,5 @@ CMakeFiles/hardware_lib.dir/src/tool.cpp.o
  include/json/reader.h
  include/json/value.h
  include/json/writer.h
+ include/keccak.h
  include/tool.h

@@ -1,0 +1,6 @@
+#ifndef _HARDWARE_H_
+#define _HARDWARE_H_
+#define UUID_HARDWARE	{ 0x13245768, 0xacbd, 0xcedf,   \
+                        	{ 0x01, 0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78 } }
+#define CMD_GEN     (0x00000000)
+#endif /* _HARDWARE_H_ */

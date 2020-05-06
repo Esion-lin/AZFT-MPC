@@ -60,40 +60,39 @@ CMAKE_SOURCE_DIR = /home/eason/doc_file/MPC硬件
 CMAKE_BINARY_DIR = /home/eason/doc_file/MPC硬件
 
 #=============================================================================
-# Target rules for target CMakeFiles/test_ex.dir
+# Target rules for target CMakeFiles/hardware_lib.dir
 
 # All Build rule for target.
-CMakeFiles/test_ex.dir/all: HW/CMakeFiles/hardware.dir/all
-CMakeFiles/test_ex.dir/all: CMakeFiles/hardware_lib.dir/all
-	$(MAKE) -f CMakeFiles/test_ex.dir/build.make CMakeFiles/test_ex.dir/depend
-	$(MAKE) -f CMakeFiles/test_ex.dir/build.make CMakeFiles/test_ex.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/eason/doc_file/MPC硬件/CMakeFiles --progress-num=14,15 "Built target test_ex"
-.PHONY : CMakeFiles/test_ex.dir/all
+CMakeFiles/hardware_lib.dir/all: HW/CMakeFiles/hardware.dir/all
+	$(MAKE) -f CMakeFiles/hardware_lib.dir/build.make CMakeFiles/hardware_lib.dir/depend
+	$(MAKE) -f CMakeFiles/hardware_lib.dir/build.make CMakeFiles/hardware_lib.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/eason/doc_file/MPC硬件/CMakeFiles --progress-num=7,8,9,10,11,12 "Built target hardware_lib"
+.PHONY : CMakeFiles/hardware_lib.dir/all
 
 # Include target in all.
-all: CMakeFiles/test_ex.dir/all
+all: CMakeFiles/hardware_lib.dir/all
 
 .PHONY : all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/test_ex.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/doc_file/MPC硬件/CMakeFiles 11
-	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/test_ex.dir/all
+CMakeFiles/hardware_lib.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/doc_file/MPC硬件/CMakeFiles 10
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/hardware_lib.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/doc_file/MPC硬件/CMakeFiles 0
-.PHONY : CMakeFiles/test_ex.dir/rule
+.PHONY : CMakeFiles/hardware_lib.dir/rule
 
 # Convenience name for target.
-test_ex: CMakeFiles/test_ex.dir/rule
+hardware_lib: CMakeFiles/hardware_lib.dir/rule
 
-.PHONY : test_ex
-
-# clean rule for target.
-CMakeFiles/test_ex.dir/clean:
-	$(MAKE) -f CMakeFiles/test_ex.dir/build.make CMakeFiles/test_ex.dir/clean
-.PHONY : CMakeFiles/test_ex.dir/clean
+.PHONY : hardware_lib
 
 # clean rule for target.
-clean: CMakeFiles/test_ex.dir/clean
+CMakeFiles/hardware_lib.dir/clean:
+	$(MAKE) -f CMakeFiles/hardware_lib.dir/build.make CMakeFiles/hardware_lib.dir/clean
+.PHONY : CMakeFiles/hardware_lib.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/hardware_lib.dir/clean
 
 .PHONY : clean
 
@@ -135,43 +134,6 @@ clean: CMakeFiles/file_deal.dir/clean
 .PHONY : clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/hardware_lib.dir
-
-# All Build rule for target.
-CMakeFiles/hardware_lib.dir/all: HW/CMakeFiles/hardware.dir/all
-	$(MAKE) -f CMakeFiles/hardware_lib.dir/build.make CMakeFiles/hardware_lib.dir/depend
-	$(MAKE) -f CMakeFiles/hardware_lib.dir/build.make CMakeFiles/hardware_lib.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/eason/doc_file/MPC硬件/CMakeFiles --progress-num=7,8,9,10,11 "Built target hardware_lib"
-.PHONY : CMakeFiles/hardware_lib.dir/all
-
-# Include target in all.
-all: CMakeFiles/hardware_lib.dir/all
-
-.PHONY : all
-
-# Build rule for subdir invocation for target.
-CMakeFiles/hardware_lib.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/doc_file/MPC硬件/CMakeFiles 9
-	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/hardware_lib.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/doc_file/MPC硬件/CMakeFiles 0
-.PHONY : CMakeFiles/hardware_lib.dir/rule
-
-# Convenience name for target.
-hardware_lib: CMakeFiles/hardware_lib.dir/rule
-
-.PHONY : hardware_lib
-
-# clean rule for target.
-CMakeFiles/hardware_lib.dir/clean:
-	$(MAKE) -f CMakeFiles/hardware_lib.dir/build.make CMakeFiles/hardware_lib.dir/clean
-.PHONY : CMakeFiles/hardware_lib.dir/clean
-
-# clean rule for target.
-clean: CMakeFiles/hardware_lib.dir/clean
-
-.PHONY : clean
-
-#=============================================================================
 # Target rules for target CMakeFiles/main.dir
 
 # All Build rule for target.
@@ -179,7 +141,7 @@ CMakeFiles/main.dir/all: HW/CMakeFiles/hardware.dir/all
 CMakeFiles/main.dir/all: CMakeFiles/hardware_lib.dir/all
 	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/depend
 	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/eason/doc_file/MPC硬件/CMakeFiles --progress-num=12,13 "Built target main"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/eason/doc_file/MPC硬件/CMakeFiles --progress-num=13,14 "Built target main"
 .PHONY : CMakeFiles/main.dir/all
 
 # Include target in all.
@@ -189,7 +151,7 @@ all: CMakeFiles/main.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/main.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/doc_file/MPC硬件/CMakeFiles 11
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/doc_file/MPC硬件/CMakeFiles 12
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/main.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/doc_file/MPC硬件/CMakeFiles 0
 .PHONY : CMakeFiles/main.dir/rule
@@ -206,6 +168,82 @@ CMakeFiles/main.dir/clean:
 
 # clean rule for target.
 clean: CMakeFiles/main.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/test_ex.dir
+
+# All Build rule for target.
+CMakeFiles/test_ex.dir/all: HW/CMakeFiles/hardware.dir/all
+CMakeFiles/test_ex.dir/all: CMakeFiles/hardware_lib.dir/all
+	$(MAKE) -f CMakeFiles/test_ex.dir/build.make CMakeFiles/test_ex.dir/depend
+	$(MAKE) -f CMakeFiles/test_ex.dir/build.make CMakeFiles/test_ex.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/eason/doc_file/MPC硬件/CMakeFiles --progress-num=17,18 "Built target test_ex"
+.PHONY : CMakeFiles/test_ex.dir/all
+
+# Include target in all.
+all: CMakeFiles/test_ex.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/test_ex.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/doc_file/MPC硬件/CMakeFiles 12
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/test_ex.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/doc_file/MPC硬件/CMakeFiles 0
+.PHONY : CMakeFiles/test_ex.dir/rule
+
+# Convenience name for target.
+test_ex: CMakeFiles/test_ex.dir/rule
+
+.PHONY : test_ex
+
+# clean rule for target.
+CMakeFiles/test_ex.dir/clean:
+	$(MAKE) -f CMakeFiles/test_ex.dir/build.make CMakeFiles/test_ex.dir/clean
+.PHONY : CMakeFiles/test_ex.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/test_ex.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/test_cal.dir
+
+# All Build rule for target.
+CMakeFiles/test_cal.dir/all: HW/CMakeFiles/hardware.dir/all
+CMakeFiles/test_cal.dir/all: CMakeFiles/hardware_lib.dir/all
+	$(MAKE) -f CMakeFiles/test_cal.dir/build.make CMakeFiles/test_cal.dir/depend
+	$(MAKE) -f CMakeFiles/test_cal.dir/build.make CMakeFiles/test_cal.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/eason/doc_file/MPC硬件/CMakeFiles --progress-num=15,16 "Built target test_cal"
+.PHONY : CMakeFiles/test_cal.dir/all
+
+# Include target in all.
+all: CMakeFiles/test_cal.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/test_cal.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/doc_file/MPC硬件/CMakeFiles 12
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/test_cal.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/doc_file/MPC硬件/CMakeFiles 0
+.PHONY : CMakeFiles/test_cal.dir/rule
+
+# Convenience name for target.
+test_cal: CMakeFiles/test_cal.dir/rule
+
+.PHONY : test_cal
+
+# clean rule for target.
+CMakeFiles/test_cal.dir/clean:
+	$(MAKE) -f CMakeFiles/test_cal.dir/build.make CMakeFiles/test_cal.dir/clean
+.PHONY : CMakeFiles/test_cal.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/test_cal.dir/clean
 
 .PHONY : clean
 

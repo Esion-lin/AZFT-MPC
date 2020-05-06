@@ -10,6 +10,12 @@
 Merkle_Hash.h
 /home/eason/doc_file/MPC硬件/src/Merkle_Hash.h
 
+/home/eason/doc_file/MPC硬件/src/keccak.cpp
+keccak.h
+/home/eason/doc_file/MPC硬件/src/keccak.h
+endian.h
+-
+
 /home/eason/doc_file/MPC硬件/src/network.cpp
 network.h
 /home/eason/doc_file/MPC硬件/src/network.h
@@ -21,6 +27,8 @@ protocol.h
 /home/eason/doc_file/MPC硬件/src/tool.cpp
 tool.h
 /home/eason/doc_file/MPC硬件/src/tool.h
+keccak.h
+/home/eason/doc_file/MPC硬件/src/keccak.h
 
 HW/include/SG_API.h
 
@@ -146,6 +154,12 @@ string
 iostream
 -
 
+include/keccak.h
+string
+-
+stdint.h
+-
+
 include/network.h
 pthread.h
 -
@@ -220,6 +234,10 @@ include/crypto.h
 vector
 -
 algorithm
+-
+iostream
+-
+fstream
 -
 stdio.h
 -

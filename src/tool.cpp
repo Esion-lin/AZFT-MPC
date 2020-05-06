@@ -261,7 +261,7 @@ void load_data_frome_file(unsigned char * output, int data_len, std::string file
     fclose (pFile);
 };
 void store_file_with_string(std::string data, std::string filename){
-    ofstream file(filename);
+    std::ofstream file(filename);
     file<<data;
     file.close();
     

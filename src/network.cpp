@@ -18,7 +18,7 @@ void accecpt_result(Json::Value key_paty, Json::Value data_part){
     for(int i = 0; i < data_part.size(); i++){
         data[i] = data_part[i].asUInt();
     }
-    store_data_to_file(key_hash, key_paty.size(), "./result.data");
+    store_data_to_file(data, data_part.size(), "./result.data");
 }
 void netTool::deal_data(Json::Value value){
     int action = value["action"].asInt();

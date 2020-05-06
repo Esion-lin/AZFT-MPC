@@ -129,9 +129,33 @@ CMakeFiles/hardware_lib.dir/src/network.cpp.o.provides: CMakeFiles/hardware_lib.
 CMakeFiles/hardware_lib.dir/src/network.cpp.o.provides.build: CMakeFiles/hardware_lib.dir/src/network.cpp.o
 
 
+CMakeFiles/hardware_lib.dir/src/keccak.cpp.o: CMakeFiles/hardware_lib.dir/flags.make
+CMakeFiles/hardware_lib.dir/src/keccak.cpp.o: src/keccak.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/eason/doc_file/MPC硬件/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/hardware_lib.dir/src/keccak.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/hardware_lib.dir/src/keccak.cpp.o -c /home/eason/doc_file/MPC硬件/src/keccak.cpp
+
+CMakeFiles/hardware_lib.dir/src/keccak.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/hardware_lib.dir/src/keccak.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/eason/doc_file/MPC硬件/src/keccak.cpp > CMakeFiles/hardware_lib.dir/src/keccak.cpp.i
+
+CMakeFiles/hardware_lib.dir/src/keccak.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/hardware_lib.dir/src/keccak.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/eason/doc_file/MPC硬件/src/keccak.cpp -o CMakeFiles/hardware_lib.dir/src/keccak.cpp.s
+
+CMakeFiles/hardware_lib.dir/src/keccak.cpp.o.requires:
+
+.PHONY : CMakeFiles/hardware_lib.dir/src/keccak.cpp.o.requires
+
+CMakeFiles/hardware_lib.dir/src/keccak.cpp.o.provides: CMakeFiles/hardware_lib.dir/src/keccak.cpp.o.requires
+	$(MAKE) -f CMakeFiles/hardware_lib.dir/build.make CMakeFiles/hardware_lib.dir/src/keccak.cpp.o.provides.build
+.PHONY : CMakeFiles/hardware_lib.dir/src/keccak.cpp.o.provides
+
+CMakeFiles/hardware_lib.dir/src/keccak.cpp.o.provides.build: CMakeFiles/hardware_lib.dir/src/keccak.cpp.o
+
+
 CMakeFiles/hardware_lib.dir/src/tool.cpp.o: CMakeFiles/hardware_lib.dir/flags.make
 CMakeFiles/hardware_lib.dir/src/tool.cpp.o: src/tool.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/eason/doc_file/MPC硬件/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/hardware_lib.dir/src/tool.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/eason/doc_file/MPC硬件/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/hardware_lib.dir/src/tool.cpp.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/hardware_lib.dir/src/tool.cpp.o -c /home/eason/doc_file/MPC硬件/src/tool.cpp
 
 CMakeFiles/hardware_lib.dir/src/tool.cpp.i: cmake_force
@@ -158,6 +182,7 @@ hardware_lib_OBJECTS = \
 "CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.o" \
 "CMakeFiles/hardware_lib.dir/src/protocol.cpp.o" \
 "CMakeFiles/hardware_lib.dir/src/network.cpp.o" \
+"CMakeFiles/hardware_lib.dir/src/keccak.cpp.o" \
 "CMakeFiles/hardware_lib.dir/src/tool.cpp.o"
 
 # External object files for target hardware_lib
@@ -166,10 +191,11 @@ hardware_lib_EXTERNAL_OBJECTS =
 libhardware_lib.a: CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.o
 libhardware_lib.a: CMakeFiles/hardware_lib.dir/src/protocol.cpp.o
 libhardware_lib.a: CMakeFiles/hardware_lib.dir/src/network.cpp.o
+libhardware_lib.a: CMakeFiles/hardware_lib.dir/src/keccak.cpp.o
 libhardware_lib.a: CMakeFiles/hardware_lib.dir/src/tool.cpp.o
 libhardware_lib.a: CMakeFiles/hardware_lib.dir/build.make
 libhardware_lib.a: CMakeFiles/hardware_lib.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/eason/doc_file/MPC硬件/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX static library libhardware_lib.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/eason/doc_file/MPC硬件/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX static library libhardware_lib.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/hardware_lib.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/hardware_lib.dir/link.txt --verbose=$(VERBOSE)
 
@@ -181,6 +207,7 @@ CMakeFiles/hardware_lib.dir/build: libhardware_lib.a
 CMakeFiles/hardware_lib.dir/requires: CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.o.requires
 CMakeFiles/hardware_lib.dir/requires: CMakeFiles/hardware_lib.dir/src/protocol.cpp.o.requires
 CMakeFiles/hardware_lib.dir/requires: CMakeFiles/hardware_lib.dir/src/network.cpp.o.requires
+CMakeFiles/hardware_lib.dir/requires: CMakeFiles/hardware_lib.dir/src/keccak.cpp.o.requires
 CMakeFiles/hardware_lib.dir/requires: CMakeFiles/hardware_lib.dir/src/tool.cpp.o.requires
 
 .PHONY : CMakeFiles/hardware_lib.dir/requires

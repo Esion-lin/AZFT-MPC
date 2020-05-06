@@ -9,6 +9,8 @@
 #include "crypto.h"
 #include <vector>
 #include <algorithm>
+#include <iostream>
+#include <fstream>
 #include <stdio.h>
 #include <openssl/evp.h>
 
@@ -36,5 +38,6 @@ std::vector<std::string> getFiles(std::string path);
 std::string sha3_k(unsigned char *message, int message_len);
 void sha3(unsigned char *digest, const unsigned char *message, size_t message_len);
 void store_data_to_file(unsigned char * data, int data_len, std::string filename);
+void load_data_frome_file(unsigned char * output, int data_len, std::string filename);
 void store_file_with_string(std::string data, std::string filename);
 #endif

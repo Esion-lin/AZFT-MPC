@@ -111,17 +111,17 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named test_ex
+# Target rules for targets named hardware_lib
 
 # Build rule for target.
-test_ex: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 test_ex
-.PHONY : test_ex
+hardware_lib: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hardware_lib
+.PHONY : hardware_lib
 
 # fast build rule for target.
-test_ex/fast:
-	$(MAKE) -f CMakeFiles/test_ex.dir/build.make CMakeFiles/test_ex.dir/build
-.PHONY : test_ex/fast
+hardware_lib/fast:
+	$(MAKE) -f CMakeFiles/hardware_lib.dir/build.make CMakeFiles/hardware_lib.dir/build
+.PHONY : hardware_lib/fast
 
 #=============================================================================
 # Target rules for targets named file_deal
@@ -137,19 +137,6 @@ file_deal/fast:
 .PHONY : file_deal/fast
 
 #=============================================================================
-# Target rules for targets named hardware_lib
-
-# Build rule for target.
-hardware_lib: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 hardware_lib
-.PHONY : hardware_lib
-
-# fast build rule for target.
-hardware_lib/fast:
-	$(MAKE) -f CMakeFiles/hardware_lib.dir/build.make CMakeFiles/hardware_lib.dir/build
-.PHONY : hardware_lib/fast
-
-#=============================================================================
 # Target rules for targets named main
 
 # Build rule for target.
@@ -161,6 +148,32 @@ main: cmake_check_build_system
 main/fast:
 	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/build
 .PHONY : main/fast
+
+#=============================================================================
+# Target rules for targets named test_ex
+
+# Build rule for target.
+test_ex: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 test_ex
+.PHONY : test_ex
+
+# fast build rule for target.
+test_ex/fast:
+	$(MAKE) -f CMakeFiles/test_ex.dir/build.make CMakeFiles/test_ex.dir/build
+.PHONY : test_ex/fast
+
+#=============================================================================
+# Target rules for targets named test_cal
+
+# Build rule for target.
+test_cal: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 test_cal
+.PHONY : test_cal
+
+# fast build rule for target.
+test_cal/fast:
+	$(MAKE) -f CMakeFiles/test_cal.dir/build.make CMakeFiles/test_cal.dir/build
+.PHONY : test_cal/fast
 
 #=============================================================================
 # Target rules for targets named hardware
@@ -228,6 +241,33 @@ src/_file_deal.s: src/_file_deal.cpp.s
 src/_file_deal.cpp.s:
 	$(MAKE) -f CMakeFiles/file_deal.dir/build.make CMakeFiles/file_deal.dir/src/_file_deal.cpp.s
 .PHONY : src/_file_deal.cpp.s
+
+src/keccak.o: src/keccak.cpp.o
+
+.PHONY : src/keccak.o
+
+# target to build an object file
+src/keccak.cpp.o:
+	$(MAKE) -f CMakeFiles/hardware_lib.dir/build.make CMakeFiles/hardware_lib.dir/src/keccak.cpp.o
+.PHONY : src/keccak.cpp.o
+
+src/keccak.i: src/keccak.cpp.i
+
+.PHONY : src/keccak.i
+
+# target to preprocess a source file
+src/keccak.cpp.i:
+	$(MAKE) -f CMakeFiles/hardware_lib.dir/build.make CMakeFiles/hardware_lib.dir/src/keccak.cpp.i
+.PHONY : src/keccak.cpp.i
+
+src/keccak.s: src/keccak.cpp.s
+
+.PHONY : src/keccak.s
+
+# target to generate assembly for a file
+src/keccak.cpp.s:
+	$(MAKE) -f CMakeFiles/hardware_lib.dir/build.make CMakeFiles/hardware_lib.dir/src/keccak.cpp.s
+.PHONY : src/keccak.cpp.s
 
 src/main.o: src/main.cpp.o
 
@@ -337,6 +377,33 @@ src/tool.cpp.s:
 	$(MAKE) -f CMakeFiles/hardware_lib.dir/build.make CMakeFiles/hardware_lib.dir/src/tool.cpp.s
 .PHONY : src/tool.cpp.s
 
+test/cal_plain.o: test/cal_plain.cpp.o
+
+.PHONY : test/cal_plain.o
+
+# target to build an object file
+test/cal_plain.cpp.o:
+	$(MAKE) -f CMakeFiles/test_cal.dir/build.make CMakeFiles/test_cal.dir/test/cal_plain.cpp.o
+.PHONY : test/cal_plain.cpp.o
+
+test/cal_plain.i: test/cal_plain.cpp.i
+
+.PHONY : test/cal_plain.i
+
+# target to preprocess a source file
+test/cal_plain.cpp.i:
+	$(MAKE) -f CMakeFiles/test_cal.dir/build.make CMakeFiles/test_cal.dir/test/cal_plain.cpp.i
+.PHONY : test/cal_plain.cpp.i
+
+test/cal_plain.s: test/cal_plain.cpp.s
+
+.PHONY : test/cal_plain.s
+
+# target to generate assembly for a file
+test/cal_plain.cpp.s:
+	$(MAKE) -f CMakeFiles/test_cal.dir/build.make CMakeFiles/test_cal.dir/test/cal_plain.cpp.s
+.PHONY : test/cal_plain.cpp.s
+
 test/test.o: test/test.cpp.o
 
 .PHONY : test/test.o
@@ -371,11 +438,12 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... rebuild_cache"
-	@echo "... test_ex"
-	@echo "... file_deal"
-	@echo "... hardware_lib"
 	@echo "... edit_cache"
+	@echo "... hardware_lib"
+	@echo "... file_deal"
 	@echo "... main"
+	@echo "... test_ex"
+	@echo "... test_cal"
 	@echo "... hardware"
 	@echo "... src/Merkle_Hash.o"
 	@echo "... src/Merkle_Hash.i"
@@ -383,6 +451,9 @@ help:
 	@echo "... src/_file_deal.o"
 	@echo "... src/_file_deal.i"
 	@echo "... src/_file_deal.s"
+	@echo "... src/keccak.o"
+	@echo "... src/keccak.i"
+	@echo "... src/keccak.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
@@ -395,6 +466,9 @@ help:
 	@echo "... src/tool.o"
 	@echo "... src/tool.i"
 	@echo "... src/tool.s"
+	@echo "... test/cal_plain.o"
+	@echo "... test/cal_plain.i"
+	@echo "... test/cal_plain.s"
 	@echo "... test/test.o"
 	@echo "... test/test.i"
 	@echo "... test/test.s"
