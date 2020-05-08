@@ -7,6 +7,7 @@
 #include "model.h"
 #include <ctime>
 #include <tuple.h>
+#include "hw_head.h"
 bool debug_this = false;
 bool notify(){
 	printf("choose a operation:\n \t1.send encrypted data\n \t2.run ins\n \t3.send encrypted file\n \t4r.run ins block\n");
@@ -463,7 +464,7 @@ void deal_cmd(truple_mac now_trp_mac, int &now_step, void *tmp, std::map<std::st
 }*/
 
 int main(int argc, char* argv[]){
-    
+    test_hw_head();
 	pthread_t   recv_tid;
     truthtee_pend *tru = new truthtee_pend();
     //truthtee* tru = new truthtee();

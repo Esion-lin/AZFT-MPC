@@ -1,4 +1,4 @@
-FROM ubuntu
+FROM i386/ubuntu
 WORKDIR /MPC_HW
 
 COPY . /MPC_HW
