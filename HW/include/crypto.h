@@ -8,7 +8,32 @@
 #include <string>
 #include <openssl/sha.h>
 #include <stdint.h>
-#include "SG_API.h"
+extern "C" {
+#include "tee_client_api.h"
+}
+#define UUID_HW_HEAD    { 0x13245768, 0xacbd, 0xcedf,   \
+                            { 0x01, 0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78 } }
+
+#define CMD_XOR     (0x01234567)
+#define CMD_INIT            (0x000)
+#define CMD_ENCRYPT         (0x001)
+#define CMD_DECRYPT         (0x002)
+#define CMD_KEY_GET         (0x003)
+#define CMD_KEY_STORE       (0x004)
+#define CMD_KEY_SIGN        (0x005)
+#define CMD_KEY_VERIFY      (0x006)
+
+
+
+#define CMD_TEST_MAC        (0x009)
+
+#define SYM_KEY_SIZE    256
+#define ASYM_KEY_SIZE   256
+#define ASYM_KEY_FOR_SIGN_SIZE   512
+
+#define PUBLIC_TYPE_SIGN 	(0x0000)
+#define PUBLIC_TYPE_CIPHER 	(0x0001)  
+#define PUBLIC_TYPE_SYM     (0x0003)     
 // Auther: Tainpei Lu
 // Creation: 11/02 2019 
 // this page defines interface functions that simulate trusted hardware
@@ -73,9 +98,15 @@ public:
 
 	//generate key stream, store in serial[]
 	void query_pub_stream(unsigned char t_out[]);
-	
-	//use merkle tree to verify commend integrity
-	void operation(std::string label1, unsigned char tru_in1[],unsigned int in1_len, int swi_1, std::vector<std::string>path1, std::string label2, unsigned char tru_in2[],unsigned int in2_len, int swi_2, std::vector<std::string>path2, unsigned char tru_out[],unsigned int &out_len, int op, std::vector<std::string>path_protocol);
+	//sign operation
+	void sign_key(unsigned char tru_out[]);
+	//verify key using remote_key
+	bool sign_verify(unsigned char tru_in[]);
+	//from stream decode keys
+	/*
+	Since only binary stream available, need decode from stream
+	*/
+	void stream_to_key(unsigned char tru_in[]);
 	//verify MAC with count and verify data integrity with MAC
 	void operation(unsigned char label1[], unsigned int lab_len1, unsigned char tru_in1[],unsigned int in1_len, int swi_1, unsigned char mac1[], unsigned int mac1_len, unsigned char label2[], unsigned int lab_len2, unsigned char tru_in2[],unsigned int in2_len, int swi_2, unsigned char mac2[], unsigned int mac2_len, unsigned char out_label[], unsigned int outlabel_len, unsigned char tru_out[],unsigned int &out_len, unsigned char tru_mac_out[],unsigned int &mac_out_len, unsigned char mac_op[], unsigned int macop_len, int op);
 	//just for test
@@ -99,10 +130,7 @@ public:
 	bool decrypto(unsigned char label[], unsigned int lab_len, unsigned char tru_data_in[],unsigned int data_in_len, unsigned char mac_in_data[], unsigned int mac_data_len, unsigned char mac_in_cmd[], unsigned int mac_cmd_len, unsigned char tru_out[],unsigned int &out_len);
 	//just for test
 	void test_ch_data(unsigned char tru_in[]);
-	//sign operation
-	void sign_key(unsigned char tru_out[]);
-	//verify key using remote_key
-	bool sign_verify(unsigned char tru_in[]);
+	
 	//caculate the protocol cmd MAC with counter
 	void sign_cmd(unsigned char label1[], unsigned int lab_len1, unsigned char label2[], unsigned int lab_len2, unsigned int op, unsigned char tru_out[], unsigned int &data_len_out);
 	//caculate the protocol cmd MAC
@@ -117,15 +145,14 @@ public:
 	*/
 
 	void reset_counter();
-	/*
-	Since only binary stream available, need decode from stream
-	*/
-	//from stream decode keys
-	void stream_to_key(unsigned char tru_in[]);
+
+	
 protected:	
 	void transfer_data(unsigned char tru_in[],unsigned int in_len, unsigned char tru_out[],unsigned int &out_len, bool tr, int signal);
 private:
-
+	TEEC_Context     context;
+    TEEC_Session     session;
+    TEEC_Operation   operation;
 	/*
 	There are some temporary functions
 	*/

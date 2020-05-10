@@ -228,7 +228,7 @@ std::vector<std::string> getFiles(std::string path){
     sort(files.begin(), files.end());
     return files;
 }
-void sha3(unsigned char *digest, const unsigned char *message, size_t message_len){
+/*void sha3(unsigned char *digest, const unsigned char *message, size_t message_len){
     unsigned int SHALEN=32;
     EVP_MD_CTX *mdctx;
     mdctx = EVP_MD_CTX_create();
@@ -236,7 +236,7 @@ void sha3(unsigned char *digest, const unsigned char *message, size_t message_le
     EVP_DigestUpdate(mdctx, message, message_len);
     EVP_DigestFinal_ex(mdctx, digest, &SHALEN);
     EVP_MD_CTX_destroy(mdctx);
-}
+}*/
 std::string sha3_k(unsigned char *message, int message_len){
     Keccak digestKeccak(Keccak::Keccak256);
     digestKeccak.add(message, message_len);

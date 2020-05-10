@@ -1,7 +1,7 @@
 #include "tuple.h"
 #include <stdio.h>
 #include <time.h>
-#include"omp.h"
+#include "omp.h"
 Tuple::Tuple(Shape shape){
 	this->shape = shape;
 	data = new baseInt[shape.l*shape.w*shape.h];

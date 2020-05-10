@@ -6,78 +6,90 @@
 #include <cstdlib>
 #include <time.h>
 #include <unistd.h>
+
+
+#define ERR_LOG(_fn, _res)  \
+        printf("ERROR - failed to call %s, 0x%08x\n", (_fn), (_res))
+
+#define _DEPRESS_UNUSED_WARNING(_x) do { (_x) = (_x); } while (0)
 bool test = false;
+static const TEEC_UUID _g_uuid_hw_head = UUID_HW_HEAD;
+void enc(TEEC_Operation *operation, uint8_t *data, uint32_t data_len, uint8_t *out_data, uint32_t *out_data_len){
+    (*operation).paramTypes = TEEC_PARAM_TYPES(
+                                TEEC_MEMREF_TEMP_INPUT,
+                                TEEC_MEMREF_TEMP_OUTPUT,
+                                TEEC_NONE,
+                                TEEC_NONE);
+
+    (*operation).params[0].tmpref.buffer = data;
+    (*operation).params[0].tmpref.size = data_len;
+    (*operation).params[1].tmpref.buffer = out_data;
+    (*operation).params[1].tmpref.size = *out_data_len;
+}
+void get_public_key(TEEC_Operation *operation, uint8_t *out_data, uint32_t *out_data_len, uint32_t type){
+    (*operation).paramTypes = TEEC_PARAM_TYPES(
+                                TEEC_VALUE_INPUT,
+                                TEEC_MEMREF_TEMP_OUTPUT,
+                                TEEC_NONE,
+                                TEEC_NONE);
+    (*operation).params[0].value.a = type;
+    (*operation).params[1].tmpref.buffer = out_data;
+    (*operation).params[1].tmpref.size = *out_data_len;
+}
+void set_public_key(TEEC_Operation *operation, uint8_t *data, uint32_t data_len, uint32_t type){
+    (*operation).paramTypes = TEEC_PARAM_TYPES(
+                                TEEC_VALUE_INPUT,
+                                TEEC_MEMREF_TEMP_INPUT,
+                                TEEC_NONE,
+                                TEEC_NONE);
+    (*operation).params[0].value.a = type;
+    (*operation).params[1].tmpref.buffer = data;
+    (*operation).params[1].tmpref.size = data_len;
+}
+void get_sign(TEEC_Operation *operation, uint8_t *out_data, uint32_t *out_data_len){
+    (*operation).paramTypes = TEEC_PARAM_TYPES(
+                                TEEC_MEMREF_TEMP_OUTPUT,
+                                TEEC_NONE,
+                                TEEC_NONE,
+                                TEEC_NONE);
+    (*operation).params[0].tmpref.buffer = out_data;
+    (*operation).params[0].tmpref.size = *out_data_len;
+}
+void check_sign(TEEC_Operation *operation, uint8_t *data, uint32_t data_len){
+    (*operation).paramTypes = TEEC_PARAM_TYPES(
+                                TEEC_MEMREF_TEMP_INPUT,
+                                TEEC_VALUE_OUTPUT,
+                                TEEC_NONE,
+                                TEEC_NONE);
+    (*operation).params[0].tmpref.buffer = data;
+    (*operation).params[0].tmpref.size = data_len;
+}
+void init_hw(TEEC_Operation *operation){
+    (*operation).paramTypes = TEEC_PARAM_TYPES(
+                                TEEC_NONE,
+                                TEEC_NONE,
+                                TEEC_NONE,
+                                TEEC_NONE);
+}
+
 //test, print public key content
-void test_pub(ECCPUBLICKEYBLOB pub_key){
-	printf("BitLen: %d\n",pub_key.BitLen);
-	for(int i = 0; i < ECC_MAX_XCOORDINATE_BITS_LEN/8; i++){
-		std::cout<<pub_key.XCoordinate[i]<<" "<<pub_key.YCoordinate[i]<<" ";
-	}
-	std::cout<<std::endl;
 
-}
-void test_mac(unsigned char mac[]){
-	printf("Now MAC is:\n");
-	for(int i = 0; i < MAC_LEN; i++){
-		std::cout<<mac[i]<<" ";
-	}
-	std::cout<<std::endl;	
-}
-//test, print private key content
-void test_pri(ECCPRIVATEKEYBLOB pri_key){
-	printf("BitLen: %d\n",pri_key.BitLen);
-	for(int i = 0; i < ECC_MAX_MODULUS_BITS_LEN/8; i++){
-		std::cout<<pri_key.PrivateKey[i]<<" ";
-	}
-	std::cout<<std::endl;
-
-}
-//test, print signature content
-void test_sign(ECCSIGNATUREBLOB sign){
-	printf("sign messsage is :\n");
-	for(int i = 0; i < ECC_MAX_XCOORDINATE_BITS_LEN/8; i++){
-		std::cout<<sign.r[i]<<" "<<sign.s[i];
-	}
-	std::cout<<std::endl;
-
-}
 /*
 Remian it when use Merkle tree to verify MAC, otherwise, remove it. 
 */
-void sha256(const std::string str, unsigned char output[])
-{
-    unsigned char hash[SHA256_DIGEST_LENGTH];
-    SHA256_CTX sha256;
-    SHA256_Init(&sha256);
-    SHA256_Update(&sha256, str.c_str(), str.size());
-    SHA256_Final(output, &sha256);
-}
-std::string sha256(const std::string str)
-{
-	char buf[2];
-    unsigned char hash[SHA256_DIGEST_LENGTH];
-    SHA256_CTX sha256;
-    SHA256_Init(&sha256);
-    SHA256_Update(&sha256, str.c_str(), str.size());
-    SHA256_Final(hash, &sha256);
-    std::string str2 = "";
-    for(int i = 0; i < SHA256_DIGEST_LENGTH; i++)
-    {
-        sprintf(buf,"%x",hash[i]);
-        str2 = str2 + buf;
-    }
-	return str2;
-}
-void sha256(unsigned char input[], int len, unsigned char output[])
-{
-    unsigned char hash[SHA256_DIGEST_LENGTH];
-    SHA256_CTX sha256;
-    SHA256_Init(&sha256);
-    SHA256_Update(&sha256, input, len);
-    SHA256_Final(output, &sha256);
-}
 
 truthtee::truthtee(){
+	ret = TEEC_InitializeContext(NULL, &context);
+    if (ret != TEEC_SUCCESS) {
+        printf("ERR failed to initial context\n");
+        goto cleanup1;
+    }
+    ret = TEEC_OpenSession(&context, &session, &_g_uuid_hw_head, TEEC_LOGIN_PUBLIC,
+                NULL, NULL, NULL);
+    if (ret != TEEC_SUCCESS) {
+        printf("open ss fail(0x%08x)\n", ret);
+        goto cleanup2;
+    }
 	int ret = SG_GenKeyPair(SGD_SM2,&pub_key1,&pri_key1);
 	if (ret!=SAR_OK)
 	{
@@ -469,15 +481,7 @@ void truthtee::sign_cmd_without_counter(unsigned char label1[], unsigned int lab
 	memcpy(over_all + lab_len1 + 1, label2, lab_len2);
 	SG_Hmac(SGD_SM3 , sym_key_keep, sym_key_len/8, over_all, lab_len1 + lab_len2 + 1, tru_out, &data_len_out);
 }
-std::string truthtee::check_mac(std::string hash, std::vector<std::string>hash_table){
-	/*
-	recursively caculate hash
-	*/
-	std::string ans_hash = hash;
- 	for(int i = 0; i < hash_table.size(); i ++){
- 		ans_hash = sha256(ans_hash + hash_table[i]);
-	}
-}
+
 
 bool truthtee::mac_verification(unsigned char text[], unsigned int text_len, unsigned char mac[], unsigned int mac_len, bool remote){
 	//call SG_Hmac API for mac check
@@ -497,40 +501,6 @@ bool truthtee::mac_verification(unsigned char text[], unsigned int text_len, uns
 		}
 	}
 	return true;
-}
-void truthtee::operation(std::string label1, unsigned char tru_in1[],unsigned int in1_len, int swi_1, std::vector<std::string>path1, std::string label2, unsigned char tru_in2[],unsigned int in2_len, int swi_2, std::vector<std::string>path2, unsigned char tru_out[],unsigned int &out_len, int op, std::vector<std::string>path_protocol){
-	/*
-	check MAC with Merkle Tree:
-		1. check label and data
-		2. check cmd
-	*/
-	std::string hash1 = sha256(label1 + std::to_string(op) + label2);
-	if(check_mac(hash1, path_protocol) != cmd_hash){
-		printf("Illegal cmd\n");
-		return;
-	}
-	char buf[2];
-	for(int i = 0; i < cipher_len; i++) {
-		sprintf(buf,"%x",tru_in1[i]);
-        label1 = label1 + buf;
-	}
-	std::string hash2 = sha256(label1);
-	if(check_mac(hash2, path1) != data_hash){
-		printf("Illegal cmd\n");
-		return;
-	}
-	for(int i = 0; i < cipher_len; i++) {
-		sprintf(buf,"%x",tru_in2[i]);
-        label2 = label2 + buf;
-	}
-	hash2 = sha256(label1);
-	if(check_mac(hash2, path2) != data_hash){
-		printf("Illegal cmd\n");
-		return;
-	}
-	//if MAC checked, run operation
-	operation(tru_in1, in1_len, swi_1, tru_in2, in2_len, swi_2, tru_out,out_len, op);
-
 }
 void truthtee::operation(unsigned char label1[], unsigned int lab_len1, unsigned char tru_in1[],unsigned int in1_len, int swi_1, unsigned char mac1[], unsigned int mac1_len, unsigned char label2[], unsigned int lab_len2, unsigned char tru_in2[],unsigned int in2_len, int swi_2, unsigned char mac2[], unsigned int mac2_len, unsigned char out_label[], unsigned int outlabel_len, unsigned char tru_out[],unsigned int &out_len, unsigned char tru_mac_out[],unsigned int &mac_out_len, unsigned char mac_op[], unsigned int macop_len, int op){
 	/*

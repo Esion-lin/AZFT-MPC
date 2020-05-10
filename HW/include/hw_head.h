@@ -3,7 +3,11 @@
 
 #ifndef _TEE_HAED_H_
 #define _TEE_HAED_H_
-
+#include <stdio.h>
+#include <stdlib.h>
+extern "C" {
+#include "tee_client_api.h"
+}
 #define UUID_HW_HEAD    { 0x13245768, 0xacbd, 0xcedf,   \
                             { 0x01, 0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78 } }
 

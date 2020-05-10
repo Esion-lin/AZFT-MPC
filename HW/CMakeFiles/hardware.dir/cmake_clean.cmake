@@ -2,6 +2,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/hardware.dir/crypto.cpp.o"
   "CMakeFiles/hardware.dir/crypto_pend.cpp.o"
   "CMakeFiles/hardware.dir/tuple.cpp.o"
+  "CMakeFiles/hardware.dir/hw_head.cpp.o"
   "libhardware.pdb"
   "libhardware.a"
 )

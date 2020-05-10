@@ -1,4 +1,4 @@
-#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
 
 #IncludeRegexScan: ^.*$
 
@@ -6,29 +6,29 @@
 
 #IncludeRegexTransform: 
 
-/home/eason/doc_file/MPC硬件/src/Merkle_Hash.cpp
+/home/eason/AZFT-MPC/src/Merkle_Hash.cpp
 Merkle_Hash.h
-/home/eason/doc_file/MPC硬件/src/Merkle_Hash.h
+/home/eason/AZFT-MPC/src/Merkle_Hash.h
 
-/home/eason/doc_file/MPC硬件/src/keccak.cpp
+/home/eason/AZFT-MPC/src/keccak.cpp
 keccak.h
-/home/eason/doc_file/MPC硬件/src/keccak.h
+/home/eason/AZFT-MPC/src/keccak.h
 endian.h
 -
 
-/home/eason/doc_file/MPC硬件/src/network.cpp
+/home/eason/AZFT-MPC/src/network.cpp
 network.h
-/home/eason/doc_file/MPC硬件/src/network.h
+/home/eason/AZFT-MPC/src/network.h
 
-/home/eason/doc_file/MPC硬件/src/protocol.cpp
+/home/eason/AZFT-MPC/src/protocol.cpp
 protocol.h
-/home/eason/doc_file/MPC硬件/src/protocol.h
+/home/eason/AZFT-MPC/src/protocol.h
 
-/home/eason/doc_file/MPC硬件/src/tool.cpp
+/home/eason/AZFT-MPC/src/tool.cpp
 tool.h
-/home/eason/doc_file/MPC硬件/src/tool.h
+/home/eason/AZFT-MPC/src/tool.h
 keccak.h
-/home/eason/doc_file/MPC硬件/src/keccak.h
+/home/eason/AZFT-MPC/src/keccak.h
 
 HW/include/SG_API.h
 

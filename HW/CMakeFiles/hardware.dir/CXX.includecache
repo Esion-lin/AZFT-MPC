@@ -1,4 +1,4 @@
-#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
 
 #IncludeRegexScan: ^.*$
 
@@ -6,9 +6,9 @@
 
 #IncludeRegexTransform: 
 
-/home/eason/doc_file/MPC硬件/HW/crypto.cpp
+/home/eason/AZFT-MPC/HW/crypto.cpp
 crypto.h
-/home/eason/doc_file/MPC硬件/HW/crypto.h
+/home/eason/AZFT-MPC/HW/crypto.h
 iostream
 -
 algorithm
@@ -20,21 +20,31 @@ time.h
 unistd.h
 -
 
-/home/eason/doc_file/MPC硬件/HW/crypto_pend.cpp
+/home/eason/AZFT-MPC/HW/crypto_pend.cpp
 crypto_pend.h
-/home/eason/doc_file/MPC硬件/HW/crypto_pend.h
+/home/eason/AZFT-MPC/HW/crypto_pend.h
 map
 -
 
-/home/eason/doc_file/MPC硬件/HW/tuple.cpp
+/home/eason/AZFT-MPC/HW/hw_head.cpp
+stdio.h
+-
+stdlib.h
+-
+tee_client_api.h
+/home/eason/AZFT-MPC/HW/tee_client_api.h
+hw_head.h
+/home/eason/AZFT-MPC/HW/hw_head.h
+
+/home/eason/AZFT-MPC/HW/tuple.cpp
 tuple.h
-/home/eason/doc_file/MPC硬件/HW/tuple.h
+/home/eason/AZFT-MPC/HW/tuple.h
 stdio.h
 -
 time.h
 -
 omp.h
-/home/eason/doc_file/MPC硬件/HW/omp.h
+/home/eason/AZFT-MPC/HW/omp.h
 
 HW/include/SG_API.h
 
@@ -63,6 +73,28 @@ crypto.h
 HW/include/crypto.h
 tuple.h
 HW/include/tuple.h
+
+HW/include/hw_head.h
+stdio.h
+-
+stdlib.h
+-
+tee_client_api.h
+HW/include/tee_client_api.h
+
+HW/include/tee_client_api.h
+tee_types.h
+HW/include/tee_types.h
+
+HW/include/tee_types.h
+errno.h
+-
+unistd.h
+-
+stdint.h
+-
+stdbool.h
+-
 
 HW/include/tuple.h
 vector

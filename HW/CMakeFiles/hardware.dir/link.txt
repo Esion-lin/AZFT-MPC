@@ -1,2 +1,2 @@
-/usr/bin/ar qc libhardware.a  CMakeFiles/hardware.dir/crypto.cpp.o CMakeFiles/hardware.dir/crypto_pend.cpp.o CMakeFiles/hardware.dir/tuple.cpp.o
+/usr/bin/ar qc libhardware.a  CMakeFiles/hardware.dir/crypto.cpp.o CMakeFiles/hardware.dir/crypto_pend.cpp.o CMakeFiles/hardware.dir/tuple.cpp.o CMakeFiles/hardware.dir/hw_head.cpp.o
 /usr/bin/ranlib libhardware.a

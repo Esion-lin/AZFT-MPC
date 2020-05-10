@@ -464,7 +464,6 @@ void deal_cmd(truple_mac now_trp_mac, int &now_step, void *tmp, std::map<std::st
 }*/
 
 int main(int argc, char* argv[]){
-    test_hw_head();
 	pthread_t   recv_tid;
     truthtee_pend *tru = new truthtee_pend();
     //truthtee* tru = new truthtee();
