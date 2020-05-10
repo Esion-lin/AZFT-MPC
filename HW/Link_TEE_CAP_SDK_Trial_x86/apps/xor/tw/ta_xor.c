@@ -247,7 +247,7 @@ cleanup:
     return ret;
 }
 /*store data key*/
-static TEE_Result serialize_key(char* name, uint8_t name_len, uint8_t *data, uint32_t data_len,uint32_t key_len, bool public){
+static TEE_Result serialize_key(char* name, uint8_t name_len, uint8_t *data, uint32_t data_len,uint32_t key_len, bool public, uint32_t type){
     //from data to initiate attribute
     TEE_Result ret = 0;
     TEE_ObjectHandle keyObject = TEE_HANDLE_NULL;
@@ -268,7 +268,7 @@ static TEE_Result serialize_key(char* name, uint8_t name_len, uint8_t *data, uin
         }
     }else{
         TEE_InitRefAttribute(&crypto_att[0], TEE_ATTR_SECRET_VALUE, data, data_len);
-        ret = TEE_AllocateTransientObject(TEE_TYPE_AES,key_len,&keyObject);
+        ret = TEE_AllocateTransientObject(type,key_len,&keyObject);
         if (TEE_SUCCESS != ret) {
             TA_DBG("store_sym_key: TEE_AllocateTransientObject err: 0x%x\n", ret);
             goto cleanup;
@@ -285,60 +285,7 @@ cleanup:
     TEE_CloseObject(keyObject);
     return ret;
 }
-static TEE_Result store_sym_key(char* name, uint8_t name_len, uint8_t* data, uint32_t data_len){
-    //from data to initiate attribute
-    TEE_Result ret = 0;
-    TEE_ObjectHandle keyObject = TEE_HANDLE_NULL;
-    TEE_Attribute crypto_att;
-    TEE_InitRefAttribute(&crypto_att, TEE_ATTR_SECRET_VALUE, data, data_len);
-    //populate cipher object with attribute
-    
-    ret = TEE_AllocateTransientObject(TEE_TYPE_AES,SYM_KEY_SIZE,&keyObject);
-    if (TEE_SUCCESS != ret) {
-        TA_DBG("store_sym_key: TEE_AllocateTransientObject err: 0x%x\n", ret);
-        goto cleanup;
-    }
-    ret = TEE_PopulateTransientObject(keyObject, &crypto_att, 1);
-    if (TEE_SUCCESS != ret) {
-        TA_DBG("store_sym_key: TEE_PopulateTransientObject err: 0x%x\n", ret);
-        goto cleanup;
-    }
-    persistent_transient(keyObject, name, name_len);
-cleanup:
-    TEE_CloseObject(keyObject);
-    return ret;
 
-}
-/*store public key using ECC*/
-static TEE_Result store_public_key(char* name, uint8_t name_len, uint8_t* dataX, uint32_t data_lenX, uint8_t* dataY, uint32_t data_lenY){
-    
-    TEE_ObjectHandle keyObject = TEE_HANDLE_NULL;
-    TEE_Result ret = 0;
-    TEE_Attribute crypto_att[2],crypto_att1,crypto_att2;
-    //from data to initiate attribute
-    TEE_InitRefAttribute(&crypto_att1, TEE_ATTR_ECC_PUBLIC_VALUE_X, dataX, data_lenX);
-    TEE_InitRefAttribute(&crypto_att2, TEE_ATTR_ECC_PUBLIC_VALUE_Y, dataY, data_lenY);
-    crypto_att[0] = crypto_att1;crypto_att[1] = crypto_att2;
-    if (TEE_SUCCESS != ret) {
-        TA_DBG("store_public_key: TEE_InitRefAttribute err: 0x%x\n", ret);
-    }
-    //populate cipher object with attribute
-    
-    ret = TEE_AllocateTransientObject(TEE_TYPE_SM2_PUBLIC_KEY,SYM_KEY_SIZE,&keyObject);
-    if (TEE_SUCCESS != ret) {
-        TA_DBG("store_public_key: TEE_AllocateTransientObject err: 0x%x\n", ret);
-        goto cleanup;
-    }
-    ret = TEE_PopulateTransientObject(keyObject, crypto_att, 2);
-    if (TEE_SUCCESS != ret) {
-        TA_DBG("store_public_key: TEE_PopulateTransientObject err: 0x%x\n", ret);
-        goto cleanup;
-    }
-    persistent_transient(keyObject, name, name_len);
-cleanup:
-    TEE_CloseObject(keyObject);
-    return ret;
-}
 static TEE_Result deserialize_key(char* name, uint8_t name_len, uint8_t *out_data, uint32_t *out_data_len, bool public){
     TEE_ObjectHandle key = TEE_HANDLE_NULL;
     TEE_Result ret;
@@ -507,7 +454,6 @@ static TEE_Result sign_data(uint8_t* digest, uint32_t digest_len, char* name, ui
         TA_DBG("sign_data: allocate op error. TEE_AllocateOperation err: 0x%x\n", ret);
         goto cleanup;
     }
-    printf("start sign data\n");
     ret = TEE_SetOperationKey(enOp, key);
     if (TEE_SUCCESS != ret) {
         TA_DBG("sign_data: set key error. TEE_SetOperationKey err: 0x%x\n", ret);
@@ -684,7 +630,7 @@ static TEE_Result fixed_hybrid_decrypt(uint8_t* data, uint32_t data_len, uint8_t
     if((ret = encrypt_data(data, (uint32_t)(ASYM_KEY_SIZE/8), "cipher_key", 10, symKey, &symKey_size, false)) != TEE_SUCCESS){
         goto cleanup;
     }
-    if((ret = serialize_key("remote_org_key", 14, symKey, (uint32_t)(SYM_KEY_SIZE/8), SYM_KEY_SIZE, false)) != TEE_SUCCESS){
+    if((ret = serialize_key("remote_org_key", 14, symKey, (uint32_t)(SYM_KEY_SIZE/8), SYM_KEY_SIZE, false, CIPHER_KEY_STYLE)) != TEE_SUCCESS){
         goto cleanup;
     }
     if((ret = transf_data(data + (uint32_t)(ASYM_KEY_SIZE/8), data_len - (uint32_t)(ASYM_KEY_SIZE/8), "remote_org_key", 14, out_data, out_data_len,false)) != TEE_SUCCESS){
@@ -705,12 +651,10 @@ static TEE_Result fixed_hybrid_MAC(uint8_t* data, uint32_t data_len, uint8_t* ou
     if((ret = deserialize_key("org_key_mac", 11, symKey, &symKey_size, false)) != TEE_SUCCESS){
         goto cleanup;
     }
-    printf("start encrypt key\n");
     if((ret = encrypt_data(symKey, symKey_size, "remote_cipher_key", 17, symOut, &symOut_size, true)) != TEE_SUCCESS){
         goto cleanup;
     }
     //use symetric key encrypt data
-    printf("start encrypt data\n");
     if((ret = gen_mac(data, data_len, "org_key_mac", 11, out_arr, &out_size,false)) != TEE_SUCCESS){
         goto cleanup;
     }
@@ -720,17 +664,21 @@ static TEE_Result fixed_hybrid_MAC(uint8_t* data, uint32_t data_len, uint8_t* ou
 cleanup:
     return ret;
 }
-static TEE_Result fixed_hybrid_MAC_check(uint8_t* data, uint32_t data_len, uint8_t* out_data, uint32_t* out_data_len){
+static TEE_Result fixed_hybrid_MAC_check(uint8_t* data, uint32_t data_len, uint8_t* out_data, uint32_t out_data_len){
     TEE_Result ret = 0;
     uint32_t symKey_size = (uint32_t)(SYM_KEY_SIZE/8);
     uint8_t symKey[symKey_size]; 
-    if((ret = encrypt_data(data, (uint32_t)(ASYM_KEY_SIZE/8), "cipher_key", 10, symKey, &symKey_size, false)) != TEE_SUCCESS){
+    uint32_t out_len;
+    if((ret = encrypt_data(out_data, (uint32_t)(ASYM_KEY_SIZE/8), "cipher_key", 10, symKey, &symKey_size, false)) != TEE_SUCCESS){
         goto cleanup;
     }
-    if((ret = serialize_key("remote_key_mac", 14, symKey, (uint32_t)(SYM_KEY_SIZE/8), SYM_KEY_SIZE, false)) != TEE_SUCCESS){
+    TA_DBG("check serialize_key\n");
+    if((ret = serialize_key("remote_key_mac", 14, symKey, (uint32_t)(SYM_KEY_SIZE/8), SYM_KEY_SIZE, false, MAC_KEY_STYLE)) != TEE_SUCCESS){
         goto cleanup;
     }
-    if((ret = gen_mac(data + (uint32_t)(ASYM_KEY_SIZE/8), data_len - (uint32_t)(ASYM_KEY_SIZE/8), "remote_key_mac", 14, out_data, out_data_len,true)) != TEE_SUCCESS){
+    out_len = out_data_len - (uint32_t)(ASYM_KEY_SIZE/8);
+    TA_DBG("check gen_mac\n");
+    if((ret = gen_mac(data, data_len, "remote_key_mac", 14, out_data + (uint32_t)(ASYM_KEY_SIZE/8), &out_len ,true)) != TEE_SUCCESS){
         goto cleanup;
     }
 cleanup:
@@ -739,8 +687,7 @@ cleanup:
 
 static TEE_Result ae_encrypto(uint8_t* label, uint32_t label_len, uint8_t* data, uint32_t data_len, uint8_t* data_out, uint32_t* out_len, uint8_t* mac, uint32_t* mac_len){
     TEE_Result ret = 0;
-
-    if((ret = fixed_hybrid_MAC(data, data_len, data_out, out_len)) == TEE_SUCCESS){
+    if((ret = fixed_hybrid_encrypt(data, data_len, data_out, out_len)) == TEE_SUCCESS){
         uint32_t mac_in_len = *out_len + label_len;
         uint8_t * mac_in = (uint8_t *)malloc(mac_in_len);
         memcpy(mac_in, label, label_len);
@@ -755,26 +702,31 @@ static TEE_Result ae_decrypto(uint8_t* label, uint32_t label_len, uint8_t* data,
     TEE_Result ret = 0;
     uint32_t mac_in_len = data_len + label_len;
     uint8_t * mac_in = (uint8_t *)malloc(mac_in_len);
+    uint32_t data_plain_len;
+    uint8_t * data_plain = NULL;
     memcpy(mac_in, label, label_len);
     memcpy(mac_in + label_len, data, data_len);
+    TA_DBG("start encrypte. mac_in_len: %u, mac_len: %u\n",mac_in_len,mac_len);
     if( (ret = fixed_hybrid_MAC_check(mac_in, mac_in_len,mac,mac_len)) != TEE_SUCCESS ){
         TA_DBG("error: data mac illegal.\n");
         goto cleanup;
     }
-    uint32_t data_plain_len = data_len - (uint32_t)(ASYM_KEY_SIZE/8);
-    uint8_t * data_plain = (uint8_t *)malloc(data_plain_len);
+    TA_DBG("start encrypto end.\n");
+    
+    data_plain_len = data_len - (uint32_t)(ASYM_KEY_SIZE/8);
+    data_plain = (uint8_t *)malloc(data_plain_len);
     if( (ret = fixed_hybrid_decrypt(data, data_len, data_plain, &data_plain_len)) != TEE_SUCCESS ){
         TA_DBG("error: data decrypt illegal.\n");
         goto cleanup1;
     }
-    if( (ret = sst_write_data("label",5,label,label_len)) != TEE_SUCCESS ){
-        TA_DBG("error: label store Error.\n");
-        goto cleanup1;
-    }
-    if( (ret = sst_write_data("data",4,data_plain,data_plain_len)) != TEE_SUCCESS ){
-        TA_DBG("error: data store Error.\n");
-        goto cleanup1;
-    }
+    // if( (ret = sst_write_data("label",5,label,label_len)) != TEE_SUCCESS ){
+    //     TA_DBG("error: label store Error.\n");
+    //     goto cleanup1;
+    // }
+    // if( (ret = sst_write_data("data",4,data_plain,data_plain_len)) != TEE_SUCCESS ){
+    //     TA_DBG("error: data store Error.\n");
+    //     goto cleanup1;
+    // }
     
 cleanup1:
     free(data_plain);
@@ -872,14 +824,14 @@ static TEE_Result _TA_InvokeCommandEntryPoint(
                     15,
                     params[1].memref.buffer,
                     params[1].memref.size,
-                    ASYM_KEY_FOR_SIGN_SIZE, true);
+                    ASYM_KEY_FOR_SIGN_SIZE, true, PUBLIC_KEY_STYLE);
         }else if(params[0].value.a == PUBLIC_TYPE_CIPHER){
             ret = serialize_key(
                     "remote_cipher_key", 
                     17,
                     params[1].memref.buffer,
                     params[1].memref.size, 
-                    ASYM_KEY_SIZE, true);
+                    ASYM_KEY_SIZE, true, PUBLIC_KEY_STYLE);
         }
     }else if(commandID == CMD_KEY_SIGN){
         if (TEE_PARAM_TYPES(
@@ -908,7 +860,6 @@ static TEE_Result _TA_InvokeCommandEntryPoint(
             params[1].value.a = 0;
         }
     }else if (commandID == CMD_ENCRYPT_MAC){
-        
         if (TEE_PARAM_TYPES(
                     TEE_PARAM_TYPE_MEMREF_INPUT,
                     TEE_PARAM_TYPE_MEMREF_INPUT,
@@ -916,11 +867,15 @@ static TEE_Result _TA_InvokeCommandEntryPoint(
                     TEE_PARAM_TYPE_MEMREF_OUTPUT) != paramTypes) {
             return TEE_ERROR_BAD_PARAMETERS;
         }
-        ret = fixed_hybrid_encrypt(
+        ret = ae_encrypto(
                     params[0].memref.buffer, 
                     params[0].memref.size,
-                    params[1].memref.buffer,
-                    &(params[1].memref.size));
+                    params[1].memref.buffer, 
+                    params[1].memref.size,
+                    params[2].memref.buffer,
+                    &(params[2].memref.size),
+                    params[3].memref.buffer,
+                    &(params[3].memref.size));
     } else if (commandID == CMD_DECRYPT_MAC){
         if (TEE_PARAM_TYPES(
                     TEE_PARAM_TYPE_MEMREF_INPUT,
@@ -929,11 +884,13 @@ static TEE_Result _TA_InvokeCommandEntryPoint(
                     TEE_PARAM_TYPE_NONE) != paramTypes) {
             return TEE_ERROR_BAD_PARAMETERS;
         }
-        ret = fixed_hybrid_decrypt(
+        ret = ae_decrypto(
                     params[0].memref.buffer, 
                     params[0].memref.size,
-                    params[1].memref.buffer,
-                    &(params[1].memref.size));
+                    params[1].memref.buffer, 
+                    params[1].memref.size,
+                    params[2].memref.buffer,
+                    params[2].memref.size);
     }
 
     return TEE_SUCCESS;

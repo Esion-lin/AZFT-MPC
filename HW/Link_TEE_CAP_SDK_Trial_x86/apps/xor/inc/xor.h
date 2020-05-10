@@ -16,7 +16,8 @@
 #define CMD_KEY_STORE       (0x004)
 #define CMD_KEY_SIGN        (0x005)
 #define CMD_KEY_VERIFY      (0x006)
-
+#define CMD_ENCRYPT_MAC     (0x007)
+#define CMD_DECRYPT_MAC     (0x008)
 
 
 #define CMD_TEST_MAC        (0x009)

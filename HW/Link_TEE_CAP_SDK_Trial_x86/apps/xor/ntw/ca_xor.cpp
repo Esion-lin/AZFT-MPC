@@ -73,7 +73,34 @@ void init_hw(TEEC_Operation *operation){
                                 TEEC_NONE,
                                 TEEC_NONE);
 }
-
+void encryt_mac(TEEC_Operation *operation, uint8_t *label, uint32_t label_len, uint8_t *data, uint32_t data_len, uint8_t *data_out, uint32_t *data_out_len, uint8_t *mac, uint32_t *mac_len){
+    (*operation).paramTypes = TEEC_PARAM_TYPES(
+                                TEEC_MEMREF_TEMP_INPUT,
+                                TEEC_MEMREF_TEMP_INPUT,
+                                TEEC_MEMREF_TEMP_OUTPUT,
+                                TEEC_MEMREF_TEMP_OUTPUT);
+    (*operation).params[0].tmpref.buffer = label;
+    (*operation).params[0].tmpref.size = label_len;
+    (*operation).params[1].tmpref.buffer = data;
+    (*operation).params[1].tmpref.size = data_len;
+    (*operation).params[2].tmpref.buffer = data_out;
+    (*operation).params[2].tmpref.size = *data_out_len;
+    (*operation).params[3].tmpref.buffer = mac;
+    (*operation).params[3].tmpref.size = *mac_len;
+}
+void decryt_mac(TEEC_Operation *operation, uint8_t *label, uint32_t label_len, uint8_t *data, uint32_t data_len, uint8_t *mac, uint32_t mac_len){
+    (*operation).paramTypes = TEEC_PARAM_TYPES(
+                                TEEC_MEMREF_TEMP_INPUT,
+                                TEEC_MEMREF_TEMP_INPUT,
+                                TEEC_MEMREF_TEMP_INPUT,
+                                TEEC_NONE);
+    (*operation).params[0].tmpref.buffer = label;
+    (*operation).params[0].tmpref.size = label_len;
+    (*operation).params[1].tmpref.buffer = data;
+    (*operation).params[1].tmpref.size = data_len;
+    (*operation).params[2].tmpref.buffer = mac;
+    (*operation).params[2].tmpref.size = mac_len;
+}
 int main(int argc, char *argv[])
 {
     /* define some varible*/
@@ -81,6 +108,10 @@ int main(int argc, char *argv[])
     uint32_t out_len = 32;
     uint8_t *in_data_buf = NULL;
     uint8_t *out_data_buf = NULL;
+    uint32_t label_len = 32;
+    uint32_t mac_len = 32;
+    uint8_t *label_buf = NULL;
+    uint8_t *mac_buf = NULL;
     /*init*/
     TEEC_Context     context;
     TEEC_Session     session;
@@ -99,6 +130,7 @@ int main(int argc, char *argv[])
     }
     /* end init */
     /* generate the whole keys*/
+    printf("generate keys...\n");
     init_hw(&operation);
     ret = TEEC_InvokeCommand(&session, CMD_INIT, &operation, NULL);
     if(ret != TEEC_SUCCESS){
@@ -106,7 +138,7 @@ int main(int argc, char *argv[])
         goto cleanup3;
     }
     //test public exchange
-    
+    printf("key exchange...\n");
     out_len = ASYM_KEY_SIZE/4;
     out_data_buf = (uint8_t *)malloc(out_len);
     
@@ -123,6 +155,7 @@ int main(int argc, char *argv[])
         goto cleanup3;
     }
     free(out_data_buf);
+    out_data_buf = NULL;
     out_len = ASYM_KEY_FOR_SIGN_SIZE/4;
     out_data_buf = (uint8_t *)malloc(out_len);
     get_public_key(&operation, out_data_buf, &out_len, PUBLIC_TYPE_SIGN);
@@ -138,7 +171,9 @@ int main(int argc, char *argv[])
         goto cleanup3;
     }
     free(out_data_buf);
+    out_data_buf = NULL;
     //test symmetric encryption
+    printf("symmetric encryption...\n");
     out_len = (uint32_t) (SYM_KEY_SIZE/8 + ASYM_KEY_SIZE/8);
     out_data_buf = (uint8_t *)malloc(out_len);
     
@@ -173,21 +208,10 @@ int main(int argc, char *argv[])
     printf("\n");
     free(out_data_buf);
     free(in_data_buf);
+    out_data_buf = NULL;
+    in_data_buf = NULL;
     
-    /*test public key print*/
-    /*key for sign*/
-
-
-    /*key for hybrid*/
-    /*get_public_key(&operation, out_data_buf, &out_len, PUBLIC_TYPE_CIPHER);
-    ret = TEEC_InvokeCommand(&session, CMD_KEY_GET, &operation, NULL);
-    if(ret != TEEC_SUCCESS){
-        printf("print public key error. inv cmd failed(0x%08x)\n", ret);
-        goto cleanup3;
-    }
-    for(int i = 0; i < out_len; i ++){
-        printf("%u ", out_data_buf[i]);
-    }*/
+    
     //test sign key
     out_len = (uint32_t)(ASYM_KEY_FOR_SIGN_SIZE/8);
     out_data_buf = (uint8_t *)malloc(out_len);
@@ -205,30 +229,48 @@ int main(int argc, char *argv[])
     }
     printf("check sign ans: %u\n",operation.params[1].value.a);
     free(out_data_buf);
-    /*test mac*/
-    out_data_buf = (uint8_t *)malloc(128);
-    out_len = 128;
-    in_data_buf = (uint8_t *)malloc(32);
-    in_len = 32;
-    for(int i = 0; i < out_len; i ++){
-        out_data_buf[i] = i;
+    out_data_buf = NULL;
+
+
+    /*test AE*/
+    
+    label_len = 32;
+    label_buf = (uint8_t *)malloc(label_len);
+    for(int i = 0 ; i < label_len; i++){
+        label_buf[i] = i;
     }
-    enc(&operation, out_data_buf, out_len, in_data_buf, &in_len);
-    ret = TEEC_InvokeCommand(&session, CMD_TEST_MAC, &operation, NULL);
+    out_len = (uint32_t) (SYM_KEY_SIZE/8 + ASYM_KEY_SIZE/8);
+    out_data_buf = (uint8_t *)malloc(out_len);
+    
+    in_len = (uint32_t)(SYM_KEY_SIZE/8);
+    in_data_buf = (uint8_t *)malloc(in_len);
+    for(int i = 0; i < in_len; i ++){
+        in_data_buf[i] = i;
+    }
+    mac_len = (uint32_t) (SYM_KEY_SIZE/8 + ASYM_KEY_SIZE/8);
+    mac_buf = (uint8_t *)malloc(mac_len);
+
+    encryt_mac(&operation, label_buf, label_len, in_data_buf, in_len, out_data_buf, &out_len, mac_buf, &mac_len);
+    ret = TEEC_InvokeCommand(&session, CMD_ENCRYPT_MAC, &operation, NULL);
     if(ret != TEEC_SUCCESS){
-        printf("MAC error. inv cmd failed(0x%08x)\n", ret);
+        printf("authentication encrypt error. inv cmd failed(0x%08x)\n", ret);
         goto cleanup3;
     }
-    printf("mac:\n");
-    for(int i = 0; i < 32; i ++){
-        printf("%u ", in_data_buf[i]);
-    }
-    printf("\n");
-    /*result = TEEC_InvokeCommand(&session, CMD_PUBLIC_KEY_GET, &operation, NULL);
-    if (result != TEEC_SUCCESS) {
-        printf("inv cmd failed(0x%08x)\n", result);
+    decryt_mac(&operation, label_buf, label_len, out_data_buf, out_len, mac_buf, mac_len);
+    ret = TEEC_InvokeCommand(&session, CMD_DECRYPT_MAC, &operation, NULL);
+    if(ret != TEEC_SUCCESS){
+        printf("authentication decrypt error. inv cmd failed(0x%08x)\n", ret);
         goto cleanup3;
-    }*/
+    }
+    free(label_buf);
+    free(mac_buf);
+    free(out_data_buf);
+    free(in_data_buf);
+    label_buf = NULL;
+    mac_buf = NULL;
+    out_data_buf = NULL;
+    in_data_buf = NULL;
+
 cleanup3:
     TEEC_CloseSession(&session);
 cleanup2:
