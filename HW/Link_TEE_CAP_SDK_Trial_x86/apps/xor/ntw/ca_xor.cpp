@@ -173,46 +173,42 @@ int main(int argc, char *argv[])
     free(out_data_buf);
     out_data_buf = NULL;
     //test symmetric encryption
-    printf("symmetric encryption...\n");
-    out_len = (uint32_t) (SYM_KEY_SIZE/8 + ASYM_KEY_SIZE/8);
-    out_data_buf = (uint8_t *)malloc(out_len);
+    // printf("symmetric encryption...\n");
+    // out_len = (uint32_t) (SYM_KEY_SIZE/8 + ASYM_KEY_SIZE/8);
+    // out_data_buf = (uint8_t *)malloc(out_len);
     
-    in_len = (uint32_t)(SYM_KEY_SIZE/8);
-    in_data_buf = (uint8_t *)malloc(in_len);
+    // in_len = (uint32_t)(SYM_KEY_SIZE/8);
+    // in_data_buf = (uint8_t *)malloc(in_len);
     
-    for(int i = 0; i < in_len; i ++){
-        in_data_buf[i] = i;
-    }
-    enc(&operation, in_data_buf, in_len, out_data_buf, &out_len);
-    ret = TEEC_InvokeCommand(&session, CMD_ENCRYPT, &operation, NULL);
-    if(ret != TEEC_SUCCESS){
-        printf("encrypt error. inv cmd failed(0x%08x)\n", ret);
-        goto cleanup3;
-    }
-    printf(" cipher text len: %u\n cipher:\n", out_len);
-    for(int i = 0; i < out_len; i ++){
-        printf("%u ", out_data_buf[i]);
-        in_data_buf[i] = 0;
-    }
-    printf("\n");
-    enc(&operation, out_data_buf, out_len, in_data_buf, &in_len);
-    ret = TEEC_InvokeCommand(&session, CMD_DECRYPT, &operation, NULL);
-    if(ret != TEEC_SUCCESS){
-        printf("decrypt error. inv cmd failed(0x%08x)\n", ret);
-        goto cleanup3;
-    }
-    printf(" plain text len: %u\n plain:\n", in_len);
-    for(int i = 0; i < in_len; i ++){
-        printf("%u ", in_data_buf[i]);
-    }
-    printf("\n");
-    free(out_data_buf);
-    free(in_data_buf);
-    out_data_buf = NULL;
-    in_data_buf = NULL;
-    
+    // for(int i = 0; i < in_len; i ++){
+    //     in_data_buf[i] = i;
+    // }
+    // enc(&operation, in_data_buf, in_len, out_data_buf, &out_len);
+    // ret = TEEC_InvokeCommand(&session, CMD_ENCRYPT, &operation, NULL);
+    // if(ret != TEEC_SUCCESS){
+    //     printf("encrypt error. inv cmd failed(0x%08x)\n", ret);
+    //     goto cleanup3;
+    // }
+    // printf("\n");
+    // enc(&operation, out_data_buf, out_len, in_data_buf, &in_len);
+    // ret = TEEC_InvokeCommand(&session, CMD_DECRYPT, &operation, NULL);
+    // printf("decrypt successful outside\n");
+    // if(ret != TEEC_SUCCESS){
+    //     printf("decrypt error. inv cmd failed(0x%08x)\n", ret);
+    //     goto cleanup3;
+    // }
+    // printf(" plain text len: %u\n plain:\n", in_len);
+    // for(int i = 0; i < in_len; i ++){
+    //     printf("%u ", in_data_buf[i]);
+    // }
+    // printf("\n");
+    // free(out_data_buf);
+    // free(in_data_buf);
+    // out_data_buf = NULL;
+    // in_data_buf = NULL;
     
     //test sign key
+    
     out_len = (uint32_t)(ASYM_KEY_FOR_SIGN_SIZE/8);
     out_data_buf = (uint8_t *)malloc(out_len);
     get_sign(&operation, out_data_buf, &out_len);
@@ -233,7 +229,7 @@ int main(int argc, char *argv[])
 
 
     /*test AE*/
-    
+    for(int i = 0; i < 10; i++){
     label_len = 32;
     label_buf = (uint8_t *)malloc(label_len);
     for(int i = 0 ; i < label_len; i++){
@@ -270,7 +266,7 @@ int main(int argc, char *argv[])
     mac_buf = NULL;
     out_data_buf = NULL;
     in_data_buf = NULL;
-
+}
 cleanup3:
     TEEC_CloseSession(&session);
 cleanup2:

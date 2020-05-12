@@ -45,10 +45,9 @@ static void _TA_CloseSessionEntryPoint(void *sessionContext)
 
 static TEE_Result sst_write_data(char* name, uint8_t name_len, 
 								 uint8_t* data, uint32_t data_len) {
-
 	TEE_Result ret = TEE_SUCCESS;
 	TEE_ObjectHandle ptObject = TEE_HANDLE_NULL;
-    TA_DBG("sst_write_data: call TEE_CreatePersistentObject name: %s len: %d\n", name, name_len);
+    TA_DBG("sst_write_data: call TEE_CreatePersistentObject name: %s len: %d\n", name, data_len);
 	ret = TEE_CreatePersistentObject(TEE_STORAGE_PRIVATE, name, name_len,
 									 TEE_DATA_FLAG_ACCESS_READ | TEE_DATA_FLAG_ACCESS_WRITE |
 									 TEE_DATA_FLAG_ACCESS_WRITE_META | TEE_DATA_FLAG_OVERWRITE,
@@ -57,7 +56,6 @@ static TEE_Result sst_write_data(char* name, uint8_t name_len,
 		TA_DBG("sst_write_data: TEE_CreatePersistentObject err: 0x%x\n", ret);
 		goto cleanup1;
 	}
-
 	ret = TEE_WriteObjectData(ptObject, data, data_len);
 	if (TEE_SUCCESS != ret) {
 		TA_DBG("sst_write_data: TEE_WriteObjectData err: 0x%x\n",ret);

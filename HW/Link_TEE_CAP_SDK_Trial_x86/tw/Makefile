@@ -61,7 +61,7 @@ tee_a: $(TEEI_LIBRARY)
 $(TEEI_LIBRARY): $(OBJS)
 	@mkdir -p $(OUT_DIR)
 	@echo "  LD      $@ "
-	$(VPREFIX)$(CC) $(CFLAGS) -shared -o $@ $^ -ldl $(TEEI_S_LIBRARY)
+	$(VPREFIX)$(CC) $(CFLAGS) -shared -o $@ $^ -ldl $(TEEI_S_LIBRARY) -lm
 
 %.o: %.c
 	$(VPREFIX)$(CC) -c $(CFLAGS) -fPIC $< -o $@

@@ -7,6 +7,7 @@
 #include "tee_srv.h"
 #include <string.h>
 #include <stdlib.h>
+
 #define UUID_XOR    { 0x13245768, 0xacbd, 0xcedf,   \
                         { 0x01, 0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78 } }
 
@@ -64,26 +65,25 @@ static void _TA_CloseSessionEntryPoint(void *sessionContext)
 /*store data*/
 static TEE_Result sst_write_data(char* name, uint8_t name_len, 
                                  uint8_t* data, uint32_t data_len) {
-
     TEE_Result ret = TEE_SUCCESS;
     TEE_ObjectHandle ptObject = TEE_HANDLE_NULL;
+    TEE_ObjectHandle ptObject2 = TEE_HANDLE_NULL;
     TA_DBG("sst_write_data: call TEE_CreatePersistentObject name: %s len: %d\n", name, name_len);
     ret = TEE_CreatePersistentObject(TEE_STORAGE_PRIVATE, name, name_len,
                                      TEE_DATA_FLAG_ACCESS_READ | TEE_DATA_FLAG_ACCESS_WRITE |
                                      TEE_DATA_FLAG_ACCESS_WRITE_META | TEE_DATA_FLAG_OVERWRITE,
-                                     NULL, data, data_len, &ptObject);
+                                     NULL, NULL, 0, &ptObject);
     if (TEE_SUCCESS != ret) {
         TA_DBG("sst_write_data: TEE_CreatePersistentObject err: 0x%x\n", ret);
         goto cleanup1;
     }
-
+    TA_DBG("start writing\n");
     ret = TEE_WriteObjectData(ptObject, data, data_len);
     if (TEE_SUCCESS != ret) {
         TA_DBG("sst_write_data: TEE_WriteObjectData err: 0x%x\n",ret);
     }
-
+    TA_DBG("finish writing\n");
     TEE_CloseObject(ptObject);
-
 cleanup1:
     return ret;
 }
@@ -176,11 +176,11 @@ static TEE_Result gen_sym_key(char* name, uint8_t name_len, uint32_t type){
     TEE_Result ret = 0;
     ret = TEE_AllocateTransientObject(type,SYM_KEY_SIZE,&keyObject);
     if (TEE_SUCCESS != ret) {
-        TA_DBG("key_check: TEE_AllocateTransientObject err: 0x%x\n", ret);
+        TA_DBG("gen_sym_key: TEE_AllocateTransientObject err: 0x%x\n", ret);
     }
     ret = TEE_GenerateKey(keyObject, SYM_KEY_SIZE, NULL, 0);
     if (TEE_SUCCESS != ret) {
-        TA_DBG("key_check: TEE_GenerateKey err: 0x%x\n", ret);
+        TA_DBG("gen_sym_key: TEE_GenerateKey err: 0x%x\n", ret);
         goto cleanup;
     }
     
@@ -190,7 +190,7 @@ static TEE_Result gen_sym_key(char* name, uint8_t name_len, uint32_t type){
                                      TEE_DATA_FLAG_ACCESS_WRITE_META | TEE_DATA_FLAG_OVERWRITE,
                                      keyObject, NULL, 0, &key_Object);
     if (TEE_SUCCESS != ret) {
-        TA_DBG("sst_write_data: TEE_CreatePersistentObject err: 0x%x\n", ret);
+        TA_DBG("gen_sym_key: TEE_CreatePersistentObject err: 0x%x\n", ret);
         goto cleanup1;
     }
     
@@ -719,14 +719,14 @@ static TEE_Result ae_decrypto(uint8_t* label, uint32_t label_len, uint8_t* data,
         TA_DBG("error: data decrypt illegal.\n");
         goto cleanup1;
     }
-    // if( (ret = sst_write_data("label",5,label,label_len)) != TEE_SUCCESS ){
-    //     TA_DBG("error: label store Error.\n");
-    //     goto cleanup1;
-    // }
-    // if( (ret = sst_write_data("data",4,data_plain,data_plain_len)) != TEE_SUCCESS ){
-    //     TA_DBG("error: data store Error.\n");
-    //     goto cleanup1;
-    // }
+    if( (ret = sst_write_data("label",5,label,label_len)) != TEE_SUCCESS ){
+        TA_DBG("error: label store Error.\n");
+        goto cleanup1;
+    }
+    if( (ret = sst_write_data("data",4,data_plain,data_plain_len)) != TEE_SUCCESS ){
+        TA_DBG("error: data store Error.\n");
+        goto cleanup1;
+    }
     
 cleanup1:
     free(data_plain);
@@ -764,11 +764,19 @@ static TEE_Result _TA_InvokeCommandEntryPoint(
                     TEE_PARAM_TYPE_NONE) != paramTypes) {
             return TEE_ERROR_BAD_PARAMETERS;
         }
+        uint32_t data_plain_len = params[0].memref.size - (uint32_t)(ASYM_KEY_SIZE/8);;
+        uint8_t * data_plain = (uint8_t *)malloc(data_plain_len);
+
         ret = fixed_hybrid_decrypt(
                     params[0].memref.buffer, 
                     params[0].memref.size,
                     params[1].memref.buffer,
                     &(params[1].memref.size));
+        // memcpy(params[1].memref.buffer, data_plain, data_plain_len);
+        // params[1].memref.size = data_plain_len;
+        // free(data_plain);
+        // printf("decrypt successful inside\n");
+        return TEE_SUCCESS;
     } else if (commandID == CMD_KEY_GET){
         if (TEE_PARAM_TYPES(
                     TEE_PARAM_TYPE_VALUE_INPUT,
