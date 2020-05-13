@@ -160,9 +160,19 @@ uint32_t TEE::sign_verify(uint8_t t_in[]){
     free(out_data_buf);
     return ret;
 }
-uint32_t TEE::encrypt_with_MAC(uint8_t* label, uint32_t lab_len, uint8_t* tru_in, uint32_t len, uint8_t* tru_data_out,uint32_t &data_len_out, uint8_t* tru_mac_out, uint32_t &mac_len_out){
-
+uint32_t TEE::encrypt_with_MAC(uint8_t* label, uint32_t lab_len, uint8_t* tru_in, uint32_t len, uint8_t* tru_data_out,uint32_t *data_len_out, uint8_t* tru_mac_out, uint32_t *mac_len_out){
+    encryt_mac(&operation, label, lab_len, in_data_buf, tru_in, tru_data_out, &data_len_out, tru_mac_out, mac_len_out);
+    ret = TEEC_InvokeCommand(&session, CMD_ENCRYPT_MAC, &operation, NULL);
+    if(ret != TEEC_SUCCESS){
+        printf("authentication encrypt error. inv cmd failed(0x%08x)\n", ret);
+    }
+    return ret;
 }
-uint32_t TEE::input_data(uint8_t* label, uint32_t lab_len, uint8_t* tru_in, uint32_t len, uint8_t* tru_data_in,uint32_t &data_len_in, uint8_t* tru_mac_in, uint32_t &mac_len_in){
-
+uint32_t TEE::input_data(uint8_t* label, uint32_t lab_len, uint8_t* tru_in, uint32_t len, uint8_t* tru_mac_in, uint32_t *mac_len_in){
+    decryt_mac(&operation, label, lab_len, tru_in, len, tru_mac_in, mac_len_in);
+    ret = TEEC_InvokeCommand(&session, CMD_DECRYPT_MAC, &operation, NULL);
+    if(ret != TEEC_SUCCESS){
+        printf("authentication decrypt error. inv cmd failed(0x%08x)\n", ret);
+        goto cleanup3;
+    }
 }

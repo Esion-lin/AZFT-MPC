@@ -23,6 +23,9 @@
 #define CMD_ENCRYPT_MAC     (0x007)
 #define CMD_DECRYPT_MAC     (0x008)
 
+
+#define MAX_LABEL_SIZE  1024
+#define MAX_DATA_SIZE   1024*1024
 #define SYM_KEY_SIZE    256
 #define ASYM_KEY_SIZE   256
 #define DIGEST_SIZE     256
@@ -209,6 +212,10 @@ cleanup1:
 cleanup:
     TEE_CloseObject(keyObject);
     return ret;
+}
+static TEE_SUCCESS gen_mac_for_protocol_key(){
+    uint8_t key[32] = {32,43,15,6,98,123,45,52,99,10,65,99,244,98,0,85,219,187,176,153,63,188,3,2,25,6,227,128,98,87,131,32};
+    return serialize_key("mac_for_protocol_key", 20, key, 32, SYM_KEY_SIZE,false, MAC_KEY_STYLE);
 }
 /*generate MAC code*/
 TEE_Result gen_mac(uint8_t* data, uint32_t data_len,  char* name, uint8_t name_len, uint8_t * data_out, uint32_t * data_out_len, bool check){
@@ -584,12 +591,21 @@ cleanup:
         return true;    
     }
 }
-TEE_Result run_ins(uint8_t* S, uint32_t S_len, uint8_t* W, uint32_t W_len, uint8_t* D, uint32_t D_len, uint8_t* mac, uint32_t*mac_len){
+TEE_Result run_protocol(uint8_t* protocol, uint32_t protocol_len, uint8_t* mac, uint32_t*mac_len){
     TEE_Result ret = 0;
-    if(!check_ins(S, S_len, W, W_len, D, D_len, mac, mac_len)){
+    uint8_t * data;
+    uint8_t * label;
+    uint32_t data_len;
+    uint32_t label_len;
+    
+    if((ret = gen_mac(protocol,protocol_len,"mac_for_protocol_key",20, mac, &mac_len, true)) != TEE_SUCCESS){
         return TEE_ERROR_BAD_STATE;
     }
-    
+    /*recover data*/
+
+    /*expend protocol*/
+
+    /*re store data*/
     return ret;
 }
 /*static TEE_Result hybrid_encrypt(uint8_t* data, uint32_t data_len, char* name, uint8_t name_len){
@@ -772,10 +788,6 @@ static TEE_Result _TA_InvokeCommandEntryPoint(
                     params[0].memref.size,
                     params[1].memref.buffer,
                     &(params[1].memref.size));
-        // memcpy(params[1].memref.buffer, data_plain, data_plain_len);
-        // params[1].memref.size = data_plain_len;
-        // free(data_plain);
-        // printf("decrypt successful inside\n");
         return TEE_SUCCESS;
     } else if (commandID == CMD_KEY_GET){
         if (TEE_PARAM_TYPES(
@@ -803,6 +815,7 @@ static TEE_Result _TA_InvokeCommandEntryPoint(
         ret = gen_sym_key("org_key_mac", 11, MAC_KEY_STYLE);
         ret = gen_public_key("sign_key", 8, ASYM_KEY_FOR_SIGN_SIZE);
         ret = gen_public_key("cipher_key", 10, ASYM_KEY_SIZE);
+        ret = gen_mac_for_protocol_key();
     }else if (commandID == CMD_TEST_MAC){
         if (TEE_PARAM_TYPES(
                     TEE_PARAM_TYPE_MEMREF_INPUT,
