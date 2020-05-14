@@ -3,16 +3,18 @@
 /*
 S & W: 
 Binary\Arithmatic\Logic s:{type:1,label1:LABEL_LEN, type:1, label2:LABEL_LEN, type:1, label3:LABEL_LEN, type:1}
+
+bratch s:{type:1,label1:LABEL_LEN, goto:sizeof(int)}
 cov s:{
 	type:1
-	in_label:LABEL_LEN,shape:
+	in_label:LABEL_LEN,shape:2*2*2
 	out_label:LABEL_LEN
 	size_of_kenerl:2
 	is_pending:1
 	stride:1
 	shape_of_kennerl:l,w,h = 2+2+2 = 6
 	ex_for_tee:1
-	data_pos:POS_LEN
+	W_pos:POS_LEN
 }	
 w:{
 	array:l*w*h*size_of_kenerl*sizeof(float)
@@ -20,7 +22,7 @@ w:{
 
 pooling s:{
 	type:1
-	in_label:LABEL_LEN
+	in_label:LABEL_LEN,shape:2*2*2
 	out_label:LABEL_LEN
 	pooling_type:1
 	is_pending:1
@@ -40,7 +42,7 @@ BN s:{
 	in_label:LABEL_LEN
 	out_label:LABEL_LEN
 	ex_for_tee:1
-	data_pos:POS_LEN
+	W_pos:POS_LEN
 }
 w: {
 	mu:sizeof(float)
@@ -55,7 +57,7 @@ FC s:{
 	out_label:LABEL_LEN
 	weight_width:sizeof(int);
 	ex_for_tee:1
-	data_pos:POS_LEN
+	W_pos:POS_LEN
 }
 w: {
 	array:weight_width*last_layer_output_size
@@ -90,13 +92,15 @@ SHORTCUT s:{
 #define LE_OP 24
 #define EQ_OP 25
 
+#define GOTO 99
+
 //defined op
-#define COV 0 
-#define POOLING 1 
-#define RELU 2 
-#define BN_ID 3 
-#define FC_ID 4
-#define SHORTCUT 5
+#define COV 100 
+#define POOLING 101 
+#define RELU 102 
+#define BN_ID 103 
+#define FC_ID 104
+#define SHORTCUT 105
 
 //length of S
 #define SIZE_COV 11 
@@ -128,9 +132,25 @@ content{
 #define POS_LEN 	sizeof(uint32_t)
 
 struct Data{
+	/*size-fixed labels
+	_ _ _ _ _ _ _ _ _ _ _ _ _ 
+	^         ^         ^
+	label[1]  label[2]  label[3]
+	*/
 	uint8_t * label;
 	uint32_t label_size;
+	/*size-fixed poss
+	_ _ _ _ _ _ _ _ _ _ _ _ _ 
+	^       ^       ^
+	pos[1]  pos[2]  pos[3]
+	*/
 	uint8_t * pos;
+	/*size-variable data
+	_ _ _ _ _ _ _ _ _ _ _ _ _ 
+	^       	^         ^
+	*pos[1]     *pos[2]   *pos[3]
+	
+	*/
 	uint8_t * data;
 	uint32_t data_len;
 
@@ -139,12 +159,13 @@ struct Data{
 struct Code{
 	
 	uint32_t code_size; 
+	/*4 bits, store the position of cmd[i] in S*/
 	uint8_t* pos_s;
+	/*now cmd index*/
+	uint32_t now_pos;
 	uint8_t* S;
-	uint32_t S_pos;
 	uint32_t S_len;
 	uint8_t* W;
-	uint32_t W_pos;
 	uint32_t W_len;
 
 };
@@ -167,47 +188,49 @@ uint32_t index_of(Data data, char* name, uint32_t name_len){
 	
 }
 //Use subscripts to access data, return stream of data
-uint32_t get_data(Data data, uint32_t index, uint32_t &ele_size, uint8_t* ele){
+uint32_t get_data(Data data, uint32_t index, uint32_t* ele_size, uint8_t* ele){
 	if(index >= data.label_size) return index+1;
 	uint32_t pos;
 	memcpy(&pos, data.pos + (index * POS_LEN), POS_LEN);
-	memcpy(&ele_size, data.data + pos, sizeof(uint32_t));
-	memcpy(ele, data.data + pos + sizeof(uint32_t), ele_size);
+	memcpy(ele_size, data.data + pos, sizeof(uint32_t));
+	memcpy(ele, data.data + pos + sizeof(uint32_t), *ele_size);
 	return 0;
 }
 /*TODO: Add boundary check*/
-uint32_t add_data(Data &data, char *name, uint32_t name_len, uint8_t * data_in, uint32_t data_len){
-	memcpy(data.label + data.label_size * LABEL_LEN, name, name_len);
+uint32_t add_data(Data* data, char *name, uint32_t name_len, uint8_t* data_in, uint32_t data_len){
+	memcpy(data->label + data->label_size * LABEL_LEN, name, name_len);
 
-	for(int i = data.label_size * LABEL_LEN + name_len; i < (data.label_size + 1)* LABEL_LEN; i ++){
-		data.label[i] = '\0';
+	for(int i = data->label_size * LABEL_LEN + name_len; i < (data->label_size + 1)* LABEL_LEN; i ++){
+		data->label[i] = '\0';
 	}
-	memcpy(data.pos + data.label_size * POS_LEN, &data.data_len, POS_LEN);
-	data.label_size += 1;
-	memcpy(data.data + data.data_len, &data_len, sizeof(uint32_t));
-	memcpy(data.data + data.data_len + sizeof(uint32_t), data_in, data_len);
-	data.data_len += (data_len + sizeof(uint32_t));
+	memcpy(data->pos + data->label_size * POS_LEN, &data->data_len, POS_LEN);
+	data->label_size += 1;
+	memcpy(data->data + data->data_len, &data_len, sizeof(uint32_t));
+	memcpy(data->data + data->data_len + sizeof(uint32_t), data_in, data_len);
+	data->data_len += (data_len + sizeof(uint32_t));
 	return 0;
 }
 /*TODO: Add boundary check*/
-uint32_t deserialize(Data data, uint8_t* label, uint32_t &label_len, uint8_t* data_out, uint32_t &data_len){
+uint32_t deserialize(Data data, uint8_t* label, uint32_t* label_len, uint8_t* data_out, uint32_t* data_len){
 	memcpy(label, data.label, data.label_size*LABEL_LEN);
 	memcpy(data_out, data.pos, data.label_size*POS_LEN);
 	memcpy(data_out + data.label_size*POS_LEN, data.data, data.data_len);
-	label_len = data.label_size;
-	data_len = data.label_size*POS_LEN + data.data_len;
+	*label_len = data.label_size;
+	*data_len = data.label_size*POS_LEN + data.data_len;
 	return 0;
 }
 /*TODO: Add boundary check*/
-uint32_t serialize(Data &data, uint8_t *label, uint32_t label_len, uint8_t *data_in, uint32_t data_len){
-	data.label_size = label_len;
-	memcpy(data.label, label, label_len*LABEL_LEN);
-	memcpy(data.pos, data_in, label_len*POS_LEN);
-	data.data_len = data_len - label_len*POS_LEN;
-	memcpy(data.data, data_in + label_len*POS_LEN, data.data_len);
+uint32_t serialize(Data* data, uint8_t* label, uint32_t label_len, uint8_t* data_in, uint32_t data_len){
+	data->label_size = label_len;
+	memcpy(data->label, label, label_len*LABEL_LEN);
+	memcpy(data->pos, data_in, label_len*POS_LEN);
+	data->data_len = data_len - label_len*POS_LEN;
+	memcpy(data->data, data_in + label_len*POS_LEN, data->data_len);
 	return 0;
 }
-uint32_t run_code(Data &data, Code &code){
-
+/*decode protocol*/
+uint32_t run_code(Data* data, Code* code){
+	uint32_t now_pos = code->
+	for()
 }
 #endif
