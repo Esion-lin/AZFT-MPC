@@ -7,7 +7,7 @@
 #include "tee_srv.h"
 #include <string.h>
 #include <stdlib.h>
-
+#include "element.h"
 #define UUID_XOR    { 0x13245768, 0xacbd, 0xcedf,   \
                         { 0x01, 0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78 } }
 
@@ -24,8 +24,8 @@
 #define CMD_DECRYPT_MAC     (0x008)
 
 
-#define MAX_LABEL_SIZE  1024
-#define MAX_DATA_SIZE   1024*1024
+#define MAX_LABEL_SIZE  5*1024
+#define MAX_DATA_SIZE   300*1024*1024
 #define SYM_KEY_SIZE    256
 #define ASYM_KEY_SIZE   256
 #define DIGEST_SIZE     256
@@ -593,19 +593,37 @@ cleanup:
 }
 TEE_Result run_protocol(uint8_t* protocol, uint32_t protocol_len, uint8_t* mac, uint32_t*mac_len){
     TEE_Result ret = 0;
-    uint8_t * data;
-    uint8_t * label;
-    uint32_t data_len;
-    uint32_t label_len;
+    uint8_t * data = (uint8_t*)malloc(MAX_DATA_SIZE);
+    uint8_t * label = (uint8_t*)malloc(MAX_LABEL_SIZE);
+    uint32_t data_len = MAX_DATA_SIZE;
+    uint32_t label_len = MAX_LABEL_SIZE;
     
     if((ret = gen_mac(protocol,protocol_len,"mac_for_protocol_key",20, mac, &mac_len, true)) != TEE_SUCCESS){
         return TEE_ERROR_BAD_STATE;
     }
     /*recover data*/
+    if( (ret = sst_read_data("label",5,label,label_len)) != TEE_SUCCESS ){
+        TA_DBG("error: label store Error.\n");
+        goto cleanup1;
+    }
+    if( (ret = sst_read_data("data",4,data,data_len)) != TEE_SUCCESS ){
+        TA_DBG("error: data store Error.\n");
+        goto cleanup1;
+    }
+    struct Data data_s = serialize(label, uint32_t label_len, data, data_len);
+    struct Code code = code_serialize(protocol,protocol_len);
 
     /*expend protocol*/
+    struct Tuple tmp;
+    tmp.data = NULL;
+    char tmp_label[5]="";
+    while(code.now_pos < code.code_size){
+        run_code(&data_s, &code, &tmp, tmp_label);
+    }
 
     /*re store data*/
+
+    
     return ret;
 }
 /*static TEE_Result hybrid_encrypt(uint8_t* data, uint32_t data_len, char* name, uint8_t name_len){

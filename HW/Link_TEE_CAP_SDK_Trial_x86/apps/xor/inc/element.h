@@ -139,6 +139,7 @@ struct Data{
 	*/
 	uint8_t * label;
 	uint32_t label_size;
+	uint32_t item_capacity;	
 	/*size-fixed poss
 	_ _ _ _ _ _ _ _ _ _ _ _ _ 
 	^       ^       ^
@@ -153,6 +154,7 @@ struct Data{
 	*/
 	uint8_t * data;
 	uint32_t data_len;
+	uint32_t data_capacity;
 
 };
 /*make sure the code is fixed*/
