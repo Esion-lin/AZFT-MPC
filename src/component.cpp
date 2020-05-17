@@ -96,6 +96,7 @@ uint32_t add_data(struct Data* data, uint8_t *name, uint32_t name_len, uint8_t* 
 }
 /*TODO: Add boundary check*/
 uint32_t deserialize(struct Data data, uint8_t* label, uint32_t* label_len, uint8_t* data_out, uint32_t* data_len){
+	
 	memcpy(label, data.label, data.label_size*LABEL_LEN);
 	memcpy(data_out, data.pos, data.label_size*POS_LEN);
 	memcpy(data_out + data.label_size*POS_LEN, data.data, data.data_len);
@@ -119,7 +120,6 @@ struct Data serialize(uint8_t* label, uint32_t label_len, uint8_t* data_in, uint
 	return data;
 }
 uint32_t code_deserialize(struct Code code, uint8_t* stream, uint32_t* stream_len){
-	stream = (uint8_t*)malloc(code.S_len + code.W_len + code.code_size*sizeof(uint32_t) + 4*sizeof(uint32_t));
 	uint32_t itr = 0;
 	memcpy(stream + itr, &code.code_size, sizeof(uint32_t));
 	itr += sizeof(uint32_t);
@@ -136,6 +136,7 @@ uint32_t code_deserialize(struct Code code, uint8_t* stream, uint32_t* stream_le
 	memcpy(stream + itr, code.W, code.W_len);
 	itr += code.W_len;
 	*stream_len = itr;
+	return 0;
 }
 struct Code code_serialize(uint8_t* stream, uint32_t stream_len){
 	struct Code code;

@@ -1,5 +1,5 @@
 #include "tee.h"
-
+#include <string.h>
 #define ERR_LOG(_fn, _res)  \
         printf("ERROR - failed to call %s, 0x%08x\n", (_fn), (_res))
 
@@ -48,6 +48,34 @@ void check_sign(TEEC_Operation *operation, uint8_t *data, uint32_t data_len){
                                 TEEC_NONE);
     (*operation).params[0].tmpref.buffer = data;
     (*operation).params[0].tmpref.size = data_len;
+}
+void encryt_mac(TEEC_Operation *operation, uint8_t *label, uint32_t label_len, uint8_t *data, uint32_t data_len, uint8_t *data_out, uint32_t *data_out_len, uint8_t *mac, uint32_t *mac_len){
+    (*operation).paramTypes = TEEC_PARAM_TYPES(
+                                TEEC_MEMREF_TEMP_INPUT,
+                                TEEC_MEMREF_TEMP_INPUT,
+                                TEEC_MEMREF_TEMP_OUTPUT,
+                                TEEC_MEMREF_TEMP_OUTPUT);
+    (*operation).params[0].tmpref.buffer = label;
+    (*operation).params[0].tmpref.size = label_len;
+    (*operation).params[1].tmpref.buffer = data;
+    (*operation).params[1].tmpref.size = data_len;
+    (*operation).params[2].tmpref.buffer = data_out;
+    (*operation).params[2].tmpref.size = *data_out_len;
+    (*operation).params[3].tmpref.buffer = mac;
+    (*operation).params[3].tmpref.size = *mac_len;
+}
+void decryt_mac(TEEC_Operation *operation, uint8_t *label, uint32_t label_len, uint8_t *data, uint32_t data_len, uint8_t *mac, uint32_t mac_len){
+    (*operation).paramTypes = TEEC_PARAM_TYPES(
+                                TEEC_MEMREF_TEMP_INPUT,
+                                TEEC_MEMREF_TEMP_INPUT,
+                                TEEC_MEMREF_TEMP_INPUT,
+                                TEEC_NONE);
+    (*operation).params[0].tmpref.buffer = label;
+    (*operation).params[0].tmpref.size = label_len;
+    (*operation).params[1].tmpref.buffer = data;
+    (*operation).params[1].tmpref.size = data_len;
+    (*operation).params[2].tmpref.buffer = mac;
+    (*operation).params[2].tmpref.size = mac_len;
 }
 TEE::TEE(){
 	ret = TEEC_SUCCESS;
@@ -161,18 +189,18 @@ uint32_t TEE::sign_verify(uint8_t t_in[]){
     return ret;
 }
 uint32_t TEE::encrypt_with_MAC(uint8_t* label, uint32_t lab_len, uint8_t* tru_in, uint32_t len, uint8_t* tru_data_out,uint32_t *data_len_out, uint8_t* tru_mac_out, uint32_t *mac_len_out){
-    encryt_mac(&operation, label, lab_len, in_data_buf, tru_in, tru_data_out, &data_len_out, tru_mac_out, mac_len_out);
+    encryt_mac(&operation, label, lab_len, tru_in, len, tru_data_out, data_len_out, tru_mac_out, mac_len_out);
     ret = TEEC_InvokeCommand(&session, CMD_ENCRYPT_MAC, &operation, NULL);
     if(ret != TEEC_SUCCESS){
         printf("authentication encrypt error. inv cmd failed(0x%08x)\n", ret);
     }
     return ret;
 }
-uint32_t TEE::input_data(uint8_t* label, uint32_t lab_len, uint8_t* tru_in, uint32_t len, uint8_t* tru_mac_in, uint32_t *mac_len_in){
+uint32_t TEE::input_data(uint8_t* label, uint32_t lab_len, uint8_t* tru_in, uint32_t len, uint8_t* tru_mac_in, uint32_t mac_len_in){
     decryt_mac(&operation, label, lab_len, tru_in, len, tru_mac_in, mac_len_in);
     ret = TEEC_InvokeCommand(&session, CMD_DECRYPT_MAC, &operation, NULL);
     if(ret != TEEC_SUCCESS){
         printf("authentication decrypt error. inv cmd failed(0x%08x)\n", ret);
-        goto cleanup3;
     }
+    return ret;
 }

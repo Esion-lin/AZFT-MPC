@@ -1032,7 +1032,7 @@ int test(){
 
 	printf("itr is %u\n",itr);
 	code.S = Structure;
-	code.S_len =  INS_LEN*3 + COV_LEN + POOLING_LEN;
+	code.S_len =  INS_LEN*3 + COV_LEN + POOLING_LEN + RELU_LEN + BN_LEN + FC_LEN + SHORTCUT_LEN;
 
 	struct Data data;
 	data.label_size = 0;

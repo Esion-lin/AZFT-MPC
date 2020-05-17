@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/eason/AZFT-MPC
+CMAKE_SOURCE_DIR = /home/eason/Documents/AZFT-MPC
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/eason/AZFT-MPC
+CMAKE_BINARY_DIR = /home/eason/Documents/AZFT-MPC
 
 # Include any dependencies generated for this target.
 include HW/CMakeFiles/hardware.dir/depend.make
@@ -57,139 +57,58 @@ include HW/CMakeFiles/hardware.dir/progress.make
 # Include the compile flags for this target's objects.
 include HW/CMakeFiles/hardware.dir/flags.make
 
-HW/CMakeFiles/hardware.dir/crypto.cpp.o: HW/CMakeFiles/hardware.dir/flags.make
-HW/CMakeFiles/hardware.dir/crypto.cpp.o: HW/crypto.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/eason/AZFT-MPC/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object HW/CMakeFiles/hardware.dir/crypto.cpp.o"
-	cd /home/eason/AZFT-MPC/HW && /usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/hardware.dir/crypto.cpp.o -c /home/eason/AZFT-MPC/HW/crypto.cpp
+HW/CMakeFiles/hardware.dir/tee.cpp.o: HW/CMakeFiles/hardware.dir/flags.make
+HW/CMakeFiles/hardware.dir/tee.cpp.o: HW/tee.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/eason/Documents/AZFT-MPC/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object HW/CMakeFiles/hardware.dir/tee.cpp.o"
+	cd /home/eason/Documents/AZFT-MPC/HW && /usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/hardware.dir/tee.cpp.o -c /home/eason/Documents/AZFT-MPC/HW/tee.cpp
 
-HW/CMakeFiles/hardware.dir/crypto.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/hardware.dir/crypto.cpp.i"
-	cd /home/eason/AZFT-MPC/HW && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/eason/AZFT-MPC/HW/crypto.cpp > CMakeFiles/hardware.dir/crypto.cpp.i
+HW/CMakeFiles/hardware.dir/tee.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/hardware.dir/tee.cpp.i"
+	cd /home/eason/Documents/AZFT-MPC/HW && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/eason/Documents/AZFT-MPC/HW/tee.cpp > CMakeFiles/hardware.dir/tee.cpp.i
 
-HW/CMakeFiles/hardware.dir/crypto.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/hardware.dir/crypto.cpp.s"
-	cd /home/eason/AZFT-MPC/HW && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/eason/AZFT-MPC/HW/crypto.cpp -o CMakeFiles/hardware.dir/crypto.cpp.s
+HW/CMakeFiles/hardware.dir/tee.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/hardware.dir/tee.cpp.s"
+	cd /home/eason/Documents/AZFT-MPC/HW && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/eason/Documents/AZFT-MPC/HW/tee.cpp -o CMakeFiles/hardware.dir/tee.cpp.s
 
-HW/CMakeFiles/hardware.dir/crypto.cpp.o.requires:
+HW/CMakeFiles/hardware.dir/tee.cpp.o.requires:
 
-.PHONY : HW/CMakeFiles/hardware.dir/crypto.cpp.o.requires
+.PHONY : HW/CMakeFiles/hardware.dir/tee.cpp.o.requires
 
-HW/CMakeFiles/hardware.dir/crypto.cpp.o.provides: HW/CMakeFiles/hardware.dir/crypto.cpp.o.requires
-	$(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/crypto.cpp.o.provides.build
-.PHONY : HW/CMakeFiles/hardware.dir/crypto.cpp.o.provides
+HW/CMakeFiles/hardware.dir/tee.cpp.o.provides: HW/CMakeFiles/hardware.dir/tee.cpp.o.requires
+	$(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/tee.cpp.o.provides.build
+.PHONY : HW/CMakeFiles/hardware.dir/tee.cpp.o.provides
 
-HW/CMakeFiles/hardware.dir/crypto.cpp.o.provides.build: HW/CMakeFiles/hardware.dir/crypto.cpp.o
-
-
-HW/CMakeFiles/hardware.dir/crypto_pend.cpp.o: HW/CMakeFiles/hardware.dir/flags.make
-HW/CMakeFiles/hardware.dir/crypto_pend.cpp.o: HW/crypto_pend.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/eason/AZFT-MPC/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object HW/CMakeFiles/hardware.dir/crypto_pend.cpp.o"
-	cd /home/eason/AZFT-MPC/HW && /usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/hardware.dir/crypto_pend.cpp.o -c /home/eason/AZFT-MPC/HW/crypto_pend.cpp
-
-HW/CMakeFiles/hardware.dir/crypto_pend.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/hardware.dir/crypto_pend.cpp.i"
-	cd /home/eason/AZFT-MPC/HW && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/eason/AZFT-MPC/HW/crypto_pend.cpp > CMakeFiles/hardware.dir/crypto_pend.cpp.i
-
-HW/CMakeFiles/hardware.dir/crypto_pend.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/hardware.dir/crypto_pend.cpp.s"
-	cd /home/eason/AZFT-MPC/HW && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/eason/AZFT-MPC/HW/crypto_pend.cpp -o CMakeFiles/hardware.dir/crypto_pend.cpp.s
-
-HW/CMakeFiles/hardware.dir/crypto_pend.cpp.o.requires:
-
-.PHONY : HW/CMakeFiles/hardware.dir/crypto_pend.cpp.o.requires
-
-HW/CMakeFiles/hardware.dir/crypto_pend.cpp.o.provides: HW/CMakeFiles/hardware.dir/crypto_pend.cpp.o.requires
-	$(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/crypto_pend.cpp.o.provides.build
-.PHONY : HW/CMakeFiles/hardware.dir/crypto_pend.cpp.o.provides
-
-HW/CMakeFiles/hardware.dir/crypto_pend.cpp.o.provides.build: HW/CMakeFiles/hardware.dir/crypto_pend.cpp.o
-
-
-HW/CMakeFiles/hardware.dir/tuple.cpp.o: HW/CMakeFiles/hardware.dir/flags.make
-HW/CMakeFiles/hardware.dir/tuple.cpp.o: HW/tuple.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/eason/AZFT-MPC/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object HW/CMakeFiles/hardware.dir/tuple.cpp.o"
-	cd /home/eason/AZFT-MPC/HW && /usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/hardware.dir/tuple.cpp.o -c /home/eason/AZFT-MPC/HW/tuple.cpp
-
-HW/CMakeFiles/hardware.dir/tuple.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/hardware.dir/tuple.cpp.i"
-	cd /home/eason/AZFT-MPC/HW && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/eason/AZFT-MPC/HW/tuple.cpp > CMakeFiles/hardware.dir/tuple.cpp.i
-
-HW/CMakeFiles/hardware.dir/tuple.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/hardware.dir/tuple.cpp.s"
-	cd /home/eason/AZFT-MPC/HW && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/eason/AZFT-MPC/HW/tuple.cpp -o CMakeFiles/hardware.dir/tuple.cpp.s
-
-HW/CMakeFiles/hardware.dir/tuple.cpp.o.requires:
-
-.PHONY : HW/CMakeFiles/hardware.dir/tuple.cpp.o.requires
-
-HW/CMakeFiles/hardware.dir/tuple.cpp.o.provides: HW/CMakeFiles/hardware.dir/tuple.cpp.o.requires
-	$(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/tuple.cpp.o.provides.build
-.PHONY : HW/CMakeFiles/hardware.dir/tuple.cpp.o.provides
-
-HW/CMakeFiles/hardware.dir/tuple.cpp.o.provides.build: HW/CMakeFiles/hardware.dir/tuple.cpp.o
-
-
-HW/CMakeFiles/hardware.dir/hw_head.cpp.o: HW/CMakeFiles/hardware.dir/flags.make
-HW/CMakeFiles/hardware.dir/hw_head.cpp.o: HW/hw_head.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/eason/AZFT-MPC/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object HW/CMakeFiles/hardware.dir/hw_head.cpp.o"
-	cd /home/eason/AZFT-MPC/HW && /usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/hardware.dir/hw_head.cpp.o -c /home/eason/AZFT-MPC/HW/hw_head.cpp
-
-HW/CMakeFiles/hardware.dir/hw_head.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/hardware.dir/hw_head.cpp.i"
-	cd /home/eason/AZFT-MPC/HW && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/eason/AZFT-MPC/HW/hw_head.cpp > CMakeFiles/hardware.dir/hw_head.cpp.i
-
-HW/CMakeFiles/hardware.dir/hw_head.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/hardware.dir/hw_head.cpp.s"
-	cd /home/eason/AZFT-MPC/HW && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/eason/AZFT-MPC/HW/hw_head.cpp -o CMakeFiles/hardware.dir/hw_head.cpp.s
-
-HW/CMakeFiles/hardware.dir/hw_head.cpp.o.requires:
-
-.PHONY : HW/CMakeFiles/hardware.dir/hw_head.cpp.o.requires
-
-HW/CMakeFiles/hardware.dir/hw_head.cpp.o.provides: HW/CMakeFiles/hardware.dir/hw_head.cpp.o.requires
-	$(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/hw_head.cpp.o.provides.build
-.PHONY : HW/CMakeFiles/hardware.dir/hw_head.cpp.o.provides
-
-HW/CMakeFiles/hardware.dir/hw_head.cpp.o.provides.build: HW/CMakeFiles/hardware.dir/hw_head.cpp.o
+HW/CMakeFiles/hardware.dir/tee.cpp.o.provides.build: HW/CMakeFiles/hardware.dir/tee.cpp.o
 
 
 # Object files for target hardware
 hardware_OBJECTS = \
-"CMakeFiles/hardware.dir/crypto.cpp.o" \
-"CMakeFiles/hardware.dir/crypto_pend.cpp.o" \
-"CMakeFiles/hardware.dir/tuple.cpp.o" \
-"CMakeFiles/hardware.dir/hw_head.cpp.o"
+"CMakeFiles/hardware.dir/tee.cpp.o"
 
 # External object files for target hardware
 hardware_EXTERNAL_OBJECTS =
 
-HW/libhardware.a: HW/CMakeFiles/hardware.dir/crypto.cpp.o
-HW/libhardware.a: HW/CMakeFiles/hardware.dir/crypto_pend.cpp.o
-HW/libhardware.a: HW/CMakeFiles/hardware.dir/tuple.cpp.o
-HW/libhardware.a: HW/CMakeFiles/hardware.dir/hw_head.cpp.o
+HW/libhardware.a: HW/CMakeFiles/hardware.dir/tee.cpp.o
 HW/libhardware.a: HW/CMakeFiles/hardware.dir/build.make
 HW/libhardware.a: HW/CMakeFiles/hardware.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/eason/AZFT-MPC/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX static library libhardware.a"
-	cd /home/eason/AZFT-MPC/HW && $(CMAKE_COMMAND) -P CMakeFiles/hardware.dir/cmake_clean_target.cmake
-	cd /home/eason/AZFT-MPC/HW && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/hardware.dir/link.txt --verbose=$(VERBOSE)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/eason/Documents/AZFT-MPC/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX static library libhardware.a"
+	cd /home/eason/Documents/AZFT-MPC/HW && $(CMAKE_COMMAND) -P CMakeFiles/hardware.dir/cmake_clean_target.cmake
+	cd /home/eason/Documents/AZFT-MPC/HW && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/hardware.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
 HW/CMakeFiles/hardware.dir/build: HW/libhardware.a
 
 .PHONY : HW/CMakeFiles/hardware.dir/build
 
-HW/CMakeFiles/hardware.dir/requires: HW/CMakeFiles/hardware.dir/crypto.cpp.o.requires
-HW/CMakeFiles/hardware.dir/requires: HW/CMakeFiles/hardware.dir/crypto_pend.cpp.o.requires
-HW/CMakeFiles/hardware.dir/requires: HW/CMakeFiles/hardware.dir/tuple.cpp.o.requires
-HW/CMakeFiles/hardware.dir/requires: HW/CMakeFiles/hardware.dir/hw_head.cpp.o.requires
+HW/CMakeFiles/hardware.dir/requires: HW/CMakeFiles/hardware.dir/tee.cpp.o.requires
 
 .PHONY : HW/CMakeFiles/hardware.dir/requires
 
 HW/CMakeFiles/hardware.dir/clean:
-	cd /home/eason/AZFT-MPC/HW && $(CMAKE_COMMAND) -P CMakeFiles/hardware.dir/cmake_clean.cmake
+	cd /home/eason/Documents/AZFT-MPC/HW && $(CMAKE_COMMAND) -P CMakeFiles/hardware.dir/cmake_clean.cmake
 .PHONY : HW/CMakeFiles/hardware.dir/clean
 
 HW/CMakeFiles/hardware.dir/depend:
-	cd /home/eason/AZFT-MPC && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/eason/AZFT-MPC /home/eason/AZFT-MPC/HW /home/eason/AZFT-MPC /home/eason/AZFT-MPC/HW /home/eason/AZFT-MPC/HW/CMakeFiles/hardware.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/eason/Documents/AZFT-MPC && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/eason/Documents/AZFT-MPC /home/eason/Documents/AZFT-MPC/HW /home/eason/Documents/AZFT-MPC /home/eason/Documents/AZFT-MPC/HW /home/eason/Documents/AZFT-MPC/HW/CMakeFiles/hardware.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : HW/CMakeFiles/hardware.dir/depend
 

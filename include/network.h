@@ -1,5 +1,7 @@
 // Auther: Tainpei Lu
 // Creation: 11/02 2019 
+#ifndef _NETWORK_H_
+#define _NETWORK_H_
 #include <pthread.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -37,10 +39,7 @@ public:
 	//for test
 	int 			recv_port;
 	// some cache file
-	std::map<std::string, uint8_t[CIPHER_LEN]> data_dic;	
-	std::map<std::string, uint8_t[MAC_LEN]> data_mac_dic;	
-	uint8_t rev_img_data[img_size];
-	std::vector<uint8_t*> mac_dir;
+	
 	bool 	is_data_store = false;
 	bool	is_data_send = false;
 	bool	is_key_store = false;
@@ -67,3 +66,4 @@ private:
 	void	accept_mac(Json::Value value);
 };
 void *init_listen_static(void *tmp);
+#endif

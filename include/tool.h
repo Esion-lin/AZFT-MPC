@@ -6,14 +6,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "crypto.h"
 #include <vector>
 #include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <stdio.h>
 #include <openssl/evp.h>
-
+#include "component.h"
 #ifdef linux
 #include <unistd.h>
 #include <dirent.h>

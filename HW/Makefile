@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/eason/AZFT-MPC
+CMAKE_SOURCE_DIR = /home/eason/Documents/AZFT-MPC
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/eason/AZFT-MPC
+CMAKE_BINARY_DIR = /home/eason/Documents/AZFT-MPC
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,14 +80,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /home/eason/AZFT-MPC && $(CMAKE_COMMAND) -E cmake_progress_start /home/eason/AZFT-MPC/CMakeFiles /home/eason/AZFT-MPC/HW/CMakeFiles/progress.marks
-	cd /home/eason/AZFT-MPC && $(MAKE) -f CMakeFiles/Makefile2 HW/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/AZFT-MPC/CMakeFiles 0
+	cd /home/eason/Documents/AZFT-MPC && $(CMAKE_COMMAND) -E cmake_progress_start /home/eason/Documents/AZFT-MPC/CMakeFiles /home/eason/Documents/AZFT-MPC/HW/CMakeFiles/progress.marks
+	cd /home/eason/Documents/AZFT-MPC && $(MAKE) -f CMakeFiles/Makefile2 HW/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/Documents/AZFT-MPC/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/eason/AZFT-MPC && $(MAKE) -f CMakeFiles/Makefile2 HW/clean
+	cd /home/eason/Documents/AZFT-MPC && $(MAKE) -f CMakeFiles/Makefile2 HW/clean
 .PHONY : clean
 
 # The main clean target
@@ -97,22 +97,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/eason/AZFT-MPC && $(MAKE) -f CMakeFiles/Makefile2 HW/preinstall
+	cd /home/eason/Documents/AZFT-MPC && $(MAKE) -f CMakeFiles/Makefile2 HW/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/eason/AZFT-MPC && $(MAKE) -f CMakeFiles/Makefile2 HW/preinstall
+	cd /home/eason/Documents/AZFT-MPC && $(MAKE) -f CMakeFiles/Makefile2 HW/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /home/eason/AZFT-MPC && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/eason/Documents/AZFT-MPC && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 HW/CMakeFiles/hardware.dir/rule:
-	cd /home/eason/AZFT-MPC && $(MAKE) -f CMakeFiles/Makefile2 HW/CMakeFiles/hardware.dir/rule
+	cd /home/eason/Documents/AZFT-MPC && $(MAKE) -f CMakeFiles/Makefile2 HW/CMakeFiles/hardware.dir/rule
 .PHONY : HW/CMakeFiles/hardware.dir/rule
 
 # Convenience name for target.
@@ -122,116 +122,35 @@ hardware: HW/CMakeFiles/hardware.dir/rule
 
 # fast build rule for target.
 hardware/fast:
-	cd /home/eason/AZFT-MPC && $(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/build
+	cd /home/eason/Documents/AZFT-MPC && $(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/build
 .PHONY : hardware/fast
 
-crypto.o: crypto.cpp.o
+tee.o: tee.cpp.o
 
-.PHONY : crypto.o
-
-# target to build an object file
-crypto.cpp.o:
-	cd /home/eason/AZFT-MPC && $(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/crypto.cpp.o
-.PHONY : crypto.cpp.o
-
-crypto.i: crypto.cpp.i
-
-.PHONY : crypto.i
-
-# target to preprocess a source file
-crypto.cpp.i:
-	cd /home/eason/AZFT-MPC && $(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/crypto.cpp.i
-.PHONY : crypto.cpp.i
-
-crypto.s: crypto.cpp.s
-
-.PHONY : crypto.s
-
-# target to generate assembly for a file
-crypto.cpp.s:
-	cd /home/eason/AZFT-MPC && $(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/crypto.cpp.s
-.PHONY : crypto.cpp.s
-
-crypto_pend.o: crypto_pend.cpp.o
-
-.PHONY : crypto_pend.o
+.PHONY : tee.o
 
 # target to build an object file
-crypto_pend.cpp.o:
-	cd /home/eason/AZFT-MPC && $(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/crypto_pend.cpp.o
-.PHONY : crypto_pend.cpp.o
+tee.cpp.o:
+	cd /home/eason/Documents/AZFT-MPC && $(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/tee.cpp.o
+.PHONY : tee.cpp.o
 
-crypto_pend.i: crypto_pend.cpp.i
+tee.i: tee.cpp.i
 
-.PHONY : crypto_pend.i
-
-# target to preprocess a source file
-crypto_pend.cpp.i:
-	cd /home/eason/AZFT-MPC && $(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/crypto_pend.cpp.i
-.PHONY : crypto_pend.cpp.i
-
-crypto_pend.s: crypto_pend.cpp.s
-
-.PHONY : crypto_pend.s
-
-# target to generate assembly for a file
-crypto_pend.cpp.s:
-	cd /home/eason/AZFT-MPC && $(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/crypto_pend.cpp.s
-.PHONY : crypto_pend.cpp.s
-
-hw_head.o: hw_head.cpp.o
-
-.PHONY : hw_head.o
-
-# target to build an object file
-hw_head.cpp.o:
-	cd /home/eason/AZFT-MPC && $(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/hw_head.cpp.o
-.PHONY : hw_head.cpp.o
-
-hw_head.i: hw_head.cpp.i
-
-.PHONY : hw_head.i
+.PHONY : tee.i
 
 # target to preprocess a source file
-hw_head.cpp.i:
-	cd /home/eason/AZFT-MPC && $(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/hw_head.cpp.i
-.PHONY : hw_head.cpp.i
+tee.cpp.i:
+	cd /home/eason/Documents/AZFT-MPC && $(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/tee.cpp.i
+.PHONY : tee.cpp.i
 
-hw_head.s: hw_head.cpp.s
+tee.s: tee.cpp.s
 
-.PHONY : hw_head.s
-
-# target to generate assembly for a file
-hw_head.cpp.s:
-	cd /home/eason/AZFT-MPC && $(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/hw_head.cpp.s
-.PHONY : hw_head.cpp.s
-
-tuple.o: tuple.cpp.o
-
-.PHONY : tuple.o
-
-# target to build an object file
-tuple.cpp.o:
-	cd /home/eason/AZFT-MPC && $(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/tuple.cpp.o
-.PHONY : tuple.cpp.o
-
-tuple.i: tuple.cpp.i
-
-.PHONY : tuple.i
-
-# target to preprocess a source file
-tuple.cpp.i:
-	cd /home/eason/AZFT-MPC && $(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/tuple.cpp.i
-.PHONY : tuple.cpp.i
-
-tuple.s: tuple.cpp.s
-
-.PHONY : tuple.s
+.PHONY : tee.s
 
 # target to generate assembly for a file
-tuple.cpp.s:
-	cd /home/eason/AZFT-MPC && $(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/tuple.cpp.s
-.PHONY : tuple.cpp.s
+tee.cpp.s:
+	cd /home/eason/Documents/AZFT-MPC && $(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/tee.cpp.s
+.PHONY : tee.cpp.s
 
 # Help Target
 help:
@@ -242,18 +161,9 @@ help:
 	@echo "... hardware"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... crypto.o"
-	@echo "... crypto.i"
-	@echo "... crypto.s"
-	@echo "... crypto_pend.o"
-	@echo "... crypto_pend.i"
-	@echo "... crypto_pend.s"
-	@echo "... hw_head.o"
-	@echo "... hw_head.i"
-	@echo "... hw_head.s"
-	@echo "... tuple.o"
-	@echo "... tuple.i"
-	@echo "... tuple.s"
+	@echo "... tee.o"
+	@echo "... tee.i"
+	@echo "... tee.s"
 .PHONY : help
 
 
@@ -265,6 +175,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /home/eason/AZFT-MPC && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/eason/Documents/AZFT-MPC && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

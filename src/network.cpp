@@ -26,18 +26,6 @@ void netTool::deal_data(Json::Value value){
     Json::Value data;
     Json::Value mac;
     switch(action){
-        case rec_img_data:
-        {
-            rec_serial_data = false;
-            rec_image_data = true;
-            key_part = value["key"];
-            uint8_t key_data[key_part.size()];
-            for(int i = 0; i < key_part.size(); i++){
-                key_data[i] = key_part[i].asUInt();
-            }
-            tru->decrypto_key(key_data, key_part.size());
-        }
-            break;
         case key_ex_action:
             data = value["data"];
             accept_key(data);
@@ -49,16 +37,12 @@ void netTool::deal_data(Json::Value value){
             data = value["data"];
             accept_sign(data);
             break;
-        case data_action:
-            key_part = value["key"];
+        case data_action:{
+            Json::Value label = value["label"];
             data = value["data"];
             mac = value["mac"];
-
-            accept_data(key_part, data, mac);
-            break;
-        case cmd_mac_action:
-            data = value["data"];
-            accept_mac(data);
+            accept_data(label, data, mac);
+        }
             break;
         case res_data_action:
         {
@@ -72,65 +56,25 @@ void netTool::deal_data(Json::Value value){
             printf("error package\n");
     }
 }
-void netTool::accept_data(Json::Value key_paty, Json::Value data_part, Json::Value mac){
-    uint8_t key_data[key_paty.size()];
-    for(int i = 0; i < key_paty.size(); i++){
-        key_data[i] = key_paty[i].asUInt();
+void netTool::accept_data(Json::Value label_part, Json::Value data_part, Json::Value mac_part){
+    uint8_t* label = (uint8_t*)malloc(label_part.size());
+    uint8_t* data = (uint8_t*)malloc(data_part.size());
+    uint8_t* mac = (uint8_t*)malloc(mac_part.size());
+    for(int i = 0; i < label_part.size(); i++){
+        label[i] = label_part[i].asUInt();
     }
-    tru->decrypto_key(key_data, key_paty.size());
-    Json::Value::Members members = data_part.getMemberNames();
-    uint32_t arr[CIPHER_LEN/4];
-    for (Json::Value::Members::iterator iterMember = members.begin(); iterMember != members.end(); iterMember++){
-        std::string key = *iterMember;
-        for(int i = 0; i < CIPHER_LEN/4; i++){
-            arr[i] = data_part[key][i].asUInt();
-        }
-        uint32_t len_temp;
-        to_byte(arr, CIPHER_LEN/4, data_dic[key], len_temp);
+    for(int i = 0; i < data_part.size(); i++){
+        data[i] = data_part[i].asUInt();
     }
-
-    uint32_t arr_mac[MAC_LEN/4];
-    Json::Value::Members memb = mac.getMemberNames();
-    for (Json::Value::Members::iterator iterMember = memb.begin(); iterMember != memb.end(); iterMember++){
-        std::string key = *iterMember;
-        for(int i = 0; i < MAC_LEN/4; i++){
-            arr_mac[i] = mac[key][i].asUInt();
-        }
-        uint32_t len_temp;
-        to_byte(arr_mac, MAC_LEN/4, data_mac_dic[key], len_temp);
+    for(int i = 0; i < mac_part.size(); i++){
+        mac[i] = mac_part[i].asUInt();
     }
+    tru->input_data(label, label_part.size(), data, data_part.size(), mac, mac_part.size());
     is_data_store = true;
+    free(label);free(data);free(mac);
     // uint8_t test[16];
     // uint32_t len;
     // tru->decrypto(data_dic["A"],16,test,len);
-}
-void netTool::accept_mac(Json::Value value){
-    //std::vector<uint8_t[MAC_LEN]> dir_mac = std::vector<uint8_t[MAC_LEN]>(value.size());
-    for(int i = 0; i < value.size(); i++){
-        uint8_t *arr = new uint8_t[MAC_LEN];
-        for(int j = 0; j < MAC_LEN; j++){
-            arr[j] = value[i][j].asUInt();
-        }
-        mac_dir.push_back(arr);
-    }
-/*    for(int i = 0 ; i < mac_dir.size(); i++){
-        for(int j = 0; j < MAC_LEN; j++){
-            std::cout<<mac_dir[i][j]<<" ";
-        }
-        std::cout<<std::endl;
-    }*/
-    //mac_dir.insert(mac_dir.end(),dir_mac.begin(),dir_mac.end());
-   /* for(int i = 0; i < value.size(); i++){
-        uint8_t middle[MAC_LEN];
-        for(int j = 0; j < MAC_LEN; j++){
-            middle[j] = value[i][j].asUInt();
-        }
-        mac_dir.insert(mac_dir.end(), middle);
-        
-    }*/
-    
-    //copy(new_vec.begin(), new_vec.end(), mac_dir.begin());
-    is_mac_store = true;
 }
 void netTool::accept_key(Json::Value value){
     uint8_t data[value.size()];
@@ -147,7 +91,7 @@ void netTool::accept_sign(Json::Value value){
     for(int i = 0; i < value.size(); i++){
         data[i] = value[i].asUInt();
     }
-    is_key_verify = tru->sign_verify(data);
+    is_key_verify = (tru->sign_verify(data) == 0);
     
 }
 void netTool::set_host_port(std::string host,int port){
@@ -182,41 +126,18 @@ void *netTool::init_listen(){
         }else{
             //printf("connect successful\n");
         }
-        if(rec_serial_data){   
-            int ret = recv(conn, recvbuf, sizeof(recvbuf),0);
-            if(ret <0){
-                perror("recv error\n");
-            }else{
-                //printf("recv size: %d\n",ret); 
-            }
-            if(reader.parse(recvbuf,value)){
-                deal_data(value);        
-            }else{
-                perror("reader error\n");
-            }    
+           
+        int ret = recv(conn, recvbuf, sizeof(recvbuf),0);
+        if(ret <0){
+            perror("recv error\n");
         }else{
-            int img_size_tmp = img_size;
-            int off_set = 0;
-            bool flag = true;
-            while(img_size_tmp){
-                int ret = recv(conn, rev_img_data + off_set, img_size_tmp,0);
-                if(-1 == ret){
-                    printf("receive data error\n");
-                    rec_serial_data = true;
-                    rec_image_data = false;
-                    flag = false;
-                    break;
-                }
-                img_size_tmp -= ret;
-                off_set += ret;
-            }
-            if(flag == false)
-                continue;
-            is_data_store = true;
-            rec_serial_data = true;
-            rec_image_data = false;
-            printf("receive data successful\n");
+            //printf("recv size: %d\n",ret); 
         }
+        if(reader.parse(recvbuf,value)){
+            deal_data(value);        
+        }else{
+            perror("reader error\n");
+        }    
          
     }
 	

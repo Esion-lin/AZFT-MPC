@@ -1,2 +1,2 @@
-/usr/bin/ar qc libhardware_lib.a  CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.o CMakeFiles/hardware_lib.dir/src/protocol.cpp.o CMakeFiles/hardware_lib.dir/src/network.cpp.o CMakeFiles/hardware_lib.dir/src/keccak.cpp.o CMakeFiles/hardware_lib.dir/src/tool.cpp.o
+/usr/bin/ar qc libhardware_lib.a  CMakeFiles/hardware_lib.dir/src/component.cpp.o CMakeFiles/hardware_lib.dir/src/protocol.cpp.o CMakeFiles/hardware_lib.dir/src/network.cpp.o CMakeFiles/hardware_lib.dir/src/keccak.cpp.o CMakeFiles/hardware_lib.dir/src/tool.cpp.o
 /usr/bin/ranlib libhardware_lib.a

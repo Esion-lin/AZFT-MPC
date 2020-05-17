@@ -6,5 +6,5 @@ CXX_FLAGS =  -fopenmp -O3 -DNDEBUG
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/eason/AZFT-MPC/include/jsoncpp -I/home/eason/AZFT-MPC/HW/include 
+CXX_INCLUDES = -I/home/eason/Documents/AZFT-MPC/include/jsoncpp -I/home/eason/Documents/AZFT-MPC/HW/include 
 

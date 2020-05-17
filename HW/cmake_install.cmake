@@ -1,4 +1,4 @@
-# Install script for directory: /home/eason/AZFT-MPC/HW
+# Install script for directory: /home/eason/Documents/AZFT-MPC/HW
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

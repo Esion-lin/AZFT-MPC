@@ -1,5 +1,7 @@
 // Auther: Tainpei Lu
 // Creation: 11/02 2019 
+#ifndef _CONFIGFILE_H_
+#define _CONFIGFILE_H_
 #define send_port 60002
 //#define recv_port 60001
 #define connect_pool 20 
@@ -20,7 +22,6 @@
 #define res_data_action 15
 #define is_debug true
 #define is_send_output_mac true
-#ifndef _CONFIGFILE_H_
-#define _CONFIGFILE_H_
+
 
 #endif

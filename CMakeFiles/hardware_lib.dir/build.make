@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/eason/AZFT-MPC
+CMAKE_SOURCE_DIR = /home/eason/Documents/AZFT-MPC
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/eason/AZFT-MPC
+CMAKE_BINARY_DIR = /home/eason/Documents/AZFT-MPC
 
 # Include any dependencies generated for this target.
 include CMakeFiles/hardware_lib.dir/depend.make
@@ -57,42 +57,42 @@ include CMakeFiles/hardware_lib.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/hardware_lib.dir/flags.make
 
-CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.o: CMakeFiles/hardware_lib.dir/flags.make
-CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.o: src/Merkle_Hash.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/eason/AZFT-MPC/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.o -c /home/eason/AZFT-MPC/src/Merkle_Hash.cpp
+CMakeFiles/hardware_lib.dir/src/component.cpp.o: CMakeFiles/hardware_lib.dir/flags.make
+CMakeFiles/hardware_lib.dir/src/component.cpp.o: src/component.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/eason/Documents/AZFT-MPC/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/hardware_lib.dir/src/component.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/hardware_lib.dir/src/component.cpp.o -c /home/eason/Documents/AZFT-MPC/src/component.cpp
 
-CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/eason/AZFT-MPC/src/Merkle_Hash.cpp > CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.i
+CMakeFiles/hardware_lib.dir/src/component.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/hardware_lib.dir/src/component.cpp.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/eason/Documents/AZFT-MPC/src/component.cpp > CMakeFiles/hardware_lib.dir/src/component.cpp.i
 
-CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/eason/AZFT-MPC/src/Merkle_Hash.cpp -o CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.s
+CMakeFiles/hardware_lib.dir/src/component.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/hardware_lib.dir/src/component.cpp.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/eason/Documents/AZFT-MPC/src/component.cpp -o CMakeFiles/hardware_lib.dir/src/component.cpp.s
 
-CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.o.requires:
+CMakeFiles/hardware_lib.dir/src/component.cpp.o.requires:
 
-.PHONY : CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.o.requires
+.PHONY : CMakeFiles/hardware_lib.dir/src/component.cpp.o.requires
 
-CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.o.provides: CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.o.requires
-	$(MAKE) -f CMakeFiles/hardware_lib.dir/build.make CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.o.provides.build
-.PHONY : CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.o.provides
+CMakeFiles/hardware_lib.dir/src/component.cpp.o.provides: CMakeFiles/hardware_lib.dir/src/component.cpp.o.requires
+	$(MAKE) -f CMakeFiles/hardware_lib.dir/build.make CMakeFiles/hardware_lib.dir/src/component.cpp.o.provides.build
+.PHONY : CMakeFiles/hardware_lib.dir/src/component.cpp.o.provides
 
-CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.o.provides.build: CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.o
+CMakeFiles/hardware_lib.dir/src/component.cpp.o.provides.build: CMakeFiles/hardware_lib.dir/src/component.cpp.o
 
 
 CMakeFiles/hardware_lib.dir/src/protocol.cpp.o: CMakeFiles/hardware_lib.dir/flags.make
 CMakeFiles/hardware_lib.dir/src/protocol.cpp.o: src/protocol.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/eason/AZFT-MPC/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/hardware_lib.dir/src/protocol.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/hardware_lib.dir/src/protocol.cpp.o -c /home/eason/AZFT-MPC/src/protocol.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/eason/Documents/AZFT-MPC/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/hardware_lib.dir/src/protocol.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/hardware_lib.dir/src/protocol.cpp.o -c /home/eason/Documents/AZFT-MPC/src/protocol.cpp
 
 CMakeFiles/hardware_lib.dir/src/protocol.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/hardware_lib.dir/src/protocol.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/eason/AZFT-MPC/src/protocol.cpp > CMakeFiles/hardware_lib.dir/src/protocol.cpp.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/eason/Documents/AZFT-MPC/src/protocol.cpp > CMakeFiles/hardware_lib.dir/src/protocol.cpp.i
 
 CMakeFiles/hardware_lib.dir/src/protocol.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/hardware_lib.dir/src/protocol.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/eason/AZFT-MPC/src/protocol.cpp -o CMakeFiles/hardware_lib.dir/src/protocol.cpp.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/eason/Documents/AZFT-MPC/src/protocol.cpp -o CMakeFiles/hardware_lib.dir/src/protocol.cpp.s
 
 CMakeFiles/hardware_lib.dir/src/protocol.cpp.o.requires:
 
@@ -107,16 +107,16 @@ CMakeFiles/hardware_lib.dir/src/protocol.cpp.o.provides.build: CMakeFiles/hardwa
 
 CMakeFiles/hardware_lib.dir/src/network.cpp.o: CMakeFiles/hardware_lib.dir/flags.make
 CMakeFiles/hardware_lib.dir/src/network.cpp.o: src/network.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/eason/AZFT-MPC/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/hardware_lib.dir/src/network.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/hardware_lib.dir/src/network.cpp.o -c /home/eason/AZFT-MPC/src/network.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/eason/Documents/AZFT-MPC/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/hardware_lib.dir/src/network.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/hardware_lib.dir/src/network.cpp.o -c /home/eason/Documents/AZFT-MPC/src/network.cpp
 
 CMakeFiles/hardware_lib.dir/src/network.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/hardware_lib.dir/src/network.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/eason/AZFT-MPC/src/network.cpp > CMakeFiles/hardware_lib.dir/src/network.cpp.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/eason/Documents/AZFT-MPC/src/network.cpp > CMakeFiles/hardware_lib.dir/src/network.cpp.i
 
 CMakeFiles/hardware_lib.dir/src/network.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/hardware_lib.dir/src/network.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/eason/AZFT-MPC/src/network.cpp -o CMakeFiles/hardware_lib.dir/src/network.cpp.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/eason/Documents/AZFT-MPC/src/network.cpp -o CMakeFiles/hardware_lib.dir/src/network.cpp.s
 
 CMakeFiles/hardware_lib.dir/src/network.cpp.o.requires:
 
@@ -131,16 +131,16 @@ CMakeFiles/hardware_lib.dir/src/network.cpp.o.provides.build: CMakeFiles/hardwar
 
 CMakeFiles/hardware_lib.dir/src/keccak.cpp.o: CMakeFiles/hardware_lib.dir/flags.make
 CMakeFiles/hardware_lib.dir/src/keccak.cpp.o: src/keccak.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/eason/AZFT-MPC/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/hardware_lib.dir/src/keccak.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/hardware_lib.dir/src/keccak.cpp.o -c /home/eason/AZFT-MPC/src/keccak.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/eason/Documents/AZFT-MPC/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/hardware_lib.dir/src/keccak.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/hardware_lib.dir/src/keccak.cpp.o -c /home/eason/Documents/AZFT-MPC/src/keccak.cpp
 
 CMakeFiles/hardware_lib.dir/src/keccak.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/hardware_lib.dir/src/keccak.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/eason/AZFT-MPC/src/keccak.cpp > CMakeFiles/hardware_lib.dir/src/keccak.cpp.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/eason/Documents/AZFT-MPC/src/keccak.cpp > CMakeFiles/hardware_lib.dir/src/keccak.cpp.i
 
 CMakeFiles/hardware_lib.dir/src/keccak.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/hardware_lib.dir/src/keccak.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/eason/AZFT-MPC/src/keccak.cpp -o CMakeFiles/hardware_lib.dir/src/keccak.cpp.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/eason/Documents/AZFT-MPC/src/keccak.cpp -o CMakeFiles/hardware_lib.dir/src/keccak.cpp.s
 
 CMakeFiles/hardware_lib.dir/src/keccak.cpp.o.requires:
 
@@ -155,16 +155,16 @@ CMakeFiles/hardware_lib.dir/src/keccak.cpp.o.provides.build: CMakeFiles/hardware
 
 CMakeFiles/hardware_lib.dir/src/tool.cpp.o: CMakeFiles/hardware_lib.dir/flags.make
 CMakeFiles/hardware_lib.dir/src/tool.cpp.o: src/tool.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/eason/AZFT-MPC/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/hardware_lib.dir/src/tool.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/hardware_lib.dir/src/tool.cpp.o -c /home/eason/AZFT-MPC/src/tool.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/eason/Documents/AZFT-MPC/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/hardware_lib.dir/src/tool.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/hardware_lib.dir/src/tool.cpp.o -c /home/eason/Documents/AZFT-MPC/src/tool.cpp
 
 CMakeFiles/hardware_lib.dir/src/tool.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/hardware_lib.dir/src/tool.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/eason/AZFT-MPC/src/tool.cpp > CMakeFiles/hardware_lib.dir/src/tool.cpp.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/eason/Documents/AZFT-MPC/src/tool.cpp > CMakeFiles/hardware_lib.dir/src/tool.cpp.i
 
 CMakeFiles/hardware_lib.dir/src/tool.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/hardware_lib.dir/src/tool.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/eason/AZFT-MPC/src/tool.cpp -o CMakeFiles/hardware_lib.dir/src/tool.cpp.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/eason/Documents/AZFT-MPC/src/tool.cpp -o CMakeFiles/hardware_lib.dir/src/tool.cpp.s
 
 CMakeFiles/hardware_lib.dir/src/tool.cpp.o.requires:
 
@@ -179,7 +179,7 @@ CMakeFiles/hardware_lib.dir/src/tool.cpp.o.provides.build: CMakeFiles/hardware_l
 
 # Object files for target hardware_lib
 hardware_lib_OBJECTS = \
-"CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.o" \
+"CMakeFiles/hardware_lib.dir/src/component.cpp.o" \
 "CMakeFiles/hardware_lib.dir/src/protocol.cpp.o" \
 "CMakeFiles/hardware_lib.dir/src/network.cpp.o" \
 "CMakeFiles/hardware_lib.dir/src/keccak.cpp.o" \
@@ -188,14 +188,14 @@ hardware_lib_OBJECTS = \
 # External object files for target hardware_lib
 hardware_lib_EXTERNAL_OBJECTS =
 
-libhardware_lib.a: CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.o
+libhardware_lib.a: CMakeFiles/hardware_lib.dir/src/component.cpp.o
 libhardware_lib.a: CMakeFiles/hardware_lib.dir/src/protocol.cpp.o
 libhardware_lib.a: CMakeFiles/hardware_lib.dir/src/network.cpp.o
 libhardware_lib.a: CMakeFiles/hardware_lib.dir/src/keccak.cpp.o
 libhardware_lib.a: CMakeFiles/hardware_lib.dir/src/tool.cpp.o
 libhardware_lib.a: CMakeFiles/hardware_lib.dir/build.make
 libhardware_lib.a: CMakeFiles/hardware_lib.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/eason/AZFT-MPC/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX static library libhardware_lib.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/eason/Documents/AZFT-MPC/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX static library libhardware_lib.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/hardware_lib.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/hardware_lib.dir/link.txt --verbose=$(VERBOSE)
 
@@ -204,7 +204,7 @@ CMakeFiles/hardware_lib.dir/build: libhardware_lib.a
 
 .PHONY : CMakeFiles/hardware_lib.dir/build
 
-CMakeFiles/hardware_lib.dir/requires: CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.o.requires
+CMakeFiles/hardware_lib.dir/requires: CMakeFiles/hardware_lib.dir/src/component.cpp.o.requires
 CMakeFiles/hardware_lib.dir/requires: CMakeFiles/hardware_lib.dir/src/protocol.cpp.o.requires
 CMakeFiles/hardware_lib.dir/requires: CMakeFiles/hardware_lib.dir/src/network.cpp.o.requires
 CMakeFiles/hardware_lib.dir/requires: CMakeFiles/hardware_lib.dir/src/keccak.cpp.o.requires
@@ -217,6 +217,6 @@ CMakeFiles/hardware_lib.dir/clean:
 .PHONY : CMakeFiles/hardware_lib.dir/clean
 
 CMakeFiles/hardware_lib.dir/depend:
-	cd /home/eason/AZFT-MPC && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/eason/AZFT-MPC /home/eason/AZFT-MPC /home/eason/AZFT-MPC /home/eason/AZFT-MPC /home/eason/AZFT-MPC/CMakeFiles/hardware_lib.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/eason/Documents/AZFT-MPC && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/eason/Documents/AZFT-MPC /home/eason/Documents/AZFT-MPC /home/eason/Documents/AZFT-MPC /home/eason/Documents/AZFT-MPC /home/eason/Documents/AZFT-MPC/CMakeFiles/hardware_lib.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/hardware_lib.dir/depend
 

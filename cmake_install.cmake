@@ -1,4 +1,4 @@
-# Install script for directory: /home/eason/AZFT-MPC
+# Install script for directory: /home/eason/Documents/AZFT-MPC
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -34,7 +34,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/eason/AZFT-MPC/HW/cmake_install.cmake")
+  include("/home/eason/Documents/AZFT-MPC/HW/cmake_install.cmake")
 
 endif()
 
@@ -46,5 +46,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/eason/AZFT-MPC/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/eason/Documents/AZFT-MPC/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

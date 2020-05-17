@@ -6,81 +6,63 @@
 
 #IncludeRegexTransform: 
 
-/home/eason/AZFT-MPC/src/Merkle_Hash.cpp
-Merkle_Hash.h
-/home/eason/AZFT-MPC/src/Merkle_Hash.h
+/home/eason/Documents/AZFT-MPC/src/component.cpp
+component.h
+/home/eason/Documents/AZFT-MPC/src/component.h
 
-/home/eason/AZFT-MPC/src/keccak.cpp
+/home/eason/Documents/AZFT-MPC/src/keccak.cpp
 keccak.h
-/home/eason/AZFT-MPC/src/keccak.h
+/home/eason/Documents/AZFT-MPC/src/keccak.h
 endian.h
 -
 
-/home/eason/AZFT-MPC/src/network.cpp
+/home/eason/Documents/AZFT-MPC/src/network.cpp
 network.h
-/home/eason/AZFT-MPC/src/network.h
+/home/eason/Documents/AZFT-MPC/src/network.h
 
-/home/eason/AZFT-MPC/src/protocol.cpp
+/home/eason/Documents/AZFT-MPC/src/protocol.cpp
 protocol.h
-/home/eason/AZFT-MPC/src/protocol.h
+/home/eason/Documents/AZFT-MPC/src/protocol.h
+model.h
+/home/eason/Documents/AZFT-MPC/src/model.h
 
-/home/eason/AZFT-MPC/src/tool.cpp
+/home/eason/Documents/AZFT-MPC/src/tool.cpp
 tool.h
-/home/eason/AZFT-MPC/src/tool.h
+/home/eason/Documents/AZFT-MPC/src/tool.h
 keccak.h
-/home/eason/AZFT-MPC/src/keccak.h
+/home/eason/Documents/AZFT-MPC/src/keccak.h
 
-HW/include/SG_API.h
-
-HW/include/crypto.h
+HW/include/tee.h
 stdio.h
 -
 stdlib.h
 -
-memory.h
+tee_client_api.h
+HW/include/tee_client_api.h
+
+HW/include/tee_client_api.h
+tee_types.h
+HW/include/tee_types.h
+
+HW/include/tee_types.h
+errno.h
 -
-time.h
--
-vector
--
-string
--
-openssl/sha.h
+unistd.h
 -
 stdint.h
 -
-SG_API.h
-HW/include/SG_API.h
-
-HW/include/crypto_pend.h
-crypto.h
-HW/include/crypto.h
-tuple.h
-HW/include/tuple.h
-
-HW/include/tuple.h
-vector
+stdbool.h
 -
+
+include/component.h
 string.h
 -
 stdio.h
 -
-math.h
+stdlib.h
 -
-
-include/Merkle_Hash.h
-openssl/sha.h
+stdint.h
 -
-vector
--
-queue
--
-map
--
-some_struct.h
-include/some_struct.h
-crypto.h
-include/crypto.h
 
 include/config.h
 
@@ -160,6 +142,14 @@ string
 stdint.h
 -
 
+include/model.h
+stdio.h
+-
+string.h
+-
+string
+-
+
 include/network.h
 pthread.h
 -
@@ -187,8 +177,8 @@ string
 -
 json/json.h
 -
-crypto_pend.h
-include/crypto_pend.h
+tee.h
+include/tee.h
 config.h
 include/config.h
 map
@@ -199,22 +189,14 @@ tool.h
 include/tool.h
 
 include/protocol.h
-iostream
--
-fstream
--
-string
--
-vector
--
-map
--
-crypto_pend.h
-include/crypto_pend.h
+component.h
+include/component.h
+tee.h
+include/tee.h
 some_struct.h
 include/some_struct.h
-tool.h
-include/tool.h
+vector
+-
 
 include/some_struct.h
 string
@@ -229,8 +211,6 @@ string.h
 -
 stdlib.h
 -
-crypto.h
-include/crypto.h
 vector
 -
 algorithm
@@ -243,6 +223,8 @@ stdio.h
 -
 openssl/evp.h
 -
+component.h
+include/component.h
 unistd.h
 -
 dirent.h

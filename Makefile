@@ -48,24 +48,13 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/eason/AZFT-MPC
+CMAKE_SOURCE_DIR = /home/eason/Documents/AZFT-MPC
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/eason/AZFT-MPC
+CMAKE_BINARY_DIR = /home/eason/Documents/AZFT-MPC
 
 #=============================================================================
 # Targets provided globally by CMake.
-
-# Special rule for the target rebuild_cache
-rebuild_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/usr/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
-.PHONY : rebuild_cache
-
-# Special rule for the target rebuild_cache
-rebuild_cache/fast: rebuild_cache
-
-.PHONY : rebuild_cache/fast
 
 # Special rule for the target edit_cache
 edit_cache:
@@ -78,11 +67,22 @@ edit_cache/fast: edit_cache
 
 .PHONY : edit_cache/fast
 
+# Special rule for the target rebuild_cache
+rebuild_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
+	/usr/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+.PHONY : rebuild_cache
+
+# Special rule for the target rebuild_cache
+rebuild_cache/fast: rebuild_cache
+
+.PHONY : rebuild_cache/fast
+
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/AZFT-MPC/CMakeFiles /home/eason/AZFT-MPC/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/Documents/AZFT-MPC/CMakeFiles /home/eason/Documents/AZFT-MPC/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/AZFT-MPC/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/Documents/AZFT-MPC/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -137,6 +137,19 @@ hardware_lib/fast:
 .PHONY : hardware_lib/fast
 
 #=============================================================================
+# Target rules for targets named code_gen
+
+# Build rule for target.
+code_gen: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 code_gen
+.PHONY : code_gen
+
+# fast build rule for target.
+code_gen/fast:
+	$(MAKE) -f CMakeFiles/code_gen.dir/build.make CMakeFiles/code_gen.dir/build
+.PHONY : code_gen/fast
+
+#=============================================================================
 # Target rules for targets named file_deal
 
 # Build rule for target.
@@ -150,32 +163,6 @@ file_deal/fast:
 .PHONY : file_deal/fast
 
 #=============================================================================
-# Target rules for targets named test_ex
-
-# Build rule for target.
-test_ex: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 test_ex
-.PHONY : test_ex
-
-# fast build rule for target.
-test_ex/fast:
-	$(MAKE) -f CMakeFiles/test_ex.dir/build.make CMakeFiles/test_ex.dir/build
-.PHONY : test_ex/fast
-
-#=============================================================================
-# Target rules for targets named test_cal
-
-# Build rule for target.
-test_cal: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 test_cal
-.PHONY : test_cal
-
-# fast build rule for target.
-test_cal/fast:
-	$(MAKE) -f CMakeFiles/test_cal.dir/build.make CMakeFiles/test_cal.dir/build
-.PHONY : test_cal/fast
-
-#=============================================================================
 # Target rules for targets named hardware
 
 # Build rule for target.
@@ -187,33 +174,6 @@ hardware: cmake_check_build_system
 hardware/fast:
 	$(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/build
 .PHONY : hardware/fast
-
-src/Merkle_Hash.o: src/Merkle_Hash.cpp.o
-
-.PHONY : src/Merkle_Hash.o
-
-# target to build an object file
-src/Merkle_Hash.cpp.o:
-	$(MAKE) -f CMakeFiles/hardware_lib.dir/build.make CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.o
-.PHONY : src/Merkle_Hash.cpp.o
-
-src/Merkle_Hash.i: src/Merkle_Hash.cpp.i
-
-.PHONY : src/Merkle_Hash.i
-
-# target to preprocess a source file
-src/Merkle_Hash.cpp.i:
-	$(MAKE) -f CMakeFiles/hardware_lib.dir/build.make CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.i
-.PHONY : src/Merkle_Hash.cpp.i
-
-src/Merkle_Hash.s: src/Merkle_Hash.cpp.s
-
-.PHONY : src/Merkle_Hash.s
-
-# target to generate assembly for a file
-src/Merkle_Hash.cpp.s:
-	$(MAKE) -f CMakeFiles/hardware_lib.dir/build.make CMakeFiles/hardware_lib.dir/src/Merkle_Hash.cpp.s
-.PHONY : src/Merkle_Hash.cpp.s
 
 src/_file_deal.o: src/_file_deal.cpp.o
 
@@ -241,6 +201,33 @@ src/_file_deal.s: src/_file_deal.cpp.s
 src/_file_deal.cpp.s:
 	$(MAKE) -f CMakeFiles/file_deal.dir/build.make CMakeFiles/file_deal.dir/src/_file_deal.cpp.s
 .PHONY : src/_file_deal.cpp.s
+
+src/component.o: src/component.cpp.o
+
+.PHONY : src/component.o
+
+# target to build an object file
+src/component.cpp.o:
+	$(MAKE) -f CMakeFiles/hardware_lib.dir/build.make CMakeFiles/hardware_lib.dir/src/component.cpp.o
+.PHONY : src/component.cpp.o
+
+src/component.i: src/component.cpp.i
+
+.PHONY : src/component.i
+
+# target to preprocess a source file
+src/component.cpp.i:
+	$(MAKE) -f CMakeFiles/hardware_lib.dir/build.make CMakeFiles/hardware_lib.dir/src/component.cpp.i
+.PHONY : src/component.cpp.i
+
+src/component.s: src/component.cpp.s
+
+.PHONY : src/component.s
+
+# target to generate assembly for a file
+src/component.cpp.s:
+	$(MAKE) -f CMakeFiles/hardware_lib.dir/build.make CMakeFiles/hardware_lib.dir/src/component.cpp.s
+.PHONY : src/component.cpp.s
 
 src/keccak.o: src/keccak.cpp.o
 
@@ -377,59 +364,32 @@ src/tool.cpp.s:
 	$(MAKE) -f CMakeFiles/hardware_lib.dir/build.make CMakeFiles/hardware_lib.dir/src/tool.cpp.s
 .PHONY : src/tool.cpp.s
 
-test/cal_plain.o: test/cal_plain.cpp.o
+test/gen_code.o: test/gen_code.cpp.o
 
-.PHONY : test/cal_plain.o
-
-# target to build an object file
-test/cal_plain.cpp.o:
-	$(MAKE) -f CMakeFiles/test_cal.dir/build.make CMakeFiles/test_cal.dir/test/cal_plain.cpp.o
-.PHONY : test/cal_plain.cpp.o
-
-test/cal_plain.i: test/cal_plain.cpp.i
-
-.PHONY : test/cal_plain.i
-
-# target to preprocess a source file
-test/cal_plain.cpp.i:
-	$(MAKE) -f CMakeFiles/test_cal.dir/build.make CMakeFiles/test_cal.dir/test/cal_plain.cpp.i
-.PHONY : test/cal_plain.cpp.i
-
-test/cal_plain.s: test/cal_plain.cpp.s
-
-.PHONY : test/cal_plain.s
-
-# target to generate assembly for a file
-test/cal_plain.cpp.s:
-	$(MAKE) -f CMakeFiles/test_cal.dir/build.make CMakeFiles/test_cal.dir/test/cal_plain.cpp.s
-.PHONY : test/cal_plain.cpp.s
-
-test/test.o: test/test.cpp.o
-
-.PHONY : test/test.o
+.PHONY : test/gen_code.o
 
 # target to build an object file
-test/test.cpp.o:
-	$(MAKE) -f CMakeFiles/test_ex.dir/build.make CMakeFiles/test_ex.dir/test/test.cpp.o
-.PHONY : test/test.cpp.o
+test/gen_code.cpp.o:
+	$(MAKE) -f CMakeFiles/code_gen.dir/build.make CMakeFiles/code_gen.dir/test/gen_code.cpp.o
+.PHONY : test/gen_code.cpp.o
 
-test/test.i: test/test.cpp.i
+test/gen_code.i: test/gen_code.cpp.i
 
-.PHONY : test/test.i
+.PHONY : test/gen_code.i
 
 # target to preprocess a source file
-test/test.cpp.i:
-	$(MAKE) -f CMakeFiles/test_ex.dir/build.make CMakeFiles/test_ex.dir/test/test.cpp.i
-.PHONY : test/test.cpp.i
+test/gen_code.cpp.i:
+	$(MAKE) -f CMakeFiles/code_gen.dir/build.make CMakeFiles/code_gen.dir/test/gen_code.cpp.i
+.PHONY : test/gen_code.cpp.i
 
-test/test.s: test/test.cpp.s
+test/gen_code.s: test/gen_code.cpp.s
 
-.PHONY : test/test.s
+.PHONY : test/gen_code.s
 
 # target to generate assembly for a file
-test/test.cpp.s:
-	$(MAKE) -f CMakeFiles/test_ex.dir/build.make CMakeFiles/test_ex.dir/test/test.cpp.s
-.PHONY : test/test.cpp.s
+test/gen_code.cpp.s:
+	$(MAKE) -f CMakeFiles/code_gen.dir/build.make CMakeFiles/code_gen.dir/test/gen_code.cpp.s
+.PHONY : test/gen_code.cpp.s
 
 # Help Target
 help:
@@ -437,20 +397,19 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
+	@echo "... edit_cache"
 	@echo "... main"
 	@echo "... hardware_lib"
-	@echo "... rebuild_cache"
+	@echo "... code_gen"
 	@echo "... file_deal"
-	@echo "... edit_cache"
-	@echo "... test_ex"
-	@echo "... test_cal"
+	@echo "... rebuild_cache"
 	@echo "... hardware"
-	@echo "... src/Merkle_Hash.o"
-	@echo "... src/Merkle_Hash.i"
-	@echo "... src/Merkle_Hash.s"
 	@echo "... src/_file_deal.o"
 	@echo "... src/_file_deal.i"
 	@echo "... src/_file_deal.s"
+	@echo "... src/component.o"
+	@echo "... src/component.i"
+	@echo "... src/component.s"
 	@echo "... src/keccak.o"
 	@echo "... src/keccak.i"
 	@echo "... src/keccak.s"
@@ -466,12 +425,9 @@ help:
 	@echo "... src/tool.o"
 	@echo "... src/tool.i"
 	@echo "... src/tool.s"
-	@echo "... test/cal_plain.o"
-	@echo "... test/cal_plain.i"
-	@echo "... test/cal_plain.s"
-	@echo "... test/test.o"
-	@echo "... test/test.i"
-	@echo "... test/test.s"
+	@echo "... test/gen_code.o"
+	@echo "... test/gen_code.i"
+	@echo "... test/gen_code.s"
 .PHONY : help
 
 

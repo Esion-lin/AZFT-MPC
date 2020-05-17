@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
 project(Trusted_hardware)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
 include_directories(include/jsoncpp)
@@ -22,7 +20,7 @@ include_directories(HW/include)
 include_directories(include)
 link_directories(lib)
 add_library(hardware_lib
-    src/Merkle_Hash.cpp
+	src/component.cpp
     src/protocol.cpp
     src/network.cpp
     src/keccak.cpp
@@ -33,8 +31,9 @@ add_executable(main src/main.cpp)
 
 target_link_libraries(main ${CMAKE_THREAD_LIBS_INIT} hardware_lib)
 add_executable(file_deal src/_file_deal.cpp)
-add_executable(test_ex test/test.cpp)
-add_executable(test_cal test/cal_plain.cpp)
-target_link_libraries(test_ex hardware hardware_lib)
-target_link_libraries(test_cal hardware hardware_lib)
-
+add_executable(code_gen test/gen_code.cpp)
+#add_executable(test_ex test/test.cpp)
+#add_executable(test_cal test/cal_plain.cpp)
+#target_link_libraries(test_ex hardware hardware_lib)
+#target_link_libraries(test_cal hardware hardware_lib)
+target_link_libraries(code_gen hardware hardware_lib)

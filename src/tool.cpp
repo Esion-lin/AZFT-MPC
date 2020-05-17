@@ -32,7 +32,7 @@ int tran_op(std::string op){
     }else if(op == "=="){
         return EQ_OP;
     }else if(op == "out"){
-        return END_CMD;
+        return END_OP;
     }else{
         return 0;
     }
