@@ -11,7 +11,7 @@ struct Truple{
 	float* data;
 }
 
-Tuple sub_tuple(Truple org, unsigned int x, unsigned int y, unsigned int x_len, unsigned int y_len);
+Tuple sub_tuple(Truple org, uint32_t x, uint32_t y, uint32_t x_len, uint32_t y_len);
 float multiply(Truple tp1, Truple tp2);
 float find_max(Truple org, uint32_t x, uint32_t y, uint32_t x_len, uint32_t y_len, uint32_t hight);
 float find_avg(Truple org, uint32_t x, uint32_t y, uint32_t x_len, uint32_t y_len, uint32_t hight);

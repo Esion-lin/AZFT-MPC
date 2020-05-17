@@ -7,13 +7,14 @@
 #include "model.h"
 #include <ctime>
 #include <tuple.h>
-#include "hw_head.h"
+#include "tee.h"
+#include "component.h"
 bool debug_this = false;
 bool notify(){
 	printf("choose a operation:\n \t1.send encrypted data\n \t2.run ins\n \t3.send encrypted file\n \t4r.run ins block\n");
 	return true;
 }
-void send_json(int action, unsigned char data[], int len, void *tmp){
+void send_json(int action, uint8_t data[], int len, void *tmp){
 	Json::Value  json;
     Json::Value  jdata;
 	netTool* nettool = (netTool*) tmp;
@@ -26,14 +27,14 @@ void send_json(int action, unsigned char data[], int len, void *tmp){
     nettool->send_data(json);
 }
 void sign_key(void *tmp,void *tmp2){
-	truthtee_pend* tru = (truthtee_pend*) tmp;
-    unsigned char data[ECC_MAX_XCOORDINATE_BITS_LEN/4];
+	TEE* tru = (TEE*) tmp;
+    uint8_t data[ASYM_KEY_FOR_SIGN_SIZE/8];
     tru->sign_key(data);
    
-	send_json(sign_action, data, ECC_MAX_XCOORDINATE_BITS_LEN/4, tmp2);
+	send_json(sign_action, data, ASYM_KEY_FOR_SIGN_SIZE/8, tmp2);
     
 }
-void send_img(void *tmp, unsigned char key_data[], int key_len, unsigned char * data, int len_data){
+void send_img(void *tmp, uint8_t key_data[], int key_len, uint8_t * data, int len_data){
     netTool* nettool = (netTool*) tmp;
     Json::Value  json;
     Json::Value  jkey;
@@ -46,7 +47,7 @@ void send_img(void *tmp, unsigned char key_data[], int key_len, unsigned char * 
     sleep(2);
     nettool->send_data(data, len_data);
 }
-void send_res_data(void *tmp, unsigned char* key, int key_len, unsigned char* data, int data_len){
+void send_res_data(void *tmp, uint8_t* key, int key_len, uint8_t* data, int data_len){
     netTool* nettool = (netTool*) tmp;
     Json::Value  json;
     Json::Value  key_json;
@@ -62,7 +63,7 @@ void send_res_data(void *tmp, unsigned char* key, int key_len, unsigned char* da
     json["data"] = data_json;
     nettool->send_data(json);
 }
-void send_cmd_mac(void *tmp, std::vector<unsigned char[MAC_LEN]> data){
+void send_cmd_mac(void *tmp, std::vector<uint8_t[MAC_LEN]> data){
  
     netTool* nettool = (netTool*) tmp;
     int n = data.size();
@@ -104,12 +105,13 @@ void send_cmd_mac(void *tmp, std::vector<unsigned char[MAC_LEN]> data){
 }
 
 void send_pub_key(void *tmp,void *tmp2){
-	truthtee_pend* tru = (truthtee_pend*) tmp;
-	unsigned char data[ECC_MAX_XCOORDINATE_BITS_LEN/2];
+	TEE* tru = (TEE*) tmp;
+    uint32_t data_len = ASYM_KEY_SIZE/8 + ASYM_KEY_EXPONENT_SIZE/8 + ASYM_KEY_FOR_SIGN_SIZE/8 + ASYM_KEY_EXPONENT_SIZE/8;
+	uint8_t data[data_len];
     tru->query_pub_stream(data);
-	send_json(key_ex_action, data, ECC_MAX_XCOORDINATE_BITS_LEN/2, tmp2);
+	send_json(key_ex_action, data, data_len, tmp2);
 }
-void send_data(void *tmp, unsigned char key_data[], int key_len, std::map<std::string, unsigned char[CIPHER_LEN]> dir, std::map<std::string, unsigned char[MAC_LEN]> dir_mac){
+void send_data(void *tmp, uint8_t key_data[], int key_len, std::map<std::string, uint8_t[CIPHER_LEN]> dir, std::map<std::string, uint8_t[MAC_LEN]> dir_mac){
 	Json::Value  json;
     Json::Value  jdata;
     Json::Value  jkey;
@@ -148,7 +150,7 @@ void send_data(void *tmp, unsigned char key_data[], int key_len, std::map<std::s
 }
 
 //Determine which collection the data belongs to
-int judge(std::string str,std::map<std::string, unsigned char[16]>remote_dir, std::map<std::string, unsigned char[16]>local_dir, std::map<std::string, int64_t> org_dir){
+int judge(std::string str,std::map<std::string, uint8_t[16]>remote_dir, std::map<std::string, uint8_t[16]>local_dir, std::map<std::string, int64_t> org_dir){
     if(local_dir.find(str) != local_dir.end()){
         return 2;
     }else if(remote_dir.find(str) != remote_dir.end()){
@@ -160,7 +162,7 @@ int judge(std::string str,std::map<std::string, unsigned char[16]>remote_dir, st
 /*
 thank to shift all data to local, just judge if it belong plaintext or ciphertext
 */
-int judge(std::string str, std::map<std::string, unsigned char[16]>local_dir, std::map<std::string, int64_t> org_dir){
+int judge(std::string str, std::map<std::string, uint8_t[16]>local_dir, std::map<std::string, int64_t> org_dir){
     if(local_dir.find(str) != local_dir.end()){
         return 2;
     }else{
@@ -171,13 +173,13 @@ int judge(std::string str, std::map<std::string, unsigned char[16]>local_dir, st
 /*
 rewrite cmd deal function :
 */
-void deal_cmd(truple_mac now_trp_mac, int &now_step, void *tmp, std::map<std::string,int>goto_dir, std::map<std::string, unsigned char[CIPHER_LEN]>&local_dir, std::map<std::string, unsigned char[MAC_LEN]>&local_mac_dir, std::map<std::string, int64_t> &org_dir){
+void deal_cmd(truple_mac now_trp_mac, int &now_step, void *tmp, std::map<std::string,int>goto_dir, std::map<std::string, uint8_t[CIPHER_LEN]>&local_dir, std::map<std::string, uint8_t[MAC_LEN]>&local_mac_dir, std::map<std::string, int64_t> &org_dir){
     //get the cmd 
 
     truple now_trp = now_trp_mac.trup;
-    unsigned int data_len;
-    unsigned int mac_len;
-    unsigned char temp_msg[CIPHER_LEN];
+    uint32_t data_len;
+    uint32_t mac_len;
+    uint8_t temp_msg[CIPHER_LEN];
     truthtee_pend* tru = (truthtee_pend*) tmp;
     //conversion of array element
     now_trp.operand1 = get_item(org_dir,now_trp.operand1);
@@ -186,9 +188,9 @@ void deal_cmd(truple_mac now_trp_mac, int &now_step, void *tmp, std::map<std::st
     //a number store operand if Operator is number
     int64_t number_temp;
 
-    unsigned char label[LABEL_LEN];
-    unsigned char label2[LABEL_LEN];
-    unsigned char out_label[LABEL_LEN];
+    uint8_t label[LABEL_LEN];
+    uint8_t label2[LABEL_LEN];
+    uint8_t out_label[LABEL_LEN];
     //if the instruction is jump statement
     if(now_trp.is_goto){
         if(now_trp.op == "goto"){
@@ -338,10 +340,10 @@ void deal_cmd(truple_mac now_trp_mac, int &now_step, void *tmp, std::map<std::st
     }
 }
 //old version
-/*void deal_cmd(truple now_trp, int &now_step, void *tmp, std::map<std::string,int>goto_dir, std::map<std::string, unsigned char[16]>&remote_dir, std::map<std::string, unsigned char[16]>&local_dir, std::map<std::string, int> &org_dir){
+/*void deal_cmd(truple now_trp, int &now_step, void *tmp, std::map<std::string,int>goto_dir, std::map<std::string, uint8_t[16]>&remote_dir, std::map<std::string, uint8_t[16]>&local_dir, std::map<std::string, int> &org_dir){
     int temp;
-    unsigned int data_len;
-    unsigned char temp_msg[16];
+    uint32_t data_len;
+    uint8_t temp_msg[16];
     truthtee* tru = (truthtee*) tmp;
     now_trp.operand1 = get_item(org_dir,now_trp.operand1);
     now_trp.operand2 = get_item(org_dir,now_trp.operand2);
@@ -465,7 +467,7 @@ void deal_cmd(truple_mac now_trp_mac, int &now_step, void *tmp, std::map<std::st
 
 int main(int argc, char* argv[]){
 	pthread_t   recv_tid;
-    truthtee_pend *tru = new truthtee_pend();
+    TEE *tru = new TEE();
     //truthtee* tru = new truthtee();
     printf("checking protocol file.....\n");
     bool is_ML = false;
@@ -518,12 +520,12 @@ int main(int argc, char* argv[]){
     //load protocol
     
     //dictionary for local data ciphertext and MAC
-    std::map<std::string, unsigned char[CIPHER_LEN]> dir;
-    std::map<std::string, unsigned char[MAC_LEN]> dir_mac;
+    std::map<std::string, uint8_t[CIPHER_LEN]> dir;
+    std::map<std::string, uint8_t[MAC_LEN]> dir_mac;
 
     //dictionary for remote data ciphertext and MAC
-    std::map<std::string, unsigned char[CIPHER_LEN]> remote_dir;
-    std::map<std::string, unsigned char[MAC_LEN]> remote_mac_dir;
+    std::map<std::string, uint8_t[CIPHER_LEN]> remote_dir;
+    std::map<std::string, uint8_t[MAC_LEN]> remote_mac_dir;
     // use the "org_dir" to store the variables that do not need to be calculated under ciphertext, such as counters.
     std::map<std::string, int64_t> org_dic;
     //
@@ -535,19 +537,19 @@ int main(int argc, char* argv[]){
     	int act;
     	int ret;
     	int a,b;
-    	unsigned char msg[CIPHER_LEN];
-        unsigned char label_temp[LABEL_LEN];
-    	unsigned char enc_key[0x100];
-    	unsigned char enc_data[0x10];
+    	uint8_t msg[CIPHER_LEN];
+        uint8_t label_temp[LABEL_LEN];
+    	uint8_t enc_key[0x100];
+    	uint8_t enc_data[0x10];
     	uint64_t value;
         std::string mid;
         std::string key_po;
         std::string line;
         std::string file_path;
         std::ifstream file;
-    	unsigned int key_len = 0;
-    	unsigned int data_len = 0;
-        unsigned int mac_len = 0;
+    	uint32_t key_len = 0;
+    	uint32_t data_len = 0;
+        uint32_t mac_len = 0;
     	std::cin>>act;
     	switch(act){
     		case 1:
@@ -558,7 +560,7 @@ int main(int argc, char* argv[]){
                         break;
                     }
                     to_byte16(value,msg);
-                    unsigned char label[LABEL_LEN];
+                    uint8_t label[LABEL_LEN];
                     memcpy(label, key_po.c_str(), key_po.length());
                     tru->encrypt_MAC(label, key_po.length(), msg, CIPHER_LEN, dir[key_po], data_len, dir_mac[key_po], mac_len);
 
@@ -605,7 +607,7 @@ int main(int argc, char* argv[]){
                 // verify data and the hard ware will encrypt with its key
                 for(auto &v : remote_dir){
                     //tran all data to local
-                    unsigned char label[LABEL_LEN];
+                    uint8_t label[LABEL_LEN];
                     memcpy(label, v.first.c_str(), v.first.length());
                     if(!tru->verify_data(label, v.first.length(), v.second, CIPHER_LEN, remote_mac_dir[v.first], MAC_LEN, dir[v.first], data_len, dir_mac[v.first], mac_len)){
                         printf("illegal data\n");
@@ -640,7 +642,7 @@ int main(int argc, char* argv[]){
                     }
                 }
                 //for test
-                // unsigned char output[16],ans[16];
+                // uint8_t output[16],ans[16];
                 // uint nn,nn2;
                 // uint64_t answer;
                 // tru->operation(dir["B"],16,SWI_ORG,nettool->data_dic["A"],16, SWI_REM,output,nn,AND_OP);
@@ -663,10 +665,10 @@ int main(int argc, char* argv[]){
                         printf("%f,", img_data[i]);
                     }
                     printf("]\n");*/
-                    unsigned char data_of_img[224*224*3*sizeof(baseInt)];
-                    unsigned int data_of_img_len = 224*224*3*sizeof(baseInt);
-                    unsigned char data_of_img_en[224*224*3*sizeof(baseInt)];
-                    unsigned int data_of_img_en_len;
+                    uint8_t data_of_img[224*224*3*sizeof(baseInt)];
+                    uint32_t data_of_img_len = 224*224*3*sizeof(baseInt);
+                    uint8_t data_of_img_en[224*224*3*sizeof(baseInt)];
+                    uint32_t data_of_img_en_len;
                     memcpy(data_of_img,img_data,224*224*3*sizeof(baseInt));
                     
                     tru->encrypto(data_of_img, data_of_img_len, data_of_img_en, data_of_img_en_len);
@@ -690,7 +692,7 @@ int main(int argc, char* argv[]){
                             break;
                         }
                         to_byte16(value,msg);
-                        unsigned char label[LABEL_LEN];
+                        uint8_t label[LABEL_LEN];
                         memcpy(label, key_po.c_str(), key_po.length());
                         tru->encrypt_MAC(label, key_po.length(), msg, CIPHER_LEN, dir[key_po], data_len, dir_mac[key_po], mac_len);
 
@@ -721,8 +723,8 @@ int main(int argc, char* argv[]){
                     printf("struct %s\n",  protocol->structures[i].c_str());
                     int len;
                     load_model_len(len, protocol->structures[i]);
-                    unsigned char structure[len];
-                    load_model<unsigned char>(structure,len,protocol->structures[i]);
+                    uint8_t structure[len];
+                    load_model<uint8_t>(structure,len,protocol->structures[i]);
                     int W_len;
                     load_model_len(W_len, protocol->weights[i]);
                     baseInt *weight = new baseInt[W_len];
@@ -732,16 +734,16 @@ int main(int argc, char* argv[]){
                     weight = NULL;
                 }
                 baseInt result[1000];
-                unsigned char result_un[4000];
+                uint8_t result_un[4000];
                 softmax(arr,result,1000);
                 for(int i = 0; i < 100; i ++){
                     printf("%f ", arr[i]);
                 }
                 memcpy(result_un, arr, sizeof(baseInt) * 1000);
-                unsigned char data_key[16] = {113,26,66,150,170,194,214,179,160,144,202,72,108,74,136,63};
+                uint8_t data_key[16] = {113,26,66,150,170,194,214,179,160,144,202,72,108,74,136,63};
                 /*encrypto the data with data_key*/
-                unsigned char ciphertex[4000];
-                unsigned int len_out;
+                uint8_t ciphertex[4000];
+                uint32_t len_out;
                 //tru->gen_sym_key(data_key,16);
                 store_data_to_file(data_key, 16, "./key.data.b");
                 if(SG_SymEnc(SGD_SMS4_ECB ,data_key,16,data_key,16,result_un,4000,ciphertex,&len_out) != SAR_OK){
@@ -749,7 +751,7 @@ int main(int argc, char* argv[]){
                 }
 
                 /*generate the hash of data_key*/
-                unsigned char key_hash[32];
+                uint8_t key_hash[32];
                 std::string hash_key = sha3_k(data_key, 16);
                 for(int i = 0; i < 32; i ++){
                     sscanf(hash_key.c_str()+i*2, "%02X", key_hash);

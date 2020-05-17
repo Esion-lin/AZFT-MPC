@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "crypto_pend.h"
+#include "tee.h"
 #include "some_struct.h"
 #include "tool.h"
 //#include "Merkle_Hash.h"
@@ -52,10 +52,10 @@ class PotocolRead{
 		PotocolRead(std::string file_path, bool &init_succ, bool do_mac = true, bool ML = false);
 		~PotocolRead();
 		bool Reader(std::string file_path);
-		std::vector<unsigned char[MAC_LEN]> tran_mac(truthtee_pend *tru);
-		std::vector<unsigned char[MAC_LEN]> tran_mac_last(truthtee_pend *tru);
-		void load_mac(std::vector<unsigned char*> &mac_dir);
-		void load_mac_last(std::vector<unsigned char*> &mac_dir);
+		std::vector<uint8_t[MAC_LEN]> tran_mac(truthtee_pend *tru);
+		std::vector<uint8_t[MAC_LEN]> tran_mac_last(truthtee_pend *tru);
+		void load_mac(std::vector<uint8_t*> &mac_dir);
+		void load_mac_last(std::vector<uint8_t*> &mac_dir);
 		truple next();
 		truple_mac next_mac();
 		int size_of_protocol();

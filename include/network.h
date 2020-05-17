@@ -13,14 +13,14 @@
 #include <sys/shm.h>
 #include <string>
 #include <json/json.h>
-#include "crypto_pend.h"
+#include "tee.h"
 #include "config.h"
 #include <map>
 #include <iostream>
 #include "tool.h"
 class netTool{
 public:
-	netTool(truthtee_pend *tru);
+	netTool(TEE *tru);
 	~netTool();
 
     char 	sendbuf[buffer_size];
@@ -31,16 +31,16 @@ public:
 	void 	acc_and_recv();
 	void 	init_conn();
 	void	send_data(Json::Value js);
-	void	send_data(unsigned char * data, int len_data);
+	void	send_data(uint8_t * data, int len_data);
 	void 	init();
 	void 	deal_data(Json::Value value);
 	//for test
 	int 			recv_port;
 	// some cache file
-	std::map<std::string, unsigned char[CIPHER_LEN]> data_dic;	
-	std::map<std::string, unsigned char[MAC_LEN]> data_mac_dic;	
-	unsigned char rev_img_data[img_size];
-	std::vector<unsigned char*> mac_dir;
+	std::map<std::string, uint8_t[CIPHER_LEN]> data_dic;	
+	std::map<std::string, uint8_t[MAC_LEN]> data_mac_dic;	
+	uint8_t rev_img_data[img_size];
+	std::vector<uint8_t*> mac_dir;
 	bool 	is_data_store = false;
 	bool	is_data_send = false;
 	bool	is_key_store = false;
@@ -49,7 +49,7 @@ public:
 	bool	is_mac_send = false;
 
 private:
-	truthtee_pend 		*tru;
+	TEE 			*tru;
 	std::string		conn_host;
 	int 			conn_port;
 	bool 			rec_serial_data = true;

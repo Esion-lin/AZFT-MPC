@@ -68,9 +68,9 @@ public:
 		trp.serialize(data);
 	}
 	/*h-Dimension cannot be subed*/
-	Tuple sub_tuple(unsigned int x, unsigned int y, unsigned int x_len, unsigned int y_len);
-	baseInt find_max(unsigned int x, unsigned int y, unsigned int x_len, unsigned int y_len, unsigned int hight);
-	baseInt find_avg(unsigned int x, unsigned int y, unsigned int x_len, unsigned int y_len, unsigned int hight);
+	Tuple sub_tuple(uint32_t x, uint32_t y, uint32_t x_len, uint32_t y_len);
+	baseInt find_max(uint32_t x, uint32_t y, uint32_t x_len, uint32_t y_len, uint32_t hight);
+	baseInt find_avg(uint32_t x, uint32_t y, uint32_t x_len, uint32_t y_len, uint32_t hight);
 	void output_data(){
 		int itr = 0;
 
@@ -95,14 +95,14 @@ public:
 		other.serialize(data);
 	};
 	Image(std::vector<Tuple> subtuple);
-	Image convolution(std::vector<Tuple> tuples, bool pending, unsigned int stride);
-	Tuple convolution(Tuple tuple,bool pending, unsigned int stride);
+	Image convolution(std::vector<Tuple> tuples, bool pending, uint32_t stride);
+	Tuple convolution(Tuple tuple,bool pending, uint32_t stride);
 	void ReLU(bool simple = true, baseInt alpha = 0);
 	void BN_for_test(baseInt mu, baseInt sigma, baseInt gamma, baseInt beta, baseInt epsilon);
 	void add_other(Image res);
-	Image pooling(Shape kenerl_shape, bool pending, unsigned int stride, int type);
+	Image pooling(Shape kenerl_shape, bool pending, uint32_t stride, int type);
 	void FC(baseInt * output, baseInt * weight, int weight_width);
-	void FC(baseInt * output, unsigned char * weight, int weight_width);
+	void FC(baseInt * output, uint8_t * weight, int weight_width);
 
 };
 void softmax(baseInt * input, baseInt * output, int input_len);

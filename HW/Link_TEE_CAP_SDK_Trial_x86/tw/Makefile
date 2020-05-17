@@ -48,7 +48,9 @@ LIB_INT_MAJ_MIN	:= $(LIB_INT).$(MAJOR_VERSION).$(MINOR_VERSION)
 TEEI_LIBRARY	:= $(OUT_DIR)/$(LIB_INT_MAJ_MIN)
 
 SRCS := ./src/tee_srv_table.c \
-        ../apps/xor/tw/ta_xor.c
+        ../apps/xor/tw/ta_xor.c \
+        ../apps/xor/tw/element.c \
+        ../apps/xor/tw/tuple_c.c
         
 all: tee_a
 

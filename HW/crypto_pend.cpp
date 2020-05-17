@@ -1,8 +1,8 @@
 #include "crypto_pend.h"
 #include <map>
-int truthtee_pend::data_input(unsigned char data[], unsigned int data_len, int l, int w, int h){
-	unsigned char data_internal[data_len];
-	unsigned int data_in_len;
+int truthtee_pend::data_input(uint8_t data[], uint32_t data_len, int l, int w, int h){
+	uint8_t data_internal[data_len];
+	uint32_t data_in_len;
 	/*for(int i = 224*224*3*sizeof(float)-100; i < 224*224*3*sizeof(float); i++){
         printf("%u ", data[i]);
     }*/
@@ -17,10 +17,10 @@ int truthtee_pend::data_input(unsigned char data[], unsigned int data_len, int l
 
 }
 
-int truthtee_pend::test_with_remote(unsigned char input_data[], unsigned int input_len, unsigned char output_data[], unsigned int &output_len){
+int truthtee_pend::test_with_remote(uint8_t input_data[], uint32_t input_len, uint8_t output_data[], uint32_t &output_len){
 	transfer_data(input_data, input_len, output_data, output_len, ENCRYPTO, org_key);
 }
-int truthtee_pend::block(unsigned char W[], unsigned int W_len, unsigned char structure[], unsigned int struct_len, baseInt output[]){
+int truthtee_pend::block(uint8_t W[], uint32_t W_len, uint8_t structure[], uint32_t struct_len, baseInt output[]){
 	/*structure:
 		target_layer:1
 		layer:1
@@ -67,8 +67,8 @@ int truthtee_pend::block(unsigned char W[], unsigned int W_len, unsigned char st
 		
 	*/
 
-	unsigned char w_internal[W_len * 2];
-	unsigned int w_in_len;
+	uint8_t w_internal[W_len * 2];
+	uint32_t w_in_len;
 
 	transfer_data(W, W_len, w_internal, w_in_len, DECRYPTO, org_key);
 	baseInt w_data[w_in_len / sizeof(baseInt)];
@@ -162,7 +162,7 @@ int truthtee_pend::block(unsigned char W[], unsigned int W_len, unsigned char st
 	return 0;
 
 }
-int truthtee_pend::block(baseInt* w_data, unsigned int W_len, unsigned char structure[], unsigned int struct_len, baseInt output[]){
+int truthtee_pend::block(baseInt* w_data, uint32_t W_len, uint8_t structure[], uint32_t struct_len, baseInt output[]){
 	/*structure:
 		target_layer:1
 		layer:1

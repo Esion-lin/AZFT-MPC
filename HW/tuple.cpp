@@ -27,7 +27,7 @@ void Tuple::unserialize(baseInt * input){
 	/**/
 	memcpy(this->data, input, shape.l*shape.w*shape.h*sizeof(baseInt));
 }
-Tuple Tuple::sub_tuple(unsigned int x, unsigned int y, unsigned int x_len, unsigned int y_len){
+Tuple Tuple::sub_tuple(uint32_t x, uint32_t y, uint32_t x_len, uint32_t y_len){
 	struct Shape subshape={x_len,y_len,shape.h};
 	Tuple subtuple(subshape);
 	baseInt subdata[x_len*y_len*shape.h];
@@ -39,7 +39,7 @@ Tuple Tuple::sub_tuple(unsigned int x, unsigned int y, unsigned int x_len, unsig
 	subtuple.unserialize(subdata);
 	return subtuple;
 }
-baseInt Tuple::find_max(unsigned int x, unsigned int y, unsigned int x_len, unsigned int y_len, unsigned int hight){
+baseInt Tuple::find_max(uint32_t x, uint32_t y, uint32_t x_len, uint32_t y_len, uint32_t hight){
 	baseInt max_data = -100000; 
 	int tmp = 0;
 	for(int i = 0; i < y_len; i++){
@@ -52,7 +52,7 @@ baseInt Tuple::find_max(unsigned int x, unsigned int y, unsigned int x_len, unsi
 	}
 	return max_data;
 }
-baseInt Tuple::find_avg(unsigned int x, unsigned int y, unsigned int x_len, unsigned int y_len, unsigned int hight){
+baseInt Tuple::find_avg(uint32_t x, uint32_t y, uint32_t x_len, uint32_t y_len, uint32_t hight){
 	baseInt avg_data = 0; 
 	int tmp = 0;
 	for(int i = 0; i < y_len; i++){
@@ -79,7 +79,7 @@ Image::Image(std::vector<Tuple> subtuple){
 	}
 
 }
-Tuple Image::convolution(Tuple tuple, bool pending, unsigned int stride){
+Tuple Image::convolution(Tuple tuple, bool pending, uint32_t stride){
 	
 	/*from left to right, from up to down*/
 	if(tuple.shape.l != tuple.shape.w){
@@ -109,7 +109,7 @@ Tuple Image::convolution(Tuple tuple, bool pending, unsigned int stride){
 
 	Tuple ans_tuple(ans_shape);
 	baseInt ans_data[ans_shape.l * ans_shape.w * ans_shape.h];
-	unsigned int itr = 0;
+	uint32_t itr = 0;
 	for(int i = 0; i < ans_shape.w; i++){
 		int tmp_start_x = start_x;
 		for(int j = 0; j < ans_shape.l; j++){
@@ -150,7 +150,7 @@ Tuple Image::convolution(Tuple tuple, bool pending, unsigned int stride){
 	return ans_tuple;
 
 }
-Image Image::pooling(Shape kenerl_shape, bool pending, unsigned int stride, int type){
+Image Image::pooling(Shape kenerl_shape, bool pending, uint32_t stride, int type){
 	if(kenerl_shape.l != kenerl_shape.w){
 		char error[80];
     	sprintf(error, "error:illegal shape, [%d,%d] is not square.",kenerl_shape.l, kenerl_shape.w);
@@ -172,7 +172,7 @@ Image Image::pooling(Shape kenerl_shape, bool pending, unsigned int stride, int 
 	}
 	Image ans_tuple(ans_shape);
 	baseInt ans_data[ans_shape.l * ans_shape.w * ans_shape.h];
-	unsigned int itr = 0;
+	uint32_t itr = 0;
 	for(int j = 0; j < ans_shape.w; j ++){
 		int tmp_start_x = start_x;
 		for(int k = 0; k < ans_shape.l; k ++){
@@ -215,7 +215,7 @@ Image Image::pooling(Shape kenerl_shape, bool pending, unsigned int stride, int 
 	ans_tuple.unserialize(ans_data);
 	return ans_tuple;
 }
-Image Image::convolution(std::vector<Tuple> tuples, bool pending, unsigned int stride){
+Image Image::convolution(std::vector<Tuple> tuples, bool pending, uint32_t stride){
 	/*tuples size -> result tuple.h*/
 	/*from left to right, from up to down*/
 	std::vector<Tuple> ans_tmp(tuples.size());
@@ -265,7 +265,7 @@ void Image::FC(baseInt * output, baseInt * weight, int weight_width){
 	}
 	
 }
-void Image::FC(baseInt * output, unsigned char * weight, int weight_width){
+void Image::FC(baseInt * output, uint8_t * weight, int weight_width){
 	baseInt tmp;
 	for(int i = 0; i < weight_width; i++){
 		output[i] = 0;

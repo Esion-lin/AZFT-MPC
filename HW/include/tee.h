@@ -10,6 +10,7 @@ extern "C" {
 #define UUID_HW_HEAD    { 0x13245768, 0xacbd, 0xcedf,   \
                             { 0x01, 0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78 } }
 
+
 #define CMD_XOR     (0x01234567)
 #define CMD_INIT            (0x000)
 #define CMD_ENCRYPT         (0x001)
@@ -32,7 +33,8 @@ extern "C" {
 #define PUBLIC_TYPE_SIGN 	(0x0000)
 #define PUBLIC_TYPE_CIPHER 	(0x0001)  
 #define PUBLIC_TYPE_SYM     (0x0003)    
-
+                            
+static const TEEC_UUID _g_uuid_hw_head = UUID_HW_HEAD;
 class TEE{
 public:
 	TEE();

@@ -51,6 +51,6 @@ struct truple{
 };
 struct truple_mac{
 	truple trup;
-	unsigned char mac[32];
+	uint8_t mac[32];
 };
 #endif

@@ -445,14 +445,14 @@ PotocolRead::PotocolRead(std::string file_path, bool &init_succ, bool do_mac, bo
     }
 	
 }
-std::vector<unsigned char[MAC_LEN]> PotocolRead::tran_mac(truthtee_pend *tru){
-    std::vector<unsigned char[MAC_LEN]> mac_vector(cmd.size());
+std::vector<uint8_t[MAC_LEN]> PotocolRead::tran_mac(truthtee_pend *tru){
+    std::vector<uint8_t[MAC_LEN]> mac_vector(cmd.size());
     if(is_cmd_mac){
         for(int i = 0; i < cmd.size(); i++){
-            unsigned char arr[MAC_LEN];
-            unsigned int mac_len;
-            unsigned char label1[LABEL_LEN];
-            unsigned char label2[LABEL_LEN];
+            uint8_t arr[MAC_LEN];
+            uint32_t mac_len;
+            uint8_t label1[LABEL_LEN];
+            uint8_t label2[LABEL_LEN];
             memcpy(label2, cmd[i].operand2.c_str(), cmd[i].operand2.length());
             if(cmd[i].op == "out"){
                 memcpy(label1, cmd[i].output.c_str(), cmd[i].output.length());
@@ -479,16 +479,16 @@ std::vector<unsigned char[MAC_LEN]> PotocolRead::tran_mac(truthtee_pend *tru){
         
     return mac_vector;
 }
-std::vector<unsigned char[MAC_LEN]> PotocolRead::tran_mac_last(truthtee_pend *tru){
-    std::vector<unsigned char[MAC_LEN]> mac_vector(output.size());
+std::vector<uint8_t[MAC_LEN]> PotocolRead::tran_mac_last(truthtee_pend *tru){
+    std::vector<uint8_t[MAC_LEN]> mac_vector(output.size());
     int j = 0; 
-    unsigned char arr_vec[MAC_LEN];
+    uint8_t arr_vec[MAC_LEN];
     if(is_cmd_mac){
         for(int i = 0; i < cmd.size(); i++){
-            unsigned char arr[MAC_LEN];
-            unsigned int mac_len;
-            unsigned char label1[LABEL_LEN];
-            unsigned char label2[LABEL_LEN];
+            uint8_t arr[MAC_LEN];
+            uint32_t mac_len;
+            uint8_t label1[LABEL_LEN];
+            uint8_t label2[LABEL_LEN];
             int op = dic_var[middle(cmd[i].output)];
             memcpy(label2, cmd[i].operand2.c_str(), cmd[i].operand2.length());
             if(cmd[i].op == "out"){
@@ -527,8 +527,8 @@ void PotocolRead::store(){
     }
     file.close();
 }
-void PotocolRead::load_mac(std::vector<unsigned char*> &mac_dir){
-    //cmd_mac = std::vector<unsigned char[MAC_LEN]>(mac_dir.size());
+void PotocolRead::load_mac(std::vector<uint8_t*> &mac_dir){
+    //cmd_mac = std::vector<uint8_t[MAC_LEN]>(mac_dir.size());
     cmd_mac = std::vector<truple_mac>(mac_dir.size());
     if(mac_dir.size() != cmd.size()){
         printf("protocol error. please make sure anyone keep same protocol files\n");
@@ -544,8 +544,8 @@ void PotocolRead::load_mac(std::vector<unsigned char*> &mac_dir){
     }
     mac_dir.clear();
 }
-void PotocolRead::load_mac_last(std::vector<unsigned char*> &mac_dir){
-    //cmd_mac = std::vector<unsigned char[MAC_LEN]>(mac_dir.size());
+void PotocolRead::load_mac_last(std::vector<uint8_t*> &mac_dir){
+    //cmd_mac = std::vector<uint8_t[MAC_LEN]>(mac_dir.size());
     cmd_mac = std::vector<truple_mac>(cmd.size());
     printf("load cmd mac size:%lu\n",mac_dir.size());
     if(mac_dir.size() != output.size()){

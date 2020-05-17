@@ -11,7 +11,7 @@ this file is just for testing code
 baseInt randf() { 
     return (baseInt)(rand()/(baseInt)RAND_MAX); 
 } 
-void add_cov(unsigned char * structure, unsigned char * W, int size_of_kenerl, int& layer, Shape shape, int pending, int stride, int & offset_struct, int & offset_w, int target_layer){
+void add_cov(uint8_t * structure, uint8_t * W, int size_of_kenerl, int& layer, Shape shape, int pending, int stride, int & offset_struct, int & offset_w, int target_layer){
 	if(target_layer == layer){
 		structure[0] = layer ++;	
 	}else{
@@ -49,7 +49,7 @@ void add_cov(unsigned char * structure, unsigned char * W, int size_of_kenerl, i
 	offset_struct += SIZE_COV;
 	offset_w += size_of_kenerl * shape.size()*sizeof(baseInt);
 }
-void add_cov(unsigned char * structure, baseInt * W, int size_of_kenerl, int& layer, Shape shape, int pending, int stride, int & offset_struct, int & offset_w, int target_layer){
+void add_cov(uint8_t * structure, baseInt * W, int size_of_kenerl, int& layer, Shape shape, int pending, int stride, int & offset_struct, int & offset_w, int target_layer){
 	if(target_layer == layer){
 		structure[0] = layer ++;	
 	}else{
@@ -87,7 +87,7 @@ void add_cov(unsigned char * structure, baseInt * W, int size_of_kenerl, int& la
 	offset_struct += SIZE_COV;
 	offset_w += size_of_kenerl * shape.size();
 }
-void add_BN(unsigned char * structure, unsigned char * W, int& layer, int & offset_struct, int & offset_w){
+void add_BN(uint8_t * structure, uint8_t * W, int& layer, int & offset_struct, int & offset_w){
 	structure[0] = layer;
 	structure[1] = layer;
 	structure[2] = BN_ID;
@@ -97,7 +97,7 @@ void add_BN(unsigned char * structure, unsigned char * W, int& layer, int & offs
 	offset_struct += SIZE_BN;
 	offset_w += 5*sizeof(baseInt);
 }
-void add_BN(unsigned char * structure,  baseInt * W, int& layer, int & offset_struct, int & offset_w){
+void add_BN(uint8_t * structure,  baseInt * W, int& layer, int & offset_struct, int & offset_w){
 	structure[0] = layer;
 	structure[1] = layer;
 	structure[2] = BN_ID;
@@ -107,21 +107,21 @@ void add_BN(unsigned char * structure,  baseInt * W, int& layer, int & offset_st
 	offset_struct += SIZE_BN;
 	offset_w += 5;
 }
-void add_RELU(unsigned char * structure, int& layer, baseInt alpha, int & offset_struct){
+void add_RELU(uint8_t * structure, int& layer, baseInt alpha, int & offset_struct){
 	structure[0] = layer;
 	structure[1] = layer;
 	structure[2] = RELU;
 	memcpy(structure + 3, &alpha, sizeof(baseInt));
 	offset_struct += SIZE_RELU;
 }
-void add_SHORTCUT(unsigned char * structure, int& layer,int add_layer, int & offset_struct){
+void add_SHORTCUT(uint8_t * structure, int& layer,int add_layer, int & offset_struct){
 	structure[0] = layer;
 	structure[1] = layer;
 	structure[2] = SHORTCUT;
 	structure[3] = add_layer;
 	offset_struct += SIZE_SHORTCUT;
 }
-void add_POOLING(unsigned char * structure, int& layer, Shape shape, int pending, int stride, int pooling_type, int & offset_struct){
+void add_POOLING(uint8_t * structure, int& layer, Shape shape, int pending, int stride, int pooling_type, int & offset_struct){
 	structure[0] = layer ++;
 	structure[1] = layer;
 	structure[2] = POOLING;
@@ -132,7 +132,7 @@ void add_POOLING(unsigned char * structure, int& layer, Shape shape, int pending
 	structure[7] = shape.w;
 	offset_struct += SIZE_POOLING;
 }
-void add_FC(unsigned char * structure, baseInt * W, int& layer, int last_layer_len, int width_of_output, int & offset_struct, int & offset_w){
+void add_FC(uint8_t * structure, baseInt * W, int& layer, int last_layer_len, int width_of_output, int & offset_struct, int & offset_w){
 	structure[0] = layer;
 	structure[1] = layer;
 	structure[2] = FC_ID;
@@ -153,12 +153,12 @@ void make_structure_input(truthtee_pend *tee){
 	if(w_size % 32!=0){
 		w_size += (32 - w_size % 32);
 	}
-	unsigned char structure[struct_size];
-	unsigned char W[w_size];
+	uint8_t structure[struct_size];
+	uint8_t W[w_size];
 	baseInt W_base[w_size/sizeof(baseInt)];
-	unsigned int W_len = w_size;
-	unsigned char W_en[w_size];
-	unsigned int W_en_len;
+	uint32_t W_len = w_size;
+	uint8_t W_en[w_size];
+	uint32_t W_en_len;
 	baseInt kernel_data[7*7*3];
 	int itr = 0;
 	int layer = 0;
@@ -219,7 +219,7 @@ void make_structure_input(truthtee_pend *tee){
 	tee->test_with_remote(W, W_len, W_en, W_en_len);
 	baseInt arr[100];
 	tee->block(W_en , W_en_len, structure, struct_size,arr);
-	save_model<unsigned char>(structure, struct_size, "./save_data/input_struct.mdl");
+	save_model<uint8_t>(structure, struct_size, "./save_data/input_struct.mdl");
 	save_model<baseInt>(W_base, w_size/sizeof(baseInt), "./save_data/input_W.mdl");
 }
 void make_structure_cov1(truthtee_pend *tee, bool projection, int round){
@@ -239,9 +239,9 @@ void make_structure_cov1(truthtee_pend *tee, bool projection, int round){
 		w_size += (32 - w_size % 32);
 	}
 
-	unsigned char structure[struct_size];
+	uint8_t structure[struct_size];
 	baseInt W[w_size];
-	unsigned int W_len = w_size;
+	uint32_t W_len = w_size;
 	int layer = 0;
 	int addition_layer = 0;
 	int offset_struct = 0;
@@ -268,7 +268,7 @@ void make_structure_cov1(truthtee_pend *tee, bool projection, int round){
 	}
 	add_RELU(structure + offset_struct, layer, 0, offset_struct);
 	baseInt arr[100];
-	save_model<unsigned char>(structure, struct_size, "./save_data/cov1_struct" + std::to_string(round) + ".mdl");
+	save_model<uint8_t>(structure, struct_size, "./save_data/cov1_struct" + std::to_string(round) + ".mdl");
 	save_model<baseInt>(W, w_size, "./save_data/cov1_W" + std::to_string(round) + ".mdl");
 	//tee->block(weight , w_size, structuresss, struct_size,arr);
 	printf("save_model %d\n", round);
@@ -289,9 +289,9 @@ void make_structure_cov2(truthtee_pend *tee, bool projection, int round){
 		w_size += (32 - w_size % 32);
 	}
 	printf("struct_size %d\n", struct_size);
-	unsigned char structure[struct_size];
+	uint8_t structure[struct_size];
 	baseInt W[w_size];
-	unsigned int W_len = w_size;
+	uint32_t W_len = w_size;
 	int layer = 0;
 	int addition_layer = 0;
 	int offset_struct = 0;
@@ -320,7 +320,7 @@ void make_structure_cov2(truthtee_pend *tee, bool projection, int round){
 	baseInt arr[100];
 	//tee->block(W , W_len, structure, struct_size,arr);
 	printf("save_model %d\n", round);
-	save_model<unsigned char>(structure, struct_size, "./save_data/cov2_struct" + std::to_string(round) + ".mdl");
+	save_model<uint8_t>(structure, struct_size, "./save_data/cov2_struct" + std::to_string(round) + ".mdl");
 	save_model<baseInt>(W, w_size, "./save_data/cov2_W" + std::to_string(round) + ".mdl");
 }
 void make_structure_cov3(truthtee_pend *tee, bool projection, int round){
@@ -337,9 +337,9 @@ void make_structure_cov3(truthtee_pend *tee, bool projection, int round){
 	if(w_size % 32!=0){
 		w_size += (32 - w_size % 32);
 	}
-	unsigned char structure[struct_size];
+	uint8_t structure[struct_size];
 	baseInt W[w_size];
-	unsigned int W_len = w_size;
+	uint32_t W_len = w_size;
 	int layer = 0;
 	int addition_layer = 0;
 	int offset_struct = 0;
@@ -369,7 +369,7 @@ void make_structure_cov3(truthtee_pend *tee, bool projection, int round){
 	//tee->block(W , W_len, structure, struct_size,arr);
 
 	printf("save_model %d\n", round);
-	save_model<unsigned char>(structure, struct_size, "./save_data/cov"+ std::to_string(3+round / 10)+"_struct" + std::to_string(round%10) + ".mdl");
+	save_model<uint8_t>(structure, struct_size, "./save_data/cov"+ std::to_string(3+round / 10)+"_struct" + std::to_string(round%10) + ".mdl");
 	save_model<baseInt>(W, w_size, "./save_data/cov"+ std::to_string(3+round / 10)+"_W" + std::to_string(round%10) + ".mdl");
 }
 void make_structure_cov4(truthtee_pend *tee, bool projection, int round){
@@ -385,9 +385,9 @@ void make_structure_cov4(truthtee_pend *tee, bool projection, int round){
 	if(w_size % 32!=0){
 		w_size += (32 - w_size % 32);
 	}
-	unsigned char structure[struct_size];
+	uint8_t structure[struct_size];
 	baseInt W[w_size];
-	unsigned int W_len = w_size;
+	uint32_t W_len = w_size;
 	int layer = 0;
 	int addition_layer = 0;
 	int offset_struct = 0;
@@ -415,7 +415,7 @@ void make_structure_cov4(truthtee_pend *tee, bool projection, int round){
 	add_RELU(structure + offset_struct, layer, 0, offset_struct);
 	baseInt arr[100];
 	//tee->block(W , W_len, structure, struct_size,arr);
-	save_model<unsigned char>(structure, struct_size, "./save_data/cov4_struct" + std::to_string(round) + ".mdl");
+	save_model<uint8_t>(structure, struct_size, "./save_data/cov4_struct" + std::to_string(round) + ".mdl");
 	save_model<baseInt>(W, w_size, "./save_data/cov4_W" + std::to_string(round) + ".mdl");
 }
 void make_structure_output(truthtee_pend *tee, int input_size){
@@ -423,9 +423,9 @@ void make_structure_output(truthtee_pend *tee, int input_size){
 	int w_size;
 	struct_size = SIZE_POOLING + SIZE_FC;
 	w_size = 1024*1000;
-	unsigned char structure[struct_size];
+	uint8_t structure[struct_size];
 	baseInt W[w_size];
-	unsigned int W_len = w_size;
+	uint32_t W_len = w_size;
 	int layer = 0;
 	int addition_layer = 0;
 	int offset_struct = 0;
@@ -434,7 +434,7 @@ void make_structure_output(truthtee_pend *tee, int input_size){
 	add_FC(structure + offset_struct, W + offset_w, layer, 1024, 1000, offset_struct, offset_w);
 	baseInt arr[1000];
 	//tee->block(W , W_len, structure, struct_size,arr);
-	save_model<unsigned char>(structure, struct_size, "./save_data/output_struct.mdl");
+	save_model<uint8_t>(structure, struct_size, "./save_data/output_struct.mdl");
 	save_model<baseInt>(W, w_size, "./save_data/output_W.mdl");
 	/*for(int i = 0; i < 1000; i++){
 		printf("%f ", arr[i]);
@@ -446,10 +446,10 @@ int main(){
 	truthtee_pend *tee = new truthtee_pend();
 	baseInt data[224*224*3];
 
-	unsigned char data_of_img[224*224*3*sizeof(baseInt)];
-	unsigned int data_of_img_len = 224*224*3*sizeof(baseInt);
-	unsigned char data_of_img_en[224*224*3*sizeof(baseInt)];
-	unsigned int data_of_img_en_len;
+	uint8_t data_of_img[224*224*3*sizeof(baseInt)];
+	uint32_t data_of_img_len = 224*224*3*sizeof(baseInt);
+	uint8_t data_of_img_en[224*224*3*sizeof(baseInt)];
+	uint32_t data_of_img_en_len;
 	
 	int itr = 0;
 	for(int i = 0; i < 3; i++){

@@ -1,9 +1,9 @@
 #include "tuple_c.h"
-#include <stdio.h>
 
-Tuple sub_tuple(Truple org, uint32_t x, uint32_t y, uint32_t x_len, uint32_t y_len){
-	struct Shape subshape={x_len,y_len,org.shape.h};
-	Tuple subtuple;
+
+struct Tuple sub_tuple(struct Tuple org, uint32_t x, uint32_t y, uint32_t x_len, uint32_t y_len){
+	struct Shape subshape={x_len,y_len,org.shape.h,x_len*y_len*org.shape.h};
+	struct Tuple subtuple;
 	subtuple.shape = subshape;
 	subtuple.data = (float*) malloc(x_len*y_len*org.shape.h*sizeof(float));
 	for(int i = 0; i < org.shape.h; i++){
@@ -13,9 +13,9 @@ Tuple sub_tuple(Truple org, uint32_t x, uint32_t y, uint32_t x_len, uint32_t y_l
 	}
 	return subtuple;
 }
-float multiply(Truple tp1, Truple tp2){
+float multiply(struct Tuple tp1, struct Tuple tp2){
 	float ans = 0;
-	if(tp1.shape.l == tp2.shape.l && tp1.shape.w == tp2.shape.w &&. tp1.shape.h == tp2.shape.h){
+	if(tp1.shape.l == tp2.shape.l && tp1.shape.w == tp2.shape.w && tp1.shape.h == tp2.shape.h){
 		
 		for(int i = 0; i < tp1.shape.l*tp1.shape.w*tp1.shape.h; i++){
 			ans += tp1.data[i] * tp2.data[i];
@@ -25,7 +25,7 @@ float multiply(Truple tp1, Truple tp2){
 	}
 	return ans;
 }
-float find_max(Truple org, uint32_t x, uint32_t y, uint32_t x_len, uint32_t y_len, uint32_t hight){
+float find_max(struct Tuple org, uint32_t x, uint32_t y, uint32_t x_len, uint32_t y_len, uint32_t hight){
 	float max_data = -100000; 
 	int tmp = 0;
 	for(int i = 0; i < y_len; i++){
@@ -38,7 +38,7 @@ float find_max(Truple org, uint32_t x, uint32_t y, uint32_t x_len, uint32_t y_le
 	}
 	return max_data;
 }
-float find_avg(Truple org, uint32_t x, uint32_t y, uint32_t x_len, uint32_t y_len, uint32_t hight){
+float find_avg(struct Tuple org, uint32_t x, uint32_t y, uint32_t x_len, uint32_t y_len, uint32_t hight){
 	float avg_data = 0; 
 	int tmp = 0;
 	for(int i = 0; i < y_len; i++){
@@ -48,36 +48,37 @@ float find_avg(Truple org, uint32_t x, uint32_t y, uint32_t x_len, uint32_t y_le
 	}
 	return avg_data/(x_len*y_len);
 }
-Tuple convolution(Tuple image, Tuple tuple, bool pending, uint32_t stride){
+struct Tuple convolution(struct Tuple image, struct Tuple tuple, bool pending, uint32_t stride){
+	struct Tuple ans_tuple;
 	if(tuple.shape.l != tuple.shape.w){
-		char error[80];
-    	sprintf(error, "error:illegal shape, [%d,%d] is not square.",tuple.shape.l, tuple.shape.w);
-		throw error;
+    	printf("error:illegal shape, [%d,%d] is not square.\n",tuple.shape.l, tuple.shape.w);
+    	return  ans_tuple;
+		
 	}
+	
 	if(tuple.shape.h != image.shape.h){
-		char error[80];
-    	sprintf(error, "error:illegal cov, third dimension should be identical while [., ., %d] is not mapping [., ., %d].",tuple.shape.h, shape.h);
-		throw error;
+    	printf("error:illegal cov, third dimension should be identical while [., ., %d] is not mapping [., ., %d].\n",tuple.shape.h, image.shape.h);
+		return  ans_tuple;
 	}
-	Shape ans_shape = {0,0,1};
+	struct Shape ans_shape = {0,0,1};
 	int start_x = 0;
 	int start_y = 0;
 	if(pending){
 		start_x = - (tuple.shape.l - 1)/2;
 		start_y = - (tuple.shape.l - 1)/2;
-		ans_shape.l = (shape.l - 1) / stride + 1;
-		ans_shape.w = (shape.w - 1) / stride + 1;
+		ans_shape.l = (image.shape.l - 1) / stride + 1;
+		ans_shape.w = (image.shape.w - 1) / stride + 1;
 	}else{
 		start_x = 0;
 		start_y = 0;
-		ans_shape.l = (shape.l - tuple.shape.l ) / stride + 1;
-		ans_shape.w = (shape.w - tuple.shape.w ) / stride + 1;
+		ans_shape.l = (image.shape.l - tuple.shape.l ) / stride + 1;
+		ans_shape.w = (image.shape.w - tuple.shape.w ) / stride + 1;
 	}
 
-	Tuple ans_tuple;
+	ans_shape.size = ans_shape.l*ans_shape.w*ans_shape.h;
 	ans_tuple.shape = ans_shape;
 	ans_tuple.data = (float*) malloc(ans_shape.l * ans_shape.w * ans_shape.h*sizeof(float));
-	uint32_t itr = 0;
+	unsigned int itr = 0;
 	for(int i = 0; i < ans_shape.w; i++){
 		int tmp_start_x = start_x;
 		for(int j = 0; j < ans_shape.l; j++){
@@ -97,16 +98,16 @@ Tuple convolution(Tuple image, Tuple tuple, bool pending, uint32_t stride){
 				now_pend = true;
 
 			}
-			if(tmp_start_x + tuple.shape.l > shape.l){
-				c = shape.l - tmp_start_x;
+			if(tmp_start_x + tuple.shape.l > image.shape.l){
+				c = image.shape.l - tmp_start_x;
 				now_pend = true;
 			}
-			if(start_y + tuple.shape.w > shape.w){
-				d = shape.w - start_y;
+			if(start_y + tuple.shape.w > image.shape.w){
+				d = image.shape.w - start_y;
 				now_pend = true;
 			}
 			if(now_pend){
-				ans_tuple.data[itr ++ ] = sub_tuple(tuple,a,b,c,d) * sub_tuple(image, tmp_start_x >= 0 ? tmp_start_x:0 , start_y >= 0 ? start_y:0 , c, d);
+				ans_tuple.data[itr ++ ] = multiply(sub_tuple(tuple,a,b,c,d), sub_tuple(image, tmp_start_x >= 0 ? tmp_start_x:0 , start_y >= 0 ? start_y:0 , c, d));
 			}else{
 				ans_tuple.data[itr ++ ] = multiply(tuple, sub_tuple(image, tmp_start_x, start_y, c, d));
 			}
@@ -116,14 +117,15 @@ Tuple convolution(Tuple image, Tuple tuple, bool pending, uint32_t stride){
 	}
 	return ans_tuple;
 }
-Tuple convolution(Tuple image, Tuple* tuples, uint32_t tuples_size, bool pending, uint32_t stride){
-	Tuple* ans_tmp = (Tuple*)malloc(tuples_size * sizeof(Tuple));
-	Tuple ans;
+struct Tuple convolution_embed(struct Tuple image, struct Tuple* tuples, uint32_t tuples_size, bool pending, uint32_t stride){
+	struct Tuple* ans_tmp = (struct Tuple*)malloc(tuples_size * sizeof(struct Tuple));
+	struct Tuple ans;
 	//#pragma omp parallel for
 	for(int i = 0; i < tuples_size; i++){
 		ans_tmp[i] = convolution(image, tuples[i], pending, stride); 
 	}
-	ans.shape = {ans_tmp[0].shape.l,ans_tmp[0].shape.w,tuples_size}
+	struct Shape ans_shape = {ans_tmp[0].shape.l,ans_tmp[0].shape.w,tuples_size,ans_tmp[0].shape.l*ans_tmp[0].shape.w*tuples_size};
+	ans.shape = ans_shape;
 	ans.data = (float*) malloc(ans.shape.w*ans.shape.l*ans.shape.h*sizeof(float));
 	uint32_t sq_size = ans_tmp[0].shape.l*ans_tmp[0].shape.w;
 	for(int i = 0; i < tuples_size; i ++){
@@ -133,13 +135,11 @@ Tuple convolution(Tuple image, Tuple* tuples, uint32_t tuples_size, bool pending
 	free(ans_tmp);
 	return ans;
 }
-Tuple pooling(Tuple tuple, Shape kenerl_shape, bool pending, uint32_t stride, uint32_t type){
+struct Tuple pooling(struct Tuple tuple, struct Shape kenerl_shape, bool pending, uint32_t stride, uint32_t type){
 	if(kenerl_shape.l != kenerl_shape.w){
-		char error[80];
-    	sprintf(error, "error:illegal shape, [%d,%d] is not square.",kenerl_shape.l, kenerl_shape.w);
-		throw error;
+    	printf("error:illegal shape, [%d,%d] is not square.",kenerl_shape.l, kenerl_shape.w);
 	}
-	Shape ans_shape = {0,0,tuple.shape.h};
+	struct Shape ans_shape = {0,0,tuple.shape.h};
 	int start_x = 0;
 	int start_y = 0;
 	if(pending){
@@ -153,10 +153,10 @@ Tuple pooling(Tuple tuple, Shape kenerl_shape, bool pending, uint32_t stride, ui
 		ans_shape.l = (tuple.shape.l - kenerl_shape.l ) / stride + 1;
 		ans_shape.w = (tuple.shape.w - kenerl_shape.w ) / stride + 1;
 	}
-	Tuple ans_tuple;
+	struct Tuple ans_tuple;
 	ans_tuple.shape = ans_shape;
 	ans_tuple.data = (float*) malloc(ans_shape.l * ans_shape.w * ans_shape.h*sizeof(float));
-	uint32_t itr = 0;
+	unsigned int itr = 0;
 	for(int j = 0; j < ans_shape.w; j ++){
 		int tmp_start_x = start_x;
 		for(int k = 0; k < ans_shape.l; k ++){
@@ -198,24 +198,24 @@ Tuple pooling(Tuple tuple, Shape kenerl_shape, bool pending, uint32_t stride, ui
 	}
 	return ans_tuple;
 }
-void ReLU(Tuple &tuple, bool simple, float alpha){
+void ReLU(struct Tuple* tuple, bool simple, float alpha){
 	if(simple){
-		for(int i = 0; i < tuple.shape.l*tuple.shape.w*tuple.shape.h; i++){
-			tuple.data[i] = tuple.data[i] < 0 ? 0:tuple.data[i];
+		for(int i = 0; i < tuple->shape.l*tuple->shape.w*tuple->shape.h; i++){
+			tuple->data[i] = tuple->data[i] < 0 ? 0:tuple->data[i];
 		}
 	}else{
-		for(int i = 0; i < tuple.shape.l*tuple.shape.w*tuple.shape.h; i++){
-			tuple.data[i] = tuple.data[i] < 0 ? tuple.data[i]*alpha:tuple.data[i];
+		for(int i = 0; i < tuple->shape.l*tuple->shape.w*tuple->shape.h; i++){
+			tuple->data[i] = tuple->data[i] < 0 ? tuple->data[i]*alpha:tuple->data[i];
 		}
 	}
 }
-void BN_for_test(Tuple &tuple, float mu, float sigma, float gamma, float beta, float epsilon){
-	for(int i = 0; i < tuple.shape.l*tuple.shape.w*tuple.shape.h; i++){
-		tuple.data[i] = gamma * (tuple.data[i] - mu) / sqrt(sigma + epsilon) + beta;
+void BN_for_test(struct Tuple *tuple, float mu, float sigma, float gamma, float beta, float epsilon){
+	for(int i = 0; i < tuple->shape.l*tuple->shape.w*tuple->shape.h; i++){
+		tuple->data[i] = gamma * (tuple->data[i] - mu) / sqrt(sigma + epsilon) + beta;
 	}
 }
-Tuple add_other(Tuple tp1, Tuple tp2){
-	Tuple tuple;
+struct Tuple add_other(struct Tuple tp1, struct Tuple tp2){
+	struct Tuple tuple;
 	tuple.shape = tp1.shape;
 	tuple.data = (float*) malloc(tp1.shape.l*tp1.shape.w*tp1.shape.h*sizeof(float));
 	for(int i = 0; i < tp1.shape.l*tp1.shape.w*tp1.shape.h; i++){
@@ -223,7 +223,7 @@ Tuple add_other(Tuple tp1, Tuple tp2){
 	}
 	return tuple;
 }
-void FC(Tuple tuple, float* output, float* weight, uint32_t weight_width){
+void FC_f(struct Tuple tuple, float* output, float* weight, uint32_t weight_width){
 	/*
 	[n_1,.....,n_datalen]
 		.				|
@@ -235,25 +235,25 @@ void FC(Tuple tuple, float* output, float* weight, uint32_t weight_width){
 	*/
 	for(int i = 0; i < weight_width; i++){
 		output[i] = 0;
-		for(int j = 0; j < tuple.shape.size(); j++){
-			output[i] += tuple.data[j] * weight[j + i*tuple.shape.size()];
+		for(int j = 0; j < tuple.shape.size; j++){
+			output[i] += tuple.data[j] * weight[j + i*tuple.shape.size];
 		}	
 	}
 	
 }
-void FC(Tuple tuple, float* output, uint8_t* weight, uint32_t weight_width){
+void FC(struct Tuple tuple, float* output, uint8_t* weight, uint32_t weight_width){
 	float tmp;
 	for(int i = 0; i < weight_width; i++){
 		output[i] = 0;
-		for(int j = 0; j < tuple.shape.size(); j++){
-			memcpy(&tmp, weight + (j + i*tuple.shape.size())*sizeof(float), sizeof(float));
+		for(int j = 0; j < tuple.shape.size; j++){
+			memcpy(&tmp, weight + (j + i*tuple.shape.size)*sizeof(float), sizeof(float));
 			printf(" tmp : %f ",tmp);
 			output[i] += tuple.data[j] * tmp;
 		}	
 	}
 }
 void softmax(float* input, float* output, uint32_t input_len){
-	baseInt sum = 0;
+	float sum = 0;
 	for(int i = 0; i < input_len; i++){
 		sum += exp(input[i]);
 	}
@@ -261,3 +261,36 @@ void softmax(float* input, float* output, uint32_t input_len){
 		output[i] = exp(input[i])/sum;
 	}
 }
+// int test(){
+// 	/*for test*/
+// 	struct Tuple test_tp;
+// 	struct Shape test_tp_shape = {225,225,3, 225*225*3};
+// 	struct Tuple test_kernal;
+// 	struct Shape test_kernal_shape = {5,5,3,5*5*3};
+// 	test_tp.shape = test_tp_shape;
+// 	test_kernal.shape = test_kernal_shape;
+
+// 	test_tp.data = (float*)malloc(test_tp.shape.size*sizeof(float));
+// 	test_kernal.data = (float*)malloc(test_kernal.shape.size*sizeof(float));
+// 	for(int i = 0; i < test_tp.shape.size; i++){
+// 		test_tp.data[i] = i/225 * pow(-1,i);
+// 	};
+// 	for(int i = 0; i < test_kernal.shape.size; i++){
+// 		test_kernal.data[i] = 1;
+// 	};
+// 	struct Tuple* kernels = (struct Tuple*)malloc(1000*sizeof(struct Tuple));
+// 	for(int i = 0; i < 100; i++){
+// 		kernels[i] = test_kernal;
+// 	}
+// 	struct Tuple ans = convolution(test_tp, test_kernal, true, 2);
+
+// 	printf("ans's shape {%d,%d,%d}\n", ans.shape.l, ans.shape.w, ans.shape.h);
+// 	for(int i = 0; i < 113; i++){
+// 		printf("%f ", ans.data[i]);
+// 	}
+// 	printf("\n");
+// 	free(test_tp.data);
+// 	free(test_kernal.data);
+// 	free(ans.data);
+// 	return 0;
+// }

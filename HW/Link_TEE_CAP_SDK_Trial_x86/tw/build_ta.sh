@@ -10,4 +10,5 @@ cp ../ntw/lib/libtee_client.so ../out
 echo "************Build Finished**************"
 cd ../out
 echo "libtee_internal.so generated! Path:$(pwd)"
-
+cp ./* ../..
+cp ./* ../../../lib

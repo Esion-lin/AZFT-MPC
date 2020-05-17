@@ -2,19 +2,19 @@
 // Creation: 11/02 2019 
 #include "network.h"
 
-netTool::netTool(truthtee_pend* tru){
+netTool::netTool(TEE* tru){
     this->tru = tru;
 }
 /*accept result and store it*/
 void accecpt_result(Json::Value key_paty, Json::Value data_part){
-    unsigned char key_hash[key_paty.size()];
+    uint8_t key_hash[key_paty.size()];
     for(int i = 0; i < key_paty.size(); i++){
         key_hash[i] = key_paty[i].asUInt();
     }
     //store_data_to_file(key_hash, key_paty.size(), "./key_hash.data");
     std::string hash_str = "bc0ae45639a93db8f3859e4dbbb27a2c955276b3a6025c9f272a20406de5de5b";
     store_file_with_string(hash_str,"./key_hash.data");
-    unsigned char data[data_part.size()];
+    uint8_t data[data_part.size()];
     for(int i = 0; i < data_part.size(); i++){
         data[i] = data_part[i].asUInt();
     }
@@ -31,7 +31,7 @@ void netTool::deal_data(Json::Value value){
             rec_serial_data = false;
             rec_image_data = true;
             key_part = value["key"];
-            unsigned char key_data[key_part.size()];
+            uint8_t key_data[key_part.size()];
             for(int i = 0; i < key_part.size(); i++){
                 key_data[i] = key_part[i].asUInt();
             }
@@ -73,7 +73,7 @@ void netTool::deal_data(Json::Value value){
     }
 }
 void netTool::accept_data(Json::Value key_paty, Json::Value data_part, Json::Value mac){
-    unsigned char key_data[key_paty.size()];
+    uint8_t key_data[key_paty.size()];
     for(int i = 0; i < key_paty.size(); i++){
         key_data[i] = key_paty[i].asUInt();
     }
@@ -85,7 +85,7 @@ void netTool::accept_data(Json::Value key_paty, Json::Value data_part, Json::Val
         for(int i = 0; i < CIPHER_LEN/4; i++){
             arr[i] = data_part[key][i].asUInt();
         }
-        unsigned int len_temp;
+        uint32_t len_temp;
         to_byte(arr, CIPHER_LEN/4, data_dic[key], len_temp);
     }
 
@@ -96,18 +96,18 @@ void netTool::accept_data(Json::Value key_paty, Json::Value data_part, Json::Val
         for(int i = 0; i < MAC_LEN/4; i++){
             arr_mac[i] = mac[key][i].asUInt();
         }
-        unsigned int len_temp;
+        uint32_t len_temp;
         to_byte(arr_mac, MAC_LEN/4, data_mac_dic[key], len_temp);
     }
     is_data_store = true;
-    // unsigned char test[16];
-    // unsigned int len;
+    // uint8_t test[16];
+    // uint32_t len;
     // tru->decrypto(data_dic["A"],16,test,len);
 }
 void netTool::accept_mac(Json::Value value){
-    //std::vector<unsigned char[MAC_LEN]> dir_mac = std::vector<unsigned char[MAC_LEN]>(value.size());
+    //std::vector<uint8_t[MAC_LEN]> dir_mac = std::vector<uint8_t[MAC_LEN]>(value.size());
     for(int i = 0; i < value.size(); i++){
-        unsigned char *arr = new unsigned char[MAC_LEN];
+        uint8_t *arr = new uint8_t[MAC_LEN];
         for(int j = 0; j < MAC_LEN; j++){
             arr[j] = value[i][j].asUInt();
         }
@@ -121,7 +121,7 @@ void netTool::accept_mac(Json::Value value){
     }*/
     //mac_dir.insert(mac_dir.end(),dir_mac.begin(),dir_mac.end());
    /* for(int i = 0; i < value.size(); i++){
-        unsigned char middle[MAC_LEN];
+        uint8_t middle[MAC_LEN];
         for(int j = 0; j < MAC_LEN; j++){
             middle[j] = value[i][j].asUInt();
         }
@@ -133,7 +133,7 @@ void netTool::accept_mac(Json::Value value){
     is_mac_store = true;
 }
 void netTool::accept_key(Json::Value value){
-    unsigned char data[value.size()];
+    uint8_t data[value.size()];
     for(int i = 0; i < value.size(); i++){
         data[i] = value[i].asUInt();
     }
@@ -143,7 +143,7 @@ void netTool::accept_key(Json::Value value){
 
 }
 void netTool::accept_sign(Json::Value value){
-    unsigned char data[value.size()];
+    uint8_t data[value.size()];
     for(int i = 0; i < value.size(); i++){
         data[i] = value[i].asUInt();
     }
@@ -247,7 +247,7 @@ void netTool::send_data(Json::Value js){
     send(conn_fd, s.c_str(), s.length(),0);///send away
     close(conn_fd);
 }
-void netTool::send_data(unsigned char * data, int len_data){
+void netTool::send_data(uint8_t * data, int len_data){
     init_conn();
     if(connect(conn_fd, (struct sockaddr *)&remote_server_sockaddr, sizeof(remote_server_sockaddr)) < 0){
         perror("connect");

@@ -10,20 +10,20 @@ using namespace std;
 class merkleTree{
 public:
 	merkleTree(vector<truple> cmds);
-	merkleTree(map<std::string, unsigned char[16]> datas);
-	void output_hash(unsigned char output[]);
+	merkleTree(map<std::string, uint8_t[16]> datas);
+	void output_hash(uint8_t output[]);
 	string output_hash();
 	vector<string> quary_path(truple trp);
-	vector<string> quary_path(string label, unsigned char cipher[]);
+	vector<string> quary_path(string label, uint8_t cipher[]);
 private:
 	map<string, string> brother_map;
 	map<string, string> father_map;
 	queue<string> init_hash(vector<truple> cmds);
-	queue<string> init_hash(map<std::string, unsigned char[16]>);
+	queue<string> init_hash(map<std::string, uint8_t[16]>);
 	void make_brother(queue<string> leaf);
-	void sha256(const string str, unsigned char output[]);
+	void sha256(const string str, uint8_t output[]);
 	string sha256(const string str);
-	void sha256(unsigned char input[], int len, unsigned char output[]);
-	unsigned char out_hash[SHA256_DIGEST_LENGTH];
+	void sha256(uint8_t input[], int len, uint8_t output[]);
+	uint8_t out_hash[SHA256_DIGEST_LENGTH];
 	string out_str;
 };

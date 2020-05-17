@@ -108,13 +108,13 @@ truthtee::truthtee(){
 		remote_mac[i] = 0;
 	}
 }
-void truthtee::gen_sym_key(unsigned char tru_out[], unsigned int key_len){
+void truthtee::gen_sym_key(uint8_t tru_out[], uint32_t key_len){
 	srand((unsigned)time(NULL));
 	for(int i = 0; i < key_len; i++){
 		tru_out[i] = rand()%256;
 	}
 }
-void truthtee::serialize(ECCPUBLICKEYBLOB pu_key, unsigned char tru_out[]){
+void truthtee::serialize(ECCPUBLICKEYBLOB pu_key, uint8_t tru_out[]){
 	int ptr = 0;
 	for(int i = 0; i < ECC_MAX_XCOORDINATE_BITS_LEN/8; i ++ ){
 		tru_out[ptr++] = pu_key.XCoordinate[i];
@@ -122,7 +122,7 @@ void truthtee::serialize(ECCPUBLICKEYBLOB pu_key, unsigned char tru_out[]){
 	}
 
 }
-void truthtee::serialize_signature(ECCSIGNATUREBLOB sign, unsigned char tru_out[]){
+void truthtee::serialize_signature(ECCSIGNATUREBLOB sign, uint8_t tru_out[]){
 	int ptr = 0;
 	for(int i = 0; i < ECC_MAX_XCOORDINATE_BITS_LEN/8; i ++ ){
 		tru_out[ptr++] = sign.r[i];
@@ -130,7 +130,7 @@ void truthtee::serialize_signature(ECCSIGNATUREBLOB sign, unsigned char tru_out[
 	}
 
 }
-ECCPUBLICKEYBLOB truthtee::deserialize(unsigned char tru_in[]){
+ECCPUBLICKEYBLOB truthtee::deserialize(uint8_t tru_in[]){
 	ECCPUBLICKEYBLOB pub_key;
 	pub_key.BitLen = 256;
 	for(int i = 0; i < ECC_MAX_XCOORDINATE_BITS_LEN/8; i ++ ){
@@ -139,7 +139,7 @@ ECCPUBLICKEYBLOB truthtee::deserialize(unsigned char tru_in[]){
 	}
 	return pub_key;
 }
-ECCSIGNATUREBLOB truthtee::deserialize_signature(unsigned char tru_in[]){
+ECCSIGNATUREBLOB truthtee::deserialize_signature(uint8_t tru_in[]){
 	ECCSIGNATUREBLOB sign;
 	for(int i = 0; i < ECC_MAX_XCOORDINATE_BITS_LEN/8; i ++ ){
 		sign.r[i] = tru_in[i*2];
@@ -147,9 +147,9 @@ ECCSIGNATUREBLOB truthtee::deserialize_signature(unsigned char tru_in[]){
 	}
 	return sign;
 }
-void truthtee::query_pub_stream(unsigned char tru_out[]){
-	unsigned char 	a[ECC_MAX_XCOORDINATE_BITS_LEN/4];
-	unsigned char 	b[ECC_MAX_XCOORDINATE_BITS_LEN/4];
+void truthtee::query_pub_stream(uint8_t tru_out[]){
+	uint8_t 	a[ECC_MAX_XCOORDINATE_BITS_LEN/4];
+	uint8_t 	b[ECC_MAX_XCOORDINATE_BITS_LEN/4];
 	serialize(pub_key1,a);
 	serialize(pub_key2,b);
 	if(test){
@@ -163,9 +163,9 @@ void truthtee::query_pub_stream(unsigned char tru_out[]){
 	
 
 }
-void truthtee::query_signature(unsigned char tru_out[], bool verify){
-	unsigned char 	a[ECC_MAX_XCOORDINATE_BITS_LEN/4];
-	unsigned char 	b[ECC_MAX_XCOORDINATE_BITS_LEN/4];
+void truthtee::query_signature(uint8_t tru_out[], bool verify){
+	uint8_t 	a[ECC_MAX_XCOORDINATE_BITS_LEN/4];
+	uint8_t 	b[ECC_MAX_XCOORDINATE_BITS_LEN/4];
 	serialize(pub_key1,a);
 	serialize(remote_pub_key1,b);
 	if(test){
@@ -183,10 +183,10 @@ void truthtee::query_signature(unsigned char tru_out[], bool verify){
 		
 	}
 }
-void truthtee::stream_to_key(unsigned char tru_in[]){
+void truthtee::stream_to_key(uint8_t tru_in[]){
 	int ptr = 0;
-	unsigned char 	remote_a[ECC_MAX_XCOORDINATE_BITS_LEN/4];
-	unsigned char 	remote_b[ECC_MAX_XCOORDINATE_BITS_LEN/4];
+	uint8_t 	remote_a[ECC_MAX_XCOORDINATE_BITS_LEN/4];
+	uint8_t 	remote_b[ECC_MAX_XCOORDINATE_BITS_LEN/4];
 	for(int i = 0; i < ECC_MAX_XCOORDINATE_BITS_LEN/4; i ++){
 		remote_a[i] = tru_in[ptr++];
 		remote_b[i] = tru_in[ptr++];
@@ -200,12 +200,12 @@ void truthtee::stream_to_key(unsigned char tru_in[]){
 	}
 	key_ex_suc = true;
 }
-void truthtee::encrypto_key(unsigned char tru_key_out[],unsigned int &key_len_out){
+void truthtee::encrypto_key(uint8_t tru_key_out[],uint32_t &key_len_out){
 	if(SG_SM2Enc(&remote_pub_key1,sym_key_keep,sym_key_len/8,tru_key_out,&key_len_out) != SAR_OK){
 		perror("encrypto key error\n");
 	}
 }
-void truthtee::encrypto(unsigned char tru_in[],unsigned int len, unsigned char tru_data_out[],unsigned int &data_len_out){
+void truthtee::encrypto(uint8_t tru_in[],uint32_t len, uint8_t tru_data_out[],uint32_t &data_len_out){
 	if(len >= 4000){
 		int tmp = len;
 		int itr = 0;
@@ -234,21 +234,21 @@ void truthtee::encrypto(unsigned char tru_in[],unsigned int len, unsigned char t
 	}
 	
 }
-void truthtee::encrypt_MAC(unsigned char label[], unsigned int lab_len, unsigned char tru_in[], unsigned int len, unsigned char tru_data_out[],unsigned int &data_len_out, unsigned char tru_mac_out[], unsigned int &mac_len_out){
+void truthtee::encrypt_MAC(uint8_t label[], uint32_t lab_len, uint8_t tru_in[], uint32_t len, uint8_t tru_data_out[],uint32_t &data_len_out, uint8_t tru_mac_out[], uint32_t &mac_len_out){
 	//fixed label length :17 Bytes
 	//For security, firstly, encrypt plaintext, then caculate the label and ciphertext MAC, 
 	encrypto(tru_in,len,tru_data_out,data_len_out);
-	unsigned char over_all[50];
+	uint8_t over_all[50];
 	memcpy(over_all, label, lab_len);
 	memcpy(over_all + lab_len, tru_data_out, data_len_out);
 	SG_Hmac(SGD_SM3 , sym_key_keep, sym_key_len/8, over_all, lab_len + data_len_out, tru_mac_out, &mac_len_out);
 }
-bool truthtee::verify_data(unsigned char label[], unsigned int lab_len, unsigned char tru_in[], unsigned int len, unsigned char mac_in[], unsigned int mac_len, unsigned char tru_data_out[], unsigned int &data_len_out, unsigned char tru_mac_out[], unsigned int &mac_len_out){
-	unsigned char over_all[50];
+bool truthtee::verify_data(uint8_t label[], uint32_t lab_len, uint8_t tru_in[], uint32_t len, uint8_t mac_in[], uint32_t mac_len, uint8_t tru_data_out[], uint32_t &data_len_out, uint8_t tru_mac_out[], uint32_t &mac_len_out){
+	uint8_t over_all[50];
 	memcpy(over_all, label, lab_len);
 	memcpy(over_all + lab_len, tru_in, len);
-	unsigned char d1[0x100];
-	unsigned int d1_len;
+	uint8_t d1[0x100];
+	uint32_t d1_len;
 	if(mac_verification(over_all, lab_len + len, mac_in, mac_len,true)){
 		transfer_data(tru_in, len, d1, d1_len, DECRYPTO, remote_key);
 		encrypt_MAC(label, lab_len, d1, d1_len, tru_data_out, data_len_out, tru_mac_out, mac_len_out);
@@ -257,8 +257,8 @@ bool truthtee::verify_data(unsigned char label[], unsigned int lab_len, unsigned
 	}
 	return false;	
 }
-void truthtee::decrypto_key(unsigned char tru_key_in[],unsigned int key_in_len){
-	unsigned int key_check = 0;
+void truthtee::decrypto_key(uint8_t tru_key_in[],uint32_t key_in_len){
+	uint32_t key_check = 0;
 	if(SG_SM2Dec(&pri_key1,tru_key_in,key_in_len,sym_key_remote,&key_check) != SAR_OK){
 		perror("decrypto key error\n");
 	}
@@ -266,8 +266,8 @@ void truthtee::decrypto_key(unsigned char tru_key_in[],unsigned int key_in_len){
 		perror("decrypto key error\n");
 	}
 }
-bool truthtee::decrypto(unsigned char label[], unsigned int lab_len, unsigned char tru_data_in[],unsigned int data_in_len, unsigned char mac_in_data[], unsigned int mac_data_len, unsigned char mac_in_cmd[], unsigned int mac_cmd_len, unsigned char tru_out[],unsigned int &out_len){
-	unsigned char check[50];
+bool truthtee::decrypto(uint8_t label[], uint32_t lab_len, uint8_t tru_data_in[],uint32_t data_in_len, uint8_t mac_in_data[], uint32_t mac_data_len, uint8_t mac_in_cmd[], uint32_t mac_cmd_len, uint8_t tru_out[],uint32_t &out_len){
+	uint8_t check[50];
 	memcpy(check, label, lab_len);
 	memcpy(check + lab_len, tru_data_in, data_in_len);
 	
@@ -298,7 +298,7 @@ bool truthtee::decrypto(unsigned char label[], unsigned int lab_len, unsigned ch
 	return true;
 
 }
-void truthtee::transfer_data(unsigned char tru_in[],unsigned int in_len, unsigned char tru_out[],unsigned int &out_len, bool tr, int signal){
+void truthtee::transfer_data(uint8_t tru_in[],uint32_t in_len, uint8_t tru_out[],uint32_t &out_len, bool tr, int signal){
 	if(in_len >= 4000){
 		int tmp = in_len;
 		int itr = 0;
@@ -380,7 +380,7 @@ void truthtee::transfer_data(unsigned char tru_in[],unsigned int in_len, unsigne
 	}
 	
 }
-int truthtee::test_and_op(unsigned char tru_out[], int &out_len){
+int truthtee::test_and_op(uint8_t tru_out[], int &out_len){
 	if(!A_get){
 		return 0;
 	}
@@ -395,34 +395,34 @@ int truthtee::test_and_op(unsigned char tru_out[], int &out_len){
 	return 1;
 
 }
-void truthtee::to_ll(unsigned char input[], uint64_t &output){
+void truthtee::to_ll(uint8_t input[], uint64_t &output){
     for(int i = 0; i < 8; i++){
         output *= 256;
         output += input[i+8];
     }
 }
-void truthtee::to_byte16(uint64_t org, unsigned char output[]){
+void truthtee::to_byte16(uint64_t org, uint8_t output[]){
     for(int i = 0; i < 8; i++){
         output[i] = 0;
         output[i+8] = org>>((7-i)*8);
     }
 }
-void truthtee::to_ll(unsigned char input[], int64_t &output){
+void truthtee::to_ll(uint8_t input[], int64_t &output){
     for(int i = 0; i < 8; i++){
         output *= 256;
         output += input[i+8];
     }
 }
-void truthtee::to_byte16(int64_t org, unsigned char output[]){
+void truthtee::to_byte16(int64_t org, uint8_t output[]){
     for(int i = 0; i < 8; i++){
         output[i] = 0;
         output[i+8] = org>>((7-i)*8);
     }
 }
 //sign operation
-void truthtee::sign_key(unsigned char tru_out[]){
+void truthtee::sign_key(uint8_t tru_out[]){
 	//use sign key encrypt public key
-	unsigned char allover_public_key[ECC_MAX_XCOORDINATE_BITS_LEN/2];
+	uint8_t allover_public_key[ECC_MAX_XCOORDINATE_BITS_LEN/2];
 	query_signature(allover_public_key, false);
 	if(SG_SM2Sign(1,&pub_key2,&pri_key2,NULL,0,allover_public_key,ECC_MAX_XCOORDINATE_BITS_LEN/2,&sig) != SAR_OK){
 		perror("signature data error\n");
@@ -430,12 +430,12 @@ void truthtee::sign_key(unsigned char tru_out[]){
 	serialize_signature(sig,tru_out);
 
 }
-bool truthtee::sign_verify(unsigned char tru_in[]){
+bool truthtee::sign_verify(uint8_t tru_in[]){
 	remote_sig = deserialize_signature(tru_in);
 	if(test){
 		test_sign(remote_sig);
 	}
-	unsigned char allover_public_key[ECC_MAX_XCOORDINATE_BITS_LEN/2];
+	uint8_t allover_public_key[ECC_MAX_XCOORDINATE_BITS_LEN/2];
 	query_signature(allover_public_key, true);
 	if(SG_SM2Verify(1,&remote_pub_key2,NULL,0,allover_public_key,ECC_MAX_XCOORDINATE_BITS_LEN/2,&remote_sig) != SAR_OK){
 		perror("verify signature error\n");
@@ -446,9 +446,9 @@ bool truthtee::sign_verify(unsigned char tru_in[]){
 	return false;
 
 }
-void truthtee::sign_cmd(unsigned char label1[], unsigned int lab_len1, unsigned char label2[], unsigned int lab_len2, unsigned int op, unsigned char tru_out[], unsigned int &data_len_out){
+void truthtee::sign_cmd(uint8_t label1[], uint32_t lab_len1, uint8_t label2[], uint32_t lab_len2, uint32_t op, uint8_t tru_out[], uint32_t &data_len_out){
 	cmd_counter ++;
-	unsigned char over_all[50];
+	uint8_t over_all[50];
 	over_all[0] = cmd_counter%256;
 	over_all[1] = cmd_counter/256;
 	memcpy(over_all + 2, label1, lab_len1);
@@ -456,8 +456,8 @@ void truthtee::sign_cmd(unsigned char label1[], unsigned int lab_len1, unsigned 
 	memcpy(over_all + lab_len1 + 3, label2, lab_len2);
 	SG_Hmac(SGD_SM3 , sym_key_keep, sym_key_len/8, over_all, lab_len1 + lab_len2 + 3, tru_out, &data_len_out);
 }
-void truthtee::sign_cmd_accu(unsigned char label1[], unsigned int lab_len1, unsigned char label2[], unsigned int lab_len2, unsigned int op, unsigned char tru_out[], unsigned int &data_len_out){
-	unsigned char over_all[100];
+void truthtee::sign_cmd_accu(uint8_t label1[], uint32_t lab_len1, uint8_t label2[], uint32_t lab_len2, uint32_t op, uint8_t tru_out[], uint32_t &data_len_out){
+	uint8_t over_all[100];
 	memcpy(over_all, label1, lab_len1);
 	over_all[lab_len1] = op;
 	memcpy(over_all + lab_len1 + 1, label2, lab_len2);
@@ -465,17 +465,17 @@ void truthtee::sign_cmd_accu(unsigned char label1[], unsigned int lab_len1, unsi
 	SG_Hmac(SGD_SM3 , sym_key_keep, sym_key_len/8, over_all, lab_len1 + lab_len2 + 1, tru_out, &data_len_out);
 	memcpy(now_mac, tru_out, MAC_LEN);
 }
-void truthtee::check_cmd_accu(unsigned char label1[], unsigned int lab_len1, unsigned char label2[], unsigned int lab_len2, unsigned int op){
-	unsigned char over_all[100];
-	unsigned int temp;
+void truthtee::check_cmd_accu(uint8_t label1[], uint32_t lab_len1, uint8_t label2[], uint32_t lab_len2, uint32_t op){
+	uint8_t over_all[100];
+	uint32_t temp;
 	memcpy(over_all, label1, lab_len1);
 	over_all[lab_len1] = op;
 	memcpy(over_all + lab_len1 + 1, label2, lab_len2);
 	memcpy(over_all + lab_len1 + lab_len2 + 1, remote_mac, MAC_LEN);
 	SG_Hmac(SGD_SM3 , sym_key_remote, sym_key_len/8, over_all, lab_len1 + lab_len2 + 1, remote_mac, &temp);
 }
-void truthtee::sign_cmd_without_counter(unsigned char label1[], unsigned int lab_len1, unsigned char label2[], unsigned int lab_len2, unsigned int op, unsigned char tru_out[], unsigned int &data_len_out){
-	unsigned char over_all[50];
+void truthtee::sign_cmd_without_counter(uint8_t label1[], uint32_t lab_len1, uint8_t label2[], uint32_t lab_len2, uint32_t op, uint8_t tru_out[], uint32_t &data_len_out){
+	uint8_t over_all[50];
 	memcpy(over_all, label1, lab_len1);
 	over_all[lab_len1] = op;
 	memcpy(over_all + lab_len1 + 1, label2, lab_len2);
@@ -483,10 +483,10 @@ void truthtee::sign_cmd_without_counter(unsigned char label1[], unsigned int lab
 }
 
 
-bool truthtee::mac_verification(unsigned char text[], unsigned int text_len, unsigned char mac[], unsigned int mac_len, bool remote){
+bool truthtee::mac_verification(uint8_t text[], uint32_t text_len, uint8_t mac[], uint32_t mac_len, bool remote){
 	//call SG_Hmac API for mac check
-	unsigned char mac_out[50];
-	unsigned int mac_len_out;
+	uint8_t mac_out[50];
+	uint32_t mac_len_out;
 	if(remote)
 		SG_Hmac(SGD_SM3 , sym_key_remote, sym_key_len/8, text, text_len, mac_out, &mac_len_out);
 	else
@@ -502,7 +502,7 @@ bool truthtee::mac_verification(unsigned char text[], unsigned int text_len, uns
 	}
 	return true;
 }
-void truthtee::operation(unsigned char label1[], unsigned int lab_len1, unsigned char tru_in1[],unsigned int in1_len, int swi_1, unsigned char mac1[], unsigned int mac1_len, unsigned char label2[], unsigned int lab_len2, unsigned char tru_in2[],unsigned int in2_len, int swi_2, unsigned char mac2[], unsigned int mac2_len, unsigned char out_label[], unsigned int outlabel_len, unsigned char tru_out[],unsigned int &out_len, unsigned char tru_mac_out[],unsigned int &mac_out_len, unsigned char mac_op[], unsigned int macop_len, int op){
+void truthtee::operation(uint8_t label1[], uint32_t lab_len1, uint8_t tru_in1[],uint32_t in1_len, int swi_1, uint8_t mac1[], uint32_t mac1_len, uint8_t label2[], uint32_t lab_len2, uint8_t tru_in2[],uint32_t in2_len, int swi_2, uint8_t mac2[], uint32_t mac2_len, uint8_t out_label[], uint32_t outlabel_len, uint8_t tru_out[],uint32_t &out_len, uint8_t tru_mac_out[],uint32_t &mac_out_len, uint8_t mac_op[], uint32_t macop_len, int op){
 	/*
 	check MAC:
 		1. check label and data
@@ -514,8 +514,8 @@ void truthtee::operation(unsigned char label1[], unsigned int lab_len1, unsigned
 		check_cmd_accu(label1, lab_len1, label2, lab_len2, op);
 	}else{
 		cmd_counter ++;
-		unsigned char over_all[50];
-		unsigned int over_all_len;
+		uint8_t over_all[50];
+		uint32_t over_all_len;
 		if(is_check_counter){
 			over_all[0] = cmd_counter%256;
 			over_all[1] = cmd_counter/256;
@@ -538,7 +538,7 @@ void truthtee::operation(unsigned char label1[], unsigned int lab_len1, unsigned
 	
 	//check data
 
-	unsigned char check[50];
+	uint8_t check[50];
 	if(swi_1 != SWI_PLA){
 		memcpy(check, label1, lab_len1);
 		memcpy(check + lab_len1, tru_in1, in1_len);
@@ -567,18 +567,18 @@ void truthtee::operation(unsigned char label1[], unsigned int lab_len1, unsigned
 
 
 }
-void truthtee::operation(unsigned char tru_in1[],unsigned int in1_len, int swi_1, unsigned char tru_in2[],unsigned int in2_len, int swi_2, unsigned char tru_out[],unsigned int &out_len, int op){
+void truthtee::operation(uint8_t tru_in1[],uint32_t in1_len, int swi_1, uint8_t tru_in2[],uint32_t in2_len, int swi_2, uint8_t tru_out[],uint32_t &out_len, int op){
 	
 	if(!key_ex_suc || !key_verify_suc){ 
 		printf("plz do key exchange and verify firstly");
 		return;
 	}
-	unsigned char d1[0x100];
-	unsigned int d1_len;
-	unsigned char d2[0x100];
-	unsigned int d2_len;
-	unsigned char ans[0x100];
-	unsigned int ans_len;
+	uint8_t d1[0x100];
+	uint32_t d1_len;
+	uint8_t d2[0x100];
+	uint32_t d2_len;
+	uint8_t ans[0x100];
+	uint32_t ans_len;
 	if(swi_1 == SWI_ORG && in1_len != 0){
 		transfer_data(tru_in1, in1_len, d1, d1_len, DECRYPTO, org_key);
 	}else if(swi_1 == SWI_REM && in1_len != 0){
@@ -665,7 +665,7 @@ void truthtee::operation(unsigned char tru_in1[],unsigned int in1_len, int swi_1
 	/*
 	//Do not convert to Int
 	int len = std::min(d1_len,d2_len);
-	unsigned int carry = 0; 
+	uint32_t carry = 0; 
 	for(int i = len-1; i >= 0; i--){
 		if(op == NOT_OP){
 			if(in1_len != 0){

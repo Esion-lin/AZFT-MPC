@@ -7,7 +7,8 @@
 #include "tee_srv.h"
 #include <string.h>
 #include <stdlib.h>
-#include "element.h"
+#include <element.h>
+#include <tuple_c.h>
 #define UUID_XOR    { 0x13245768, 0xacbd, 0xcedf,   \
                         { 0x01, 0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78 } }
 
@@ -24,8 +25,8 @@
 #define CMD_DECRYPT_MAC     (0x008)
 
 
-#define MAX_LABEL_SIZE  5*1024
-#define MAX_DATA_SIZE   300*1024*1024
+#define MAX_LABEL_SIZE  1024
+#define MAX_DATA_SIZE   1024*1024
 #define SYM_KEY_SIZE    256
 #define ASYM_KEY_SIZE   256
 #define DIGEST_SIZE     256
@@ -70,7 +71,6 @@ static TEE_Result sst_write_data(char* name, uint8_t name_len,
                                  uint8_t* data, uint32_t data_len) {
     TEE_Result ret = TEE_SUCCESS;
     TEE_ObjectHandle ptObject = TEE_HANDLE_NULL;
-    TEE_ObjectHandle ptObject2 = TEE_HANDLE_NULL;
     TA_DBG("sst_write_data: call TEE_CreatePersistentObject name: %s len: %d\n", name, name_len);
     ret = TEE_CreatePersistentObject(TEE_STORAGE_PRIVATE, name, name_len,
                                      TEE_DATA_FLAG_ACCESS_READ | TEE_DATA_FLAG_ACCESS_WRITE |
@@ -213,12 +213,9 @@ cleanup:
     TEE_CloseObject(keyObject);
     return ret;
 }
-static TEE_SUCCESS gen_mac_for_protocol_key(){
-    uint8_t key[32] = {32,43,15,6,98,123,45,52,99,10,65,99,244,98,0,85,219,187,176,153,63,188,3,2,25,6,227,128,98,87,131,32};
-    return serialize_key("mac_for_protocol_key", 20, key, 32, SYM_KEY_SIZE,false, MAC_KEY_STYLE);
-}
+
 /*generate MAC code*/
-TEE_Result gen_mac(uint8_t* data, uint32_t data_len,  char* name, uint8_t name_len, uint8_t * data_out, uint32_t * data_out_len, bool check){
+static TEE_Result gen_mac(uint8_t* data, uint32_t data_len,  char* name, uint8_t name_len, uint8_t * data_out, uint32_t * data_out_len, bool check){
     TEE_Result ret = 0;
     TEE_OperationHandle macOp = TEE_HANDLE_NULL;
     TEE_ObjectHandle key = TEE_HANDLE_NULL;
@@ -292,7 +289,10 @@ cleanup:
     TEE_CloseObject(keyObject);
     return ret;
 }
-
+static TEE_Result gen_mac_for_protocol_key(){
+    uint8_t key[32] = {32,43,15,6,98,123,45,52,99,10,65,99,244,98,0,85,219,187,176,153,63,188,3,2,25,6,227,128,98,87,131,32};
+    return serialize_key("mac_for_protocol_key", 20, key, 32, SYM_KEY_SIZE,false, MAC_KEY_STYLE);
+}
 static TEE_Result deserialize_key(char* name, uint8_t name_len, uint8_t *out_data, uint32_t *out_data_len, bool public){
     TEE_ObjectHandle key = TEE_HANDLE_NULL;
     TEE_Result ret;
@@ -484,7 +484,7 @@ cleanup:
     return ret;
 }
 
-TEE_Result sign_ins(uint8_t* S, uint32_t S_len, uint8_t* W, uint32_t W_len, uint8_t* D, uint32_t D_len, uint8_t* mac, uint32_t*mac_len){
+static TEE_Result sign_ins(uint8_t* S, uint32_t S_len, uint8_t* W, uint32_t W_len, uint8_t* D, uint32_t D_len, uint8_t* mac, uint32_t*mac_len){
     TEE_Result ret = 0;
     uint32_t len = 0;
     uint8_t *tmp = NULL;
@@ -513,7 +513,7 @@ cleanup:
     return ret;
 }
 /* sign the table of all public key*/
-TEE_Result sign_verify_public_key(uint8_t* out_data, uint32_t* out_data_len, bool sign){
+static TEE_Result sign_verify_public_key(uint8_t* out_data, uint32_t* out_data_len, bool sign){
     TEE_Result ret = 0;
     uint32_t key_len = ASYM_KEY_SIZE/2;
     uint8_t key_stream[key_len]; 
@@ -559,7 +559,7 @@ TEE_Result sign_verify_public_key(uint8_t* out_data, uint32_t* out_data_len, boo
 cleanup:
     return ret;
 }
-bool check_ins(uint8_t* S, uint32_t S_len, uint8_t* W, uint32_t W_len, uint8_t* D, uint32_t D_len, uint8_t* mac, uint32_t*mac_len){
+static bool check_ins(uint8_t* S, uint32_t S_len, uint8_t* W, uint32_t W_len, uint8_t* D, uint32_t D_len, uint8_t* mac, uint32_t*mac_len){
     TEE_Result ret = 0;
     uint32_t len = 0;
     uint8_t *tmp = NULL;
@@ -591,38 +591,42 @@ cleanup:
         return true;    
     }
 }
-TEE_Result run_protocol(uint8_t* protocol, uint32_t protocol_len, uint8_t* mac, uint32_t*mac_len){
+static TEE_Result run_protocol(uint8_t* protocol, uint32_t protocol_len, uint8_t* mac, uint32_t mac_len){
     TEE_Result ret = 0;
     uint8_t * data = (uint8_t*)malloc(MAX_DATA_SIZE);
     uint8_t * label = (uint8_t*)malloc(MAX_LABEL_SIZE);
     uint32_t data_len = MAX_DATA_SIZE;
     uint32_t label_len = MAX_LABEL_SIZE;
-    
+    struct Tuple tmp;
+    tmp.data = NULL;
+    uint8_t tmp_label[5]="";
+    struct Data data_s;
+    struct Code code;
     if((ret = gen_mac(protocol,protocol_len,"mac_for_protocol_key",20, mac, &mac_len, true)) != TEE_SUCCESS){
         return TEE_ERROR_BAD_STATE;
     }
     /*recover data*/
-    if( (ret = sst_read_data("label",5,label,label_len)) != TEE_SUCCESS ){
+    if( (ret = sst_read_data("label",5,label,&label_len)) != TEE_SUCCESS ){
         TA_DBG("error: label store Error.\n");
         goto cleanup1;
     }
-    if( (ret = sst_read_data("data",4,data,data_len)) != TEE_SUCCESS ){
+    if( (ret = sst_read_data("data",4,data,&data_len)) != TEE_SUCCESS ){
         TA_DBG("error: data store Error.\n");
         goto cleanup1;
     }
-    struct Data data_s = serialize(label, uint32_t label_len, data, data_len);
-    struct Code code = code_serialize(protocol,protocol_len);
+    data_s = serialize(label, label_len, data, data_len);
+    code = code_serialize(protocol,protocol_len);
 
     /*expend protocol*/
-    struct Tuple tmp;
-    tmp.data = NULL;
-    char tmp_label[5]="";
+    
     while(code.now_pos < code.code_size){
-        run_code(&data_s, &code, &tmp, tmp_label);
+        run_code(&data_s, &code, &tmp, (uint8_t*)tmp_label);
     }
 
     /*re store data*/
-
+cleanup1:
+    free(data);
+    free(label);
     
     return ret;
 }
@@ -834,6 +838,7 @@ static TEE_Result _TA_InvokeCommandEntryPoint(
         ret = gen_public_key("sign_key", 8, ASYM_KEY_FOR_SIGN_SIZE);
         ret = gen_public_key("cipher_key", 10, ASYM_KEY_SIZE);
         ret = gen_mac_for_protocol_key();
+        //test();
     }else if (commandID == CMD_TEST_MAC){
         if (TEE_PARAM_TYPES(
                     TEE_PARAM_TYPE_MEMREF_INPUT,

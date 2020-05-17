@@ -104,25 +104,25 @@ std::string get_item(std::map<std::string,int64_t> dic, std::string str){
 
     }
 }
-void to_byte16(uint64_t org, unsigned char output[]){
+void to_byte16(uint64_t org, uint8_t output[]){
     for(int i = 0; i < 8; i++){
         output[i] = 0;
         output[i+8] = org>>((7-i)*8);
     }
 }
-void to_byte16(int64_t org, unsigned char output[]){
+void to_byte16(int64_t org, uint8_t output[]){
     for(int i = 0; i < 8; i++){
         output[i] = 0;
         output[i+8] = org>>((7-i)*8);
     }
 }
-void to_byte16(uint64_t org1, uint64_t org2, unsigned char output[]){
+void to_byte16(uint64_t org1, uint64_t org2, uint8_t output[]){
     for(int i = 0; i < 8; i++){
         output[i] = org1>>((7-i)*8);
         output[i+8] = org2>>((7-i)*8);
     }
 }
-void to_byte16(uint32_t org1, uint32_t org2, uint32_t org3, uint32_t org4, unsigned char output[]){
+void to_byte16(uint32_t org1, uint32_t org2, uint32_t org3, uint32_t org4, uint8_t output[]){
     for(int i = 0; i < 4; i++){
         output[i] = org1>>((3-i)*8);
         output[i+4] = org2>>((3-i)*8);
@@ -132,26 +132,26 @@ void to_byte16(uint32_t org1, uint32_t org2, uint32_t org3, uint32_t org4, unsig
 }
 
 //make sure the length of array is the multiple of 4
-void to_byte(uint32_t org[], unsigned int len, unsigned char output[], unsigned int &out_len){
+void to_byte(uint32_t org[], uint32_t len, uint8_t output[], uint32_t &out_len){
     for(int i = 0; i < len; i++){
         for(int j = 0; j < 4; j++){
             output[i*4 + j] = org[i]>>((3-j)*8);    
         }
     }
 }
-void to_ll(unsigned char input[], uint64_t &output){
+void to_ll(uint8_t input[], uint64_t &output){
     for(int i = 0; i < 8; i++){
         output *= 256;
         output += input[i+8];
     }
 }
-void to_ll(unsigned char input[], int64_t &output){
+void to_ll(uint8_t input[], int64_t &output){
     for(int i = 0; i < 8; i++){
         output *= 256;
         output += input[i+8];
     }
 }
-void to_ll(unsigned char input[], uint64_t &output1, uint64_t &output2){
+void to_ll(uint8_t input[], uint64_t &output1, uint64_t &output2){
     for(int i = 0; i < 8; i++){
         output1 *= 256;
         output1 += input[i];
@@ -159,7 +159,7 @@ void to_ll(unsigned char input[], uint64_t &output1, uint64_t &output2){
         output2 += input[i+8];
     }
 }
-void to_int(unsigned char input[], uint32_t &output1, uint32_t &output2,uint32_t &output3,uint32_t &output4){
+void to_int(uint8_t input[], uint32_t &output1, uint32_t &output2,uint32_t &output3,uint32_t &output4){
     for(int i = 0; i < 4; i++){
         output1 *= 256;
         output1 += input[i];
@@ -172,7 +172,7 @@ void to_int(unsigned char input[], uint32_t &output1, uint32_t &output2,uint32_t
 
     }
 }
-void to_int(unsigned char input[], unsigned int arr_len, uint32_t arr[]){
+void to_int(uint8_t input[], uint32_t arr_len, uint32_t arr[]){
     for(int i = 0; i < arr_len/4; i++){
         arr[i] = 0;
         for(int j = 0; j < 4; j++){
@@ -228,8 +228,8 @@ std::vector<std::string> getFiles(std::string path){
     sort(files.begin(), files.end());
     return files;
 }
-/*void sha3(unsigned char *digest, const unsigned char *message, size_t message_len){
-    unsigned int SHALEN=32;
+/*void sha3(uint8_t *digest, const uint8_t *message, size_t message_len){
+    uint32_t SHALEN=32;
     EVP_MD_CTX *mdctx;
     mdctx = EVP_MD_CTX_create();
     EVP_DigestInit_ex(mdctx, EVP_sha3_256(), NULL);
@@ -237,12 +237,12 @@ std::vector<std::string> getFiles(std::string path){
     EVP_DigestFinal_ex(mdctx, digest, &SHALEN);
     EVP_MD_CTX_destroy(mdctx);
 }*/
-std::string sha3_k(unsigned char *message, int message_len){
+std::string sha3_k(uint8_t *message, int message_len){
     Keccak digestKeccak(Keccak::Keccak256);
     digestKeccak.add(message, message_len);
     return digestKeccak.getHash();
 }
-void store_data_to_file(unsigned char * data, int data_len, std::string filename){
+void store_data_to_file(uint8_t * data, int data_len, std::string filename){
     FILE * pFile;
     if((pFile = fopen (filename.c_str(), "wb"))==NULL){
         printf("cant open the file\n");
@@ -251,7 +251,7 @@ void store_data_to_file(unsigned char * data, int data_len, std::string filename
     fwrite (data , 1, data_len, pFile);
     fclose (pFile);
 };
-void load_data_frome_file(unsigned char * output, int data_len, std::string filename){
+void load_data_frome_file(uint8_t * output, int data_len, std::string filename){
     FILE * pFile;
     if((pFile = fopen (filename.c_str(), "r"))==NULL){
         printf("cant open the file\n");

@@ -25,10 +25,10 @@ class truthtee_pend: public truthtee{
 public:
 	truthtee_pend(){};
 	~truthtee_pend(){};
-	int test_with_remote(unsigned char input_data[], unsigned int input_len, unsigned char output_data[], unsigned int &output_len);
-	int data_input(unsigned char data[], unsigned int data_len, int l, int w, int h);
-	int block(unsigned char W[], unsigned int W_len, unsigned char structure[], unsigned int struct_len, baseInt output[]);
-	int block(baseInt* w_data, unsigned int W_len, unsigned char structure[], unsigned int struct_len, baseInt output[]);
+	int test_with_remote(uint8_t input_data[], uint32_t input_len, uint8_t output_data[], uint32_t &output_len);
+	int data_input(uint8_t data[], uint32_t data_len, int l, int w, int h);
+	int block(uint8_t W[], uint32_t W_len, uint8_t structure[], uint32_t struct_len, baseInt output[]);
+	int block(baseInt* w_data, uint32_t W_len, uint8_t structure[], uint32_t struct_len, baseInt output[]);
 
 	Image data_image;
 };

@@ -36,9 +36,9 @@ int op_form(std::string op){
 }
 //overwrite sha256 function
 
-void merkleTree::sha256(const string str, unsigned char output[])
+void merkleTree::sha256(const string str, uint8_t output[])
 {
-    unsigned char hash[SHA256_DIGEST_LENGTH];
+    uint8_t hash[SHA256_DIGEST_LENGTH];
     SHA256_CTX sha256;
     SHA256_Init(&sha256);
     SHA256_Update(&sha256, str.c_str(), str.size());
@@ -47,7 +47,7 @@ void merkleTree::sha256(const string str, unsigned char output[])
 string merkleTree::sha256(const string str)
 {
 	char buf[2];
-    unsigned char hash[SHA256_DIGEST_LENGTH];
+    uint8_t hash[SHA256_DIGEST_LENGTH];
     SHA256_CTX sha256;
     SHA256_Init(&sha256);
     SHA256_Update(&sha256, str.c_str(), str.size());
@@ -60,16 +60,16 @@ string merkleTree::sha256(const string str)
     }
 	return str2;
 }
-void merkleTree::sha256(unsigned char input[], int len, unsigned char output[])
+void merkleTree::sha256(uint8_t input[], int len, uint8_t output[])
 {
-    unsigned char hash[SHA256_DIGEST_LENGTH];
+    uint8_t hash[SHA256_DIGEST_LENGTH];
     SHA256_CTX sha256;
     SHA256_Init(&sha256);
     SHA256_Update(&sha256, input, len);
     SHA256_Final(output, &sha256);
 }
 
-void merkleTree::output_hash(unsigned char output[]){
+void merkleTree::output_hash(uint8_t output[]){
 	for(int i = 0; i < SHA256_DIGEST_LENGTH; i++){
 		output[i] = out_hash[i];
 	}
@@ -87,7 +87,7 @@ vector<string> merkleTree::quary_path(truple trp){
 	}
 	return ans;
 }
-vector<string> merkleTree::quary_path(string label, unsigned char cipher[]){
+vector<string> merkleTree::quary_path(string label, uint8_t cipher[]){
 	vector<string> ans;
 	char buf[2];
 	for(int i = 0; i < cipher_len; i++) {
@@ -104,13 +104,13 @@ vector<string> merkleTree::quary_path(string label, unsigned char cipher[]){
 }
 queue<string> merkleTree::init_hash(vector<truple> cmds){
 	queue<string> ans;
-	unsigned char hash[SHA256_DIGEST_LENGTH];
+	uint8_t hash[SHA256_DIGEST_LENGTH];
 	for(int i = 0; i < cmds.size(); i++){
 		ans.push(sha256(cmds[i].operand1 + to_string(op_form(cmds[i].op)) + cmds[i].operand2));
 	}
 	return ans;
 }
-queue<string> merkleTree::init_hash(map<std::string, unsigned char[16]> datas){
+queue<string> merkleTree::init_hash(map<std::string, uint8_t[16]> datas){
 	char buf[2];
 	queue<string> ans;
 	string mid;
@@ -150,7 +150,7 @@ merkleTree::merkleTree(vector<truple> cmds){
 	queue<string> mid = init_hash(cmds);
 	make_brother(mid);
 }
-merkleTree::merkleTree(map<std::string, unsigned char[16]> datas){
+merkleTree::merkleTree(map<std::string, uint8_t[16]> datas){
 	queue<string> mid= init_hash(datas);
 	make_brother(mid);
 }

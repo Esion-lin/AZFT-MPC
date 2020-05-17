@@ -195,8 +195,9 @@ uint32_t get_data(struct Data data, uint32_t index, uint32_t* ele_size, uint8_t*
 uint32_t put_data(struct Data *data, uint32_t index, uint32_t ele_size, uint8_t* ele);
 uint32_t add_data(struct Data* data, uint8_t *name, uint32_t name_len, uint8_t* data_in, uint32_t data_len);
 uint32_t deserialize(struct Data data, uint8_t* label, uint32_t* label_len, uint8_t* data_out, uint32_t* data_len);
-uint32_t serialize(struct Data* data, uint8_t* label, uint32_t label_len, uint8_t* data_in, uint32_t data_len);
+struct Data serialize(uint8_t* label, uint32_t label_len, uint8_t* data_in, uint32_t data_len);
 uint32_t code_deserialize(struct Code code, uint8_t* stream, uint32_t* stream_len);
 struct Code code_serialize(uint8_t* stream, uint32_t stream_len);
 uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, uint8_t* last_label);
+int test();
 #endif
