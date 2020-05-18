@@ -234,6 +234,42 @@ int main(){
 	free(code.S);
 	free(code.pos_s);
 	free(w_of_fc);
+	
 
+	/*gen_data*/
+	struct Data data;
+	data.label_size = 0;
+	data.item_capacity = 6;
+	data.data_len = 0;
+	data.data_capacity = 8*5 + 225*225*3*sizeof(float);
+	data.label = (uint8_t*)malloc(data.item_capacity*LABEL_LEN);
+	data.pos = (uint8_t*)malloc(data.item_capacity*POS_LEN);
+	data.data = (uint8_t*)malloc(data.data_capacity);
+	uint8_t ll1[4],ll2[4];
+	uint32_t l1_len = 4,l2_len = 4;
+	memcpy(ll1, &l1, 4);
+	memcpy(ll2, &l2, 4);
+	add_data(&data, (uint8_t*)label1, LABEL_LEN, ll1, l1_len);
+	add_data(&data, (uint8_t*)label2, LABEL_LEN, ll2, l2_len);
+	float* image_data = (float*)malloc(225*225*3*sizeof(float));
+	for(int i = 0; i < 225*225*3; i++){
+		image_data[i] = i/225/225;
+	}
 
-}
+	uint32_t image_len = 225*225*3*sizeof(float);
+	add_data(&data, (uint8_t*)cov_label, LABEL_LEN, (uint8_t*)image_data, image_len);
+	uint8_t* label_stream = (uint8_t*)malloc(data.label_size*LABEL_LEN);
+	uint32_t label_stream_len;
+	uint8_t* data_stream = (uint8_t*)malloc(data.label_size*POS_LEN + data.data_len);
+	uint32_t data_stream_len;
+	deserialize(data, label_stream, &label_stream_len, data_stream, &data_stream_len);
+	save_model<uint8_t>(label_stream,label_stream_len*LABEL_LEN,"./label_data.data");
+	save_model<uint8_t>(data_stream,data_stream_len,"./data_data.data");
+	
+	free(data.label);
+	free(data.pos);
+	free(data.data);
+	free(image_data);
+	free(label_stream);
+	free(data_stream);
+}	

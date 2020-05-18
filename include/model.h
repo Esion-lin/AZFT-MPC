@@ -5,7 +5,7 @@
 #include <string>
 
 template<typename T>
-void save_model(T * data, uint32_t data_len, std::string filename){
+static void save_model(T * data, uint32_t data_len, std::string filename){
 	FILE * pFile;
   	if((pFile = fopen (filename.c_str(), "wb+"))==NULL){
     	printf("cant open the file\n");
@@ -19,7 +19,7 @@ void save_model(T * data, uint32_t data_len, std::string filename){
 	fclose (pFile);
 };
 template<typename T>
-void load_model(T * output, uint32_t attempt_data_len, std::string filename){
+static void load_model(T * output, uint32_t attempt_data_len, std::string filename){
 	FILE * pFile;
   	if((pFile = fopen (filename.c_str(), "r"))==NULL){
     	printf("cant open the file\n");
@@ -34,7 +34,7 @@ void load_model(T * output, uint32_t attempt_data_len, std::string filename){
   	fread(output, sizeof(T), data_len, pFile);
   	fclose (pFile);
 }
-void load_model_len(uint32_t& data_len, std::string filename){
+static void load_model_len(uint32_t& data_len, std::string filename){
   FILE * pFile;
     if((pFile = fopen (filename.c_str(), "r"))==NULL){
       printf("cant open the file\n");

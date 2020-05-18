@@ -1,13 +1,27 @@
 #include "protocol.h"
-#include "model.h"
+
 using namespace std;
 PotocolRead::PotocolRead(std::string path, bool &init_succ, bool do_mac, bool ML){
-	uint32_t data_len;
 	load_model_len(data_len, path);
-	uint8_t* data = (uint8_t*)malloc(data_len);
+	data = (uint8_t*)malloc(data_len);
 	load_model<uint8_t>(data,data_len,path);
 	protocol = code_serialize(data, data_len);
-	free(data);
+	//free(data);
+}
+PotocolRead::~PotocolRead(){
+	if(data != NULL){
+		free(data);
+		data = NULL;
+	}
+	if(protocol.pos_s != NULL){
+		free(protocol.pos_s);
+	}
+	if(protocol.S != NULL){
+		free(protocol.S);
+	}
+	if(protocol.W != NULL){
+		free(protocol.W);
+	}
 }
 // bool PotocolRead::Reader(std::string file_path){
 // 	ifstream file;

@@ -23,7 +23,7 @@
 #define CMD_KEY_VERIFY      (0x006)
 #define CMD_ENCRYPT_MAC     (0x007)
 #define CMD_DECRYPT_MAC     (0x008)
-
+#define CMD_RUN             (0x010)
 
 #define MAX_LABEL_SIZE  1024
 #define MAX_DATA_SIZE   1024*1024
@@ -258,6 +258,7 @@ static TEE_Result serialize_key(char* name, uint8_t name_len, uint8_t *data, uin
     TEE_Attribute crypto_att[2];
     /* judge if it is asymmetric*/
     if(public){
+        printf("serialize_key size %u\n",data_len);
         TEE_InitRefAttribute(&crypto_att[0], TEE_ATTR_RSA_MODULUS, data, (uint32_t) (key_len / 8));
         TEE_InitRefAttribute(&crypto_att[1], TEE_ATTR_RSA_PUBLIC_EXPONENT, data + (uint32_t) (key_len / 8), 3);
         ret = TEE_AllocateTransientObject(TEE_TYPE_RSA_PUBLIC_KEY,key_len,&keyObject);
@@ -323,6 +324,7 @@ static TEE_Result deserialize_key(char* name, uint8_t name_len, uint8_t *out_dat
         }
         memcpy(out_data + *out_data_len, ans, ans_size);
         *out_data_len += ans_size;
+        printf("deserialize_key size %u\n",*out_data_len);
     }else{
         ret = TEE_GetObjectBufferAttribute(key, TEE_ATTR_SECRET_VALUE, ans, &ans_size);
         if (TEE_SUCCESS != ret) {
@@ -602,9 +604,9 @@ static TEE_Result run_protocol(uint8_t* protocol, uint32_t protocol_len, uint8_t
     uint8_t tmp_label[5]="";
     struct Data data_s;
     struct Code code;
-    if((ret = gen_mac(protocol,protocol_len,"mac_for_protocol_key",20, mac, &mac_len, true)) != TEE_SUCCESS){
-        return TEE_ERROR_BAD_STATE;
-    }
+    // if((ret = gen_mac(protocol,protocol_len,"mac_for_protocol_key",20, mac, &mac_len, true)) != TEE_SUCCESS){
+    //     return TEE_ERROR_BAD_STATE;
+    // }
     /*recover data*/
     if( (ret = sst_read_data("label",5,label,&label_len)) != TEE_SUCCESS ){
         TA_DBG("error: label store Error.\n");
@@ -614,7 +616,9 @@ static TEE_Result run_protocol(uint8_t* protocol, uint32_t protocol_len, uint8_t
         TA_DBG("error: data store Error.\n");
         goto cleanup1;
     }
-    data_s = serialize(label, label_len, data, data_len);
+    printf("label_len is %u\n", label_len);
+    printf("data_len is %u\n", data_len);
+    data_s = serialize(label, label_len/5, data, data_len);
     code = code_serialize(protocol,protocol_len);
 
     /*expend protocol*/
@@ -627,7 +631,12 @@ static TEE_Result run_protocol(uint8_t* protocol, uint32_t protocol_len, uint8_t
 cleanup1:
     free(data);
     free(label);
-    
+    free(code.pos_s);
+    free(code.S);
+    free(code.W);
+    free(data_s.label);
+    free(data_s.pos);
+    free(data_s.data);
     return ret;
 }
 /*static TEE_Result hybrid_encrypt(uint8_t* data, uint32_t data_len, char* name, uint8_t name_len){
@@ -730,6 +739,7 @@ static TEE_Result ae_encrypto(uint8_t* label, uint32_t label_len, uint8_t* data,
         uint8_t * mac_in = (uint8_t *)malloc(mac_in_len);
         memcpy(mac_in, label, label_len);
         memcpy(mac_in + label_len, data_out, *out_len);
+        TA_DBG("start encrypte. mac_in_len: %u, mac_len: %u\n",mac_in_len,*mac_len);
         return fixed_hybrid_MAC(mac_in, mac_in_len, mac, mac_len);
     }else{
         return ret;
@@ -744,7 +754,7 @@ static TEE_Result ae_decrypto(uint8_t* label, uint32_t label_len, uint8_t* data,
     uint8_t * data_plain = NULL;
     memcpy(mac_in, label, label_len);
     memcpy(mac_in + label_len, data, data_len);
-    TA_DBG("start encrypte. mac_in_len: %u, mac_len: %u\n",mac_in_len,mac_len);
+    TA_DBG("start decrypte. mac_in_len: %u, mac_len: %u\n",mac_in_len,mac_len);
     if( (ret = fixed_hybrid_MAC_check(mac_in, mac_in_len,mac,mac_len)) != TEE_SUCCESS ){
         TA_DBG("error: data mac illegal.\n");
         goto cleanup;
@@ -935,6 +945,20 @@ static TEE_Result _TA_InvokeCommandEntryPoint(
                     params[1].memref.size,
                     params[2].memref.buffer,
                     params[2].memref.size);
+    }
+    else if (commandID == CMD_RUN){
+        if (TEE_PARAM_TYPES(
+                    TEE_PARAM_TYPE_MEMREF_INPUT,
+                    TEE_PARAM_TYPE_MEMREF_INPUT,
+                    TEE_PARAM_TYPE_NONE,
+                    TEE_PARAM_TYPE_NONE) != paramTypes) {
+            return TEE_ERROR_BAD_PARAMETERS;
+        }
+        ret = run_protocol(
+                    params[0].memref.buffer, 
+                    params[0].memref.size,
+                    params[1].memref.buffer, 
+                    params[1].memref.size);
     }
 
     return TEE_SUCCESS;

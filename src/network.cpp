@@ -57,21 +57,27 @@ void netTool::deal_data(Json::Value value){
     }
 }
 void netTool::accept_data(Json::Value label_part, Json::Value data_part, Json::Value mac_part){
-    uint8_t* label = (uint8_t*)malloc(label_part.size());
-    uint8_t* data = (uint8_t*)malloc(data_part.size());
-    uint8_t* mac = (uint8_t*)malloc(mac_part.size());
-    for(int i = 0; i < label_part.size(); i++){
-        label[i] = label_part[i].asUInt();
-    }
-    for(int i = 0; i < data_part.size(); i++){
-        data[i] = data_part[i].asUInt();
-    }
-    for(int i = 0; i < mac_part.size(); i++){
-        mac[i] = mac_part[i].asUInt();
-    }
-    tru->input_data(label, label_part.size(), data, data_part.size(), mac, mac_part.size());
+    std::string label_s = label_part.asString();
+    std::string data_s = data_part.asString();
+    std::string mac_s = mac_part.asString();
+    // uint8_t* label = (uint8_t*)malloc(label_part.size());
+    // uint8_t* data = (uint8_t*)malloc(data_part.size());
+    // uint8_t* mac = (uint8_t*)malloc(mac_part.size());
+    // for(int i = 0; i < label_part.size(); i++){
+    //     label[i] = label_part[i].asString();
+    // }
+    // for(int i = 0; i < data_part.size(); i++){
+    //     data[i] = data_part[i].asUInt();
+    // }
+    // for(int i = 0; i < mac_part.size(); i++){
+    //     mac[i] = mac_part[i].asUInt();
+    // }
+    printf("label len:%u\n",label_s.length());
+    printf("data len:%u\n",data_s.length());
+    printf("mac len:%u\n",mac_s.length());
+    tru->input_data((uint8_t*)label_s.c_str(), label_s.length(), (uint8_t*)data_s.c_str(), data_s.length(), (uint8_t*)mac_s.c_str(), mac_s.length());
     is_data_store = true;
-    free(label);free(data);free(mac);
+
     // uint8_t test[16];
     // uint32_t len;
     // tru->decrypto(data_dic["A"],16,test,len);
@@ -83,6 +89,7 @@ void netTool::accept_key(Json::Value value){
     }
 
     tru->stream_to_key(data);
+    printf("accept_key successsful\n");
     is_key_store = true;
 
 }
@@ -91,7 +98,10 @@ void netTool::accept_sign(Json::Value value){
     for(int i = 0; i < value.size(); i++){
         data[i] = value[i].asUInt();
     }
-    is_key_verify = (tru->sign_verify(data) == 0);
+    if(tru->sign_verify(data) == 0){
+        printf("sign_verify successsful\n");
+        is_key_verify = true;    
+    }
     
 }
 void netTool::set_host_port(std::string host,int port){
@@ -126,18 +136,25 @@ void *netTool::init_listen(){
         }else{
             //printf("connect successful\n");
         }
-           
-        int ret = recv(conn, recvbuf, sizeof(recvbuf),0);
-        if(ret <0){
-            perror("recv error\n");
-        }else{
-            //printf("recv size: %d\n",ret); 
+        int ret;
+        uint8_t* buffer_all = (uint8_t*)malloc(buffer_size*buffer_size);
+        uint32_t itr = 0;
+        while((ret = recv(conn, recvbuf, sizeof(recvbuf),0))!=0){
+            if(ret <0){
+                perror("recv error\n");
+                free(buffer_all);
+                break;
+            }
+            memcpy(buffer_all + itr, recvbuf, ret);
+            itr += ret;
         }
-        if(reader.parse(recvbuf,value)){
+        printf("rec data:%u\n", itr);
+        if(reader.parse((char *)buffer_all,value)){
             deal_data(value);        
         }else{
             perror("reader error\n");
         }    
+        free(buffer_all);
          
     }
 	
@@ -164,7 +181,7 @@ void netTool::send_data(Json::Value js){
         perror("connect");
     } 
     std::string s = js.toStyledString();
-    //printf("send data len:%u\n", s.length());
+    printf("send data len:%u\n", s.length());
     send(conn_fd, s.c_str(), s.length(),0);///send away
     close(conn_fd);
 }

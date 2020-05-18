@@ -15,6 +15,7 @@ CMakeFiles/main.dir/src/main.cpp.o
  include/json/reader.h
  include/json/value.h
  include/json/writer.h
+ include/model.h
  include/network.h
  include/protocol.h
  include/some_struct.h

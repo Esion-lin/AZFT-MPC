@@ -1,0 +1,355 @@
+Index: include/json/value.h
+===================================================================
+--- include/json/value.h	(revision 252)
++++ include/json/value.h	(working copy)
+@@ -481,7 +481,10 @@
+          LargestUInt uint_;
+          double real_;
+          bool bool_;
+-         char *string_;
++         struct{
++            UInt length_;
++            char *string_;
++         };
+ # ifdef JSON_VALUE_USE_INTERNAL_MAP
+          ValueInternalArray *array_;
+          ValueInternalMap *map_;
+Index: include/json/writer.h
+===================================================================
+--- include/json/writer.h	(revision 252)
++++ include/json/writer.h	(working copy)
+@@ -172,7 +172,7 @@
+    std::string JSON_API valueToString( LargestUInt value );
+    std::string JSON_API valueToString( double value );
+    std::string JSON_API valueToString( bool value );
+-   std::string JSON_API valueToQuotedString( const char *value );
++   std::string JSON_API valueToQuotedString( const std::string& value );
+ 
+    /// \brief Output using the StyledStreamWriter.
+    /// \see Json::operator>>()
+Index: src/lib_json/json_value.cpp
+===================================================================
+--- src/lib_json/json_value.cpp	(revision 252)
++++ src/lib_json/json_value.cpp	(working copy)
+@@ -254,6 +254,7 @@
+       break;
+    case stringValue:
+       value_.string_ = 0;
++      value_.length_ = 0;
+       break;
+ #ifndef JSON_VALUE_USE_INTERNAL_MAP
+    case arrayValue:
+@@ -340,7 +341,8 @@
+    , itemIsUsed_( 0 )
+ #endif
+ {
+-   value_.string_ = duplicateStringValue( value );
++   value_.length_ = (unsigned int) strlen( value );
++   value_.string_ = duplicateStringValue( value , value_.length_ );
+ }
+ 
+ 
+@@ -353,8 +355,9 @@
+    , itemIsUsed_( 0 )
+ #endif
+ {
+-   value_.string_ = duplicateStringValue( beginValue, 
+-                                          (unsigned int)(endValue - beginValue) );
++   value_.length_ = UInt(endValue - beginValue);
++   value_.string_ = duplicateStringValue( beginValue,
++                                          value_.length_ );
+ }
+ 
+ 
+@@ -366,8 +369,9 @@
+    , itemIsUsed_( 0 )
+ #endif
+ {
+-   value_.string_ = duplicateStringValue( value.c_str(), 
+-                                          (unsigned int)value.length() );
++   value_.length_ = (unsigned int) value.length();
++   value_.string_ = duplicateStringValue( value.c_str(),
++                                          value_.length_ );
+ 
+ }
+ 
+@@ -379,6 +383,7 @@
+    , itemIsUsed_( 0 )
+ #endif
+ {
++   value_.length_ = (unsigned int)strlen( value.c_str() );
+    value_.string_ = const_cast<char *>( value.c_str() );
+ }
+ 
+@@ -392,7 +397,8 @@
+    , itemIsUsed_( 0 )
+ #endif
+ {
+-   value_.string_ = duplicateStringValue( value, value.length() );
++   value_.length_ = value.length();
++   value_.string_ = duplicateStringValue( value, value_.length_ );
+ }
+ # endif
+ 
+@@ -426,11 +432,15 @@
+    case stringValue:
+       if ( other.value_.string_ )
+       {
+-         value_.string_ = duplicateStringValue( other.value_.string_ );
++         value_.length_ = other.value_.length_;
++         value_.string_ = duplicateStringValue( other.value_.string_, value_.length_ );
+          allocated_ = true;
+       }
+       else
++      {
++         value_.length_ = 0;
+          value_.string_ = 0;
++      }
+       break;
+ #ifndef JSON_VALUE_USE_INTERNAL_MAP
+    case arrayValue:
+@@ -472,8 +482,11 @@
+    case booleanValue:
+       break;
+    case stringValue:
+-      if ( allocated_ )
++     if ( allocated_ )
++     {
+          releaseStringValue( value_.string_ );
++         value_.length_ = 0;
++     }
+       break;
+ #ifndef JSON_VALUE_USE_INTERNAL_MAP
+    case arrayValue:
+@@ -553,10 +566,27 @@
+    case booleanValue:
+       return value_.bool_ < other.value_.bool_;
+    case stringValue:
+-      return ( value_.string_ == 0  &&  other.value_.string_ )
+-             || ( other.value_.string_  
+-                  &&  value_.string_  
+-                  && strcmp( value_.string_, other.value_.string_ ) < 0 );
++      if ( value_.string_ == 0  &&  other.value_.string_ )
++      {
++         return true;
++      }
++      if ( other.value_.string_
++           &&  value_.string_)
++      {
++         // memcmp the strings up to the minimum length and check
++         // for length differences if they are the same
++         unsigned int minlength = std::min(value_.length_, other.value_.length_);
++         int cmp = memcmp( value_.string_, other.value_.string_, minlength);
++         if (cmp == 0)
++         {
++            return (value_.length_ < other.value_.length_);
++         }
++         else
++         {
++            return (cmp < 0);
++         }
++      }
++      return false;
+ #ifndef JSON_VALUE_USE_INTERNAL_MAP
+    case arrayValue:
+    case objectValue:
+@@ -619,10 +649,17 @@
+    case booleanValue:
+       return value_.bool_ == other.value_.bool_;
+    case stringValue:
+-      return ( value_.string_ == other.value_.string_ )
+-             || ( other.value_.string_  
+-                  &&  value_.string_  
+-                  && strcmp( value_.string_, other.value_.string_ ) == 0 );
++      if ( value_.string_ == other.value_.string_ )
++      {
++         return true;
++      }
++      // if the length is the same, do memcheck
++      if ( other.value_.string_ &&  value_.string_
++           && other.value_.length_ == value_.length_)
++      {
++         return ( memcmp( value_.string_, other.value_.string_, value_.length_ ) == 0 );
++      }
++      return false;
+ #ifndef JSON_VALUE_USE_INTERNAL_MAP
+    case arrayValue:
+    case objectValue:
+@@ -662,7 +699,7 @@
+    case nullValue:
+       return "";
+    case stringValue:
+-      return value_.string_ ? value_.string_ : "";
++     return value_.string_ ? std::string( value_.string_, value_.length_ ) : "";
+    case booleanValue:
+       return value_.bool_ ? "true" : "false";
+    case intValue:
+@@ -681,7 +718,7 @@
+ CppTL::ConstString 
+ Value::asConstString() const
+ {
+-   return CppTL::ConstString( asString().c_str() );
++   return CppTL::ConstString( asString() );
+ }
+ # endif
+ 
+@@ -899,7 +936,7 @@
+    case booleanValue:
+       return value_.bool_;
+    case stringValue:
+-      return value_.string_  &&  value_.string_[0] != 0;
++      return value_.string_  &&  value_.length_ > 0;
+    case arrayValue:
+    case objectValue:
+       return value_.map_->size() != 0;
+@@ -947,7 +984,7 @@
+              || other == booleanValue;
+    case stringValue:
+       return other == stringValue
+-             || ( other == nullValue  &&  (!value_.string_  ||  value_.string_[0] == 0) );
++             || ( other == nullValue  &&  (!value_.string_  ||  value_.length_ == 0) );
+    case arrayValue:
+       return other == arrayValue
+              ||  ( other == nullValue  &&  value_.map_->size() == 0 );
+Index: src/lib_json/json_writer.cpp
+===================================================================
+--- src/lib_json/json_writer.cpp	(revision 252)
++++ src/lib_json/json_writer.cpp	(working copy)
+@@ -21,17 +21,18 @@
+ 
+ namespace Json {
+ 
+-static bool containsControlCharacter( const char* str )
++static bool containsCharacterToEscape( const char* str, unsigned int length )
+ {
+-   while ( *str ) 
++   for (unsigned int i=0; i < length; ++i)
+    {
+-      if ( isControlCharacter( *(str++) ) )
++      if ( isCharacterToEscape( *(str+i) ) )
+          return true;
+    }
+    return false;
+ }
+ 
+ 
++
+ std::string valueToString( LargestInt value )
+ {
+    UIntToStringBuffer buffer;
+@@ -117,19 +118,28 @@
+    return value ? "true" : "false";
+ }
+ 
+-std::string valueToQuotedString( const char *value )
++std::string valueToQuotedString( const std::string& string_value )
+ {
++   const char* value = string_value.c_str();
++   unsigned int length = string_value.length();
+    // Not sure how to handle unicode...
+-   if (strpbrk(value, "\"\\\b\f\n\r\t") == NULL && !containsControlCharacter( value ))
+-      return std::string("\"") + value + "\"";
++   if (!containsCharacterToEscape( value , length ))
++   {
++      std::string result("\"");
++      result.reserve(length+3); // to avoid lots of mallocs
++      result.append(std::string(value, length));
++      result.append("\"");
++      return result;
++   }
+    // We have to walk value and escape any special characters.
+    // Appending to std::string is not efficient, but this should be rare.
+    // (Note: forward slashes are *not* rare, but I am not escaping them.)
+-   std::string::size_type maxsize = strlen(value)*2 + 3; // allescaped+quotes+NULL
++   std::string::size_type maxsize = length*2 + 3; // allescaped+quotes+NULL
+    std::string result;
+    result.reserve(maxsize); // to avoid lots of mallocs
+    result += "\"";
+-   for (const char* c=value; *c != 0; ++c)
++   const char* c = value;
++   for (int i = 0; i < length; i++, c++)
+    {
+       switch(*c)
+       {
+@@ -163,7 +173,7 @@
+             // Should add a flag to allow this compatibility mode and prevent this 
+             // sequence from occurring.
+          default:
+-            if ( isControlCharacter( *c ) )
++            if ( isCharacterToEscape( *c ) )
+             {
+                std::ostringstream oss;
+                oss << "\\u" << std::hex << std::uppercase << std::setfill('0') << std::setw(4) << static_cast<int>(*c);
+@@ -231,7 +241,7 @@
+       document_ += valueToString( value.asDouble() );
+       break;
+    case stringValue:
+-      document_ += valueToQuotedString( value.asCString() );
++      document_ += valueToQuotedString( value.asString() );
+       break;
+    case booleanValue:
+       document_ += valueToString( value.asBool() );
+@@ -260,7 +270,7 @@
+             const std::string &name = *it;
+             if ( it != members.begin() )
+                document_ += ",";
+-            document_ += valueToQuotedString( name.c_str() );
++            document_ += valueToQuotedString( name );
+             document_ += yamlCompatiblityEnabled_ ? ": " 
+                                                   : ":";
+             writeValue( value[name] );
+@@ -314,7 +324,7 @@
+       pushValue( valueToString( value.asDouble() ) );
+       break;
+    case stringValue:
+-      pushValue( valueToQuotedString( value.asCString() ) );
++      pushValue( valueToQuotedString( value.asString() ) );
+       break;
+    case booleanValue:
+       pushValue( valueToString( value.asBool() ) );
+@@ -337,7 +347,7 @@
+                const std::string &name = *it;
+                const Value &childValue = value[name];
+                writeCommentBeforeValue( childValue );
+-               writeWithIndent( valueToQuotedString( name.c_str() ) );
++               writeWithIndent( valueToQuotedString( name ) );
+                document_ += " : ";
+                writeValue( childValue );
+                if ( ++it == members.end() )
+@@ -590,7 +600,7 @@
+       pushValue( valueToString( value.asDouble() ) );
+       break;
+    case stringValue:
+-      pushValue( valueToQuotedString( value.asCString() ) );
++      pushValue( valueToQuotedString( value.asString() ) );
+       break;
+    case booleanValue:
+       pushValue( valueToString( value.asBool() ) );
+@@ -613,7 +623,7 @@
+                const std::string &name = *it;
+                const Value &childValue = value[name];
+                writeCommentBeforeValue( childValue );
+-               writeWithIndent( valueToQuotedString( name.c_str() ) );
++               writeWithIndent( valueToQuotedString( name ) );
+                *document_ << " : ";
+                writeValue( childValue );
+                if ( ++it == members.end() )
+Index: src/lib_json/json_tool.h
+===================================================================
+--- src/lib_json/json_tool.h	(revision 252)
++++ src/lib_json/json_tool.h	(working copy)
+@@ -53,11 +53,10 @@
+ }
+ 
+ 
+-/// Returns true if ch is a control character (in range [0,32[).
+-static inline bool 
+-isControlCharacter(char ch)
++/// Returns true if ch needs to be escaped
++static bool isCharacterToEscape(char ch)
+ {
+-   return ch > 0 && ch <= 0x1F;
++   return ( ch >= 0 && ch <= 0x1F ) || ( ch == '\"' );
+ }
+ 
+ 

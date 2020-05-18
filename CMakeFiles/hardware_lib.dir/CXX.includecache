@@ -23,8 +23,6 @@ network.h
 /home/eason/Documents/AZFT-MPC/src/protocol.cpp
 protocol.h
 /home/eason/Documents/AZFT-MPC/src/protocol.h
-model.h
-/home/eason/Documents/AZFT-MPC/src/model.h
 
 /home/eason/Documents/AZFT-MPC/src/tool.cpp
 tool.h
@@ -195,6 +193,8 @@ tee.h
 include/tee.h
 some_struct.h
 include/some_struct.h
+model.h
+include/model.h
 vector
 -
 

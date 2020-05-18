@@ -71,23 +71,32 @@ void send_pub_key(void *tmp,void *tmp2){
 }
 void send_data(void *tmp, uint8_t* label, uint32_t label_len, uint8_t* data, uint32_t data_len, uint8_t* mac, uint32_t mac_len){
 	Json::Value  json;
-    Json::Value  jlabel;
-    Json::Value  jdata;
-    Json::Value  jmac;
+    // Json::Value  jlabel;
+    // Json::Value  jdata;
+    // Json::Value  jmac;
 	netTool* nettool = (netTool*) tmp;
+    std::string label_s(label,label+label_len);
+    printf("label len:%u\n",label_s.length());
+    std::string data_s(data,data+data_len);
+    printf("data len:%u\n",data_s.length());
+    std::string mac_s(mac,mac+mac_len);
+    printf("mac len:%u\n",mac_s.length());
 	json["action"] = data_action;
-	for(int i = 0; i < label_len; i++){
-        jlabel[i] = label[i];
-    }
-    for(int i = 0; i < data_len; i++){
-        jdata[i] = data[i];
-    }
-    for(int i = 0; i < mac_len; i++){
-        jmac[i] = mac[i];
-    }
-    json["label"] =  jlabel;
-    json["data"] = jdata;
-    json["mac"] = jmac;
+	// for(int i = 0; i < label_len; i++){
+ //        jlabel[i] = label[i];
+ //    }
+ //    for(int i = 0; i < data_len; i++){
+ //        jdata[i] = data[i];
+ //    }
+ //    for(int i = 0; i < mac_len; i++){
+ //        jmac[i] = mac[i];
+ //    }
+    json["label"] = label_s;
+    json["data"] = data_s;
+    json["mac"] = mac_s;
+    printf("label size:%u\n",json["label"].asString().length());
+    printf("data size:%u\n",json["data"].asString().length());
+    printf("mac size:%u\n",json["mac"].asString().length());
 
     nettool->send_data(json);
 }
@@ -131,13 +140,16 @@ int main(int argc, char* argv[]){
     send_pub_key(tru, nettool);
     printf("Key exchanging......\n");
     while(!nettool->is_key_store){
+        sleep(1);
     };
     printf("Key exchanging successfully.\n");
-    sleep(2);
+    
     /*sign the public key*/
     sign_key(tru,nettool);
     printf("Key verifing.......\n");
-    while(!nettool->is_key_verify){};
+    while(!nettool->is_key_verify){
+        sleep(1);
+    };
     printf("Key verify successfully.\n");
     /*
     from protocol make MerkleTree
@@ -159,7 +171,7 @@ int main(int argc, char* argv[]){
         char key_po[LABEL_LEN];
     	std::cin>>act;
     	switch(act){
-    		case 1:{
+    		case -2:{
                 struct Data data;
                 uint8_t msg[sizeof(float)];
                 data.item_capacity = 20;
@@ -190,6 +202,37 @@ int main(int argc, char* argv[]){
 
     		}
             break;
+            case 1:
+            {
+
+                //struct Data data;
+                
+                uint32_t label_stream_len;
+                uint32_t data_stream_len;
+                load_model_len(label_stream_len, "./label_data.data");
+                uint8_t* label_stream = (uint8_t*)malloc(label_stream_len);
+                load_model<uint8_t>(label_stream,label_stream_len,"./label_data.data");
+                load_model_len(data_stream_len, "./data_data.data");
+                uint32_t data_stream_len_edit = data_stream_len + (16 - data_stream_len % 16);
+                uint8_t* data_stream = (uint8_t*)malloc(data_stream_len_edit);
+                load_model<uint8_t>(data_stream,data_stream_len,"./data_data.data");
+                //data = serialize(label_stream, label_stream_len/5, data_stream, data_stream_len); 
+                
+                uint32_t cipher_data_len = data_stream_len_edit + ASYM_KEY_SIZE/8;
+                uint8_t* ciphertex = (uint8_t*)malloc(cipher_data_len);
+                uint32_t cipher_mac_len = SYM_KEY_SIZE/8 + ASYM_KEY_SIZE/8;
+                uint8_t* mactex = (uint8_t*)malloc(cipher_mac_len);
+                tru->encrypt_with_MAC(label_stream, label_stream_len, data_stream, data_stream_len_edit, ciphertex, &cipher_data_len, mactex, &cipher_mac_len);
+                printf("need send label:%u data:%u mac:%u\n",label_stream_len, cipher_data_len, cipher_mac_len);
+                send_data(nettool, label_stream, label_stream_len, ciphertex, cipher_data_len,mactex,cipher_mac_len);
+                nettool->is_data_send = true;
+
+            }    
+             break;
+             case 2:{
+                printf("start run op\n");
+                tru->run_op(protocol->data,protocol->data_len,NULL,0);
+             }break;
     		// case 2:
       //           //test end  
     		// 	// if(!nettool->is_data_store){

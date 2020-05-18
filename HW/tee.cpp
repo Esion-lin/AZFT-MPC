@@ -77,6 +77,17 @@ void decryt_mac(TEEC_Operation *operation, uint8_t *label, uint32_t label_len, u
     (*operation).params[2].tmpref.buffer = mac;
     (*operation).params[2].tmpref.size = mac_len;
 }
+void run_operation(TEEC_Operation *operation, uint8_t *protocol, uint32_t protocol_len, uint8_t *mac, uint32_t mac_len){
+    (*operation).paramTypes = TEEC_PARAM_TYPES(
+                                TEEC_MEMREF_TEMP_INPUT,
+                                TEEC_MEMREF_TEMP_INPUT,
+                                TEEC_NONE,
+                                TEEC_NONE);
+    (*operation).params[0].tmpref.buffer = protocol;
+    (*operation).params[0].tmpref.size = protocol_len;
+    (*operation).params[1].tmpref.buffer = mac;
+    (*operation).params[1].tmpref.size = mac_len;
+}
 TEE::TEE(){
 	ret = TEEC_SUCCESS;
 	ret = TEEC_InitializeContext(NULL, &context);
@@ -149,7 +160,7 @@ uint32_t TEE::stream_to_key(uint8_t t_in[]){
     uint32_t out_len_sign = (uint32_t)(ASYM_KEY_FOR_SIGN_SIZE/8 + ASYM_KEY_EXPONENT_SIZE/8);
     out_data_buf = (uint8_t *)malloc(out_len_sign);
     memcpy(out_data_buf, t_in + out_len, out_len_sign);
-    set_public_key(&operation, out_data_buf, out_len, PUBLIC_TYPE_SIGN);
+    set_public_key(&operation, out_data_buf, out_len_sign, PUBLIC_TYPE_SIGN);
     ret = TEEC_InvokeCommand(&session, CMD_KEY_STORE, &operation, NULL);
     if(ret != TEEC_SUCCESS){
         printf("set_public_key. PUBLIC_TYPE_SIGN inv cmd failed(0x%08x)\n", ret);
@@ -177,15 +188,12 @@ uint32_t TEE::sign_key(uint8_t t_out[]){
 }
 uint32_t TEE::sign_verify(uint8_t t_in[]){
 	uint32_t out_len = (uint32_t)(ASYM_KEY_FOR_SIGN_SIZE/8);
-    uint8_t *out_data_buf = (uint8_t *)malloc(out_len);
-    check_sign(&operation, out_data_buf, out_len);
+    check_sign(&operation, t_in, out_len);
     ret = TEEC_InvokeCommand(&session, CMD_KEY_VERIFY, &operation, NULL);
     if(ret != TEEC_SUCCESS){
         printf("check_sign. inv cmd failed(0x%08x)\n", ret);
-        free(out_data_buf);
         return ret;
     }
-    free(out_data_buf);
     return ret;
 }
 uint32_t TEE::encrypt_with_MAC(uint8_t* label, uint32_t lab_len, uint8_t* tru_in, uint32_t len, uint8_t* tru_data_out,uint32_t *data_len_out, uint8_t* tru_mac_out, uint32_t *mac_len_out){
@@ -204,3 +212,12 @@ uint32_t TEE::input_data(uint8_t* label, uint32_t lab_len, uint8_t* tru_in, uint
     }
     return ret;
 }
+uint32_t TEE::run_op(uint8_t* protocol, uint32_t protocol_len, uint8_t* mac, uint32_t mac_len){
+    printf("running\n");
+    run_operation(&operation, protocol, protocol_len, mac, mac_len);
+    ret = TEEC_InvokeCommand(&session, CMD_RUN, &operation, NULL);
+    if(ret != TEEC_SUCCESS){
+        printf("authentication decrypt error. inv cmd failed(0x%08x)\n", ret);
+    }
+    return ret;
+};
