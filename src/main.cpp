@@ -109,13 +109,7 @@ int main(int argc, char* argv[]){
     printf("checking protocol file.....\n");
     bool is_ML = false;
     std::string path = "./code_data.code";
-    if(argc>=3){
-        if(0 == strcmp(argv[1], "ML")){
-            is_ML = true;
-            path = argv[2];
-        }
-
-    }
+    
     bool load_succ;
     PotocolRead* protocol = new PotocolRead(path, load_succ, true, is_ML);
     if(!load_succ){
@@ -123,20 +117,34 @@ int main(int argc, char* argv[]){
     }
     printf("protocol file length:%u\n",protocol->protocol.code_size);
     netTool* nettool = new netTool(tru);
-    
-    printf("please input port to listen:\n");
-    std::cin>>nettool->recv_port;
-    if(pthread_create(&recv_tid , NULL , init_listen_static, (void *)nettool) == -1){
-        perror("pthread create error.\n");
-        exit(1);
+    if(argc>=2){
+        nettool->recv_port = atoi(argv[1]);
+        printf("set listen point %d\n",nettool->recv_port);
+
+    }else{
+        printf("please input port to listen:\n");
+        std::cin>>nettool->recv_port;
+        
     }
+    if(pthread_create(&recv_tid , NULL , init_listen_static, (void *)nettool) == -1){
+            perror("pthread create error.\n");
+            exit(1);
+        }
     //printf("please input host to connect:\n");
     std::string host = "127.0.0.1";
     //std::cin>>host;
-    printf("please input port to connect:\n");
-    int port;
-    std::cin>>port;
-    nettool->set_host_port(host,port);
+    if(argc>=3){
+        int port = atoi(argv[2]);
+        nettool->set_host_port(host,port);
+        printf("set send point%d\n",port);
+    }
+    else{
+        printf("please input port to connect:\n");
+        int port;
+        std::cin>>port;
+        nettool->set_host_port(host,port);
+    }
+    
     send_pub_key(tru, nettool);
     printf("Key exchanging......\n");
     while(!nettool->is_key_store){
@@ -230,7 +238,6 @@ int main(int argc, char* argv[]){
             }    
              break;
              case 2:{
-                printf("start run op\n");
                 tru->run_op(protocol->data,protocol->data_len,NULL,0);
              }break;
     		// case 2:

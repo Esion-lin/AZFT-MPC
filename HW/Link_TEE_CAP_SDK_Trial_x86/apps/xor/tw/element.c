@@ -2,7 +2,6 @@
 uint32_t double_item(struct Data* data){
 
 	uint8_t* new_label = (uint8_t*)malloc((data->item_capacity)*2*LABEL_LEN);
-	printf("check point 3\n");
 	uint8_t* new_pos = (uint8_t*)malloc(data->item_capacity*2*POS_LEN); 
 	
 	memcpy(new_label, data->label, (data->label_size)*LABEL_LEN);
@@ -74,16 +73,14 @@ uint32_t add_data(struct Data* data, uint8_t *name, uint32_t name_len, uint8_t* 
 	uint32_t idx = index_of(*data, name, name_len);
 	if(idx == data->label_size){
 		if(data->label_size + 1 > data->item_capacity){
-			printf("expend data label\n");
+			//printf("expend data label\n");
 			double_item(data);
 		}
-		printf("check point 0\n");
 		memcpy(data->label + data->label_size * LABEL_LEN, name, name_len);
 		memcpy(data->pos + data->label_size * POS_LEN, &data->data_len, POS_LEN);
 		data->label_size += 1;
-		printf("check point 1\n");
 		if(data->data_len + sizeof(uint32_t) + data_len > data->data_capacity){
-			printf("expend data\n");
+			//printf("expend data\n");
 			double_data(data);
 		}
 		memcpy(data->data + data->data_len, &data_len, sizeof(uint32_t));
@@ -242,7 +239,6 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 			add_data(data, label3, LABEL_LEN, data3, sizeof(uint32_t));
 
 		}else if(code->S[now_pos] < 20){
-			printf("do arithmatic\n");
 			//Arithmaic
 			uint8_t data3[sizeof(uint32_t)];
 			uint32_t data3_len = sizeof(uint32_t);
@@ -272,11 +268,11 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 				}
 				break;
 			}
-			printf("get middle data%f %f %f\n",src1, src2, tar);
 			memcpy(data3, &tar, sizeof(float));
 			add_data(data, label3, LABEL_LEN, data3, sizeof(float));
 		}else{
 			//Logic
+
 			uint8_t data3[1];
 			uint32_t data3_len = 1;
 			float src1,src2;bool tar;
@@ -305,6 +301,7 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 				break;
 			}
 			data3[0] = tar;
+			printf("check mac successfully. get output: %d\n",tar);
 			add_data(data, label3, LABEL_LEN, data3, 1);
 		}
 		
@@ -398,7 +395,6 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 					kernels[i].data = (float*)malloc(kernel_shape.size*sizeof(float));
 					memcpy(kernels[i].data, code->W + W_pos + i*kernel_shape.size*sizeof(float), kernel_shape.size*sizeof(float));
 				}
-				printf("start cov\n");
 				struct Tuple ans = convolution_embed(image, kernels, kernel_size, is_pending, stride);
 				if(image.data != last_tp->data && last_tp->data != NULL){
 					free(last_tp->data);
@@ -443,7 +439,7 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 				data_shape.w = code->S[step++]*256 + code->S[step++];
 				data_shape.h = code->S[step++]*256 + code->S[step++];
 				data_shape.size = data_shape.l * data_shape.w * data_shape.h;
-				printf("[%u, %u, %u]",data_shape.l , data_shape.w , data_shape.h);
+				//printf("[%u, %u, %u]",data_shape.l , data_shape.w , data_shape.h);
 				memcpy(out_label, code->S + step, LABEL_LEN);
 				step += LABEL_LEN;
 				pooling_type = code->S[step++];
@@ -515,7 +511,7 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 				data_shape.w = code->S[step++]*256 + code->S[step++];
 				data_shape.h = code->S[step++]*256 + code->S[step++];
 				data_shape.size = data_shape.l * data_shape.w * data_shape.h;
-				printf("[%u, %u, %u]",data_shape.l , data_shape.w , data_shape.h);
+				//printf("[%u, %u, %u]",data_shape.l , data_shape.w , data_shape.h);
 				memcpy(out_label, code->S + step, LABEL_LEN);
 				step += LABEL_LEN;
 				memcpy(&alpha, code->S + step, sizeof(float));
@@ -532,9 +528,7 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 					image.data = (float*)malloc(data_shape.size * sizeof(float));
 
 					uint32_t check_len = data_shape.size * sizeof(float);
-					printf("malloc size %u\n", check_len);
 					uint8_t* check_data = (uint8_t*)malloc(check_len);
-					printf("start do\n");
 					if(0!=get_data(*data, index_of(*data, label, LABEL_LEN), &check_len, check_data)){
 						printf("error[label]: cannot get right data in cov cmd.\n");
 						free(check_data);
@@ -693,10 +687,11 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 				float output[10];
 
 				FC_f(image, output, weight, weight_width);
+				printf("check mac successfully. get output: [\n");
 				for(int i = 0; i < 10; i ++){
 					printf("%f ", output[i]);
 				}
-				printf("\n");
+				printf("]\n");
 				free(weight);
 				
 			}

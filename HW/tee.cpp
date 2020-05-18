@@ -213,7 +213,6 @@ uint32_t TEE::input_data(uint8_t* label, uint32_t lab_len, uint8_t* tru_in, uint
     return ret;
 }
 uint32_t TEE::run_op(uint8_t* protocol, uint32_t protocol_len, uint8_t* mac, uint32_t mac_len){
-    printf("running\n");
     run_operation(&operation, protocol, protocol_len, mac, mac_len);
     ret = TEEC_InvokeCommand(&session, CMD_RUN, &operation, NULL);
     if(ret != TEEC_SUCCESS){

@@ -2,6 +2,19 @@
 #include "component.h"
 #include "model.h"
 int main(){
+	/*
+	+ l1 l2 l3
+	- l3 l2 l4
+	== l4 l1 l5
+	out -> l5
+	cov org 225 225 3 lay1 64 true 2 3 3 3 false 0
+	pooling lay1 ...
+	ReLU lay2
+	BN lay3
+	.....
+	FC -> lay7
+	out -> lay7
+	*/
 	struct Code code;
 
 	code.code_size = 9;
@@ -137,7 +150,7 @@ int main(){
 	code.W = (uint8_t*)malloc(code.W_len);
 	float arr[75];
 	for(int i = 0; i < 75; i++){
-		arr[i] = 1;
+		arr[i] = 0.5;
 	}
 	for(int i = 0; i < 64; i++){
 		memcpy(code.W + i * 5*5*3*sizeof(float), arr, 5*5*3*sizeof(float));

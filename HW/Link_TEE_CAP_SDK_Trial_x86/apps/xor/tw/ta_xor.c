@@ -616,8 +616,8 @@ static TEE_Result run_protocol(uint8_t* protocol, uint32_t protocol_len, uint8_t
         TA_DBG("error: data store Error.\n");
         goto cleanup1;
     }
-    printf("label_len is %u\n", label_len);
-    printf("data_len is %u\n", data_len);
+    //printf("label_len is %u\n", label_len);
+    //printf("data_len is %u\n", data_len);
     data_s = serialize(label, label_len/5, data, data_len);
     code = code_serialize(protocol,protocol_len);
 
