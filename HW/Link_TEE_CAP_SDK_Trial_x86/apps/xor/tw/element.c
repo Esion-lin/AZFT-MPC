@@ -37,14 +37,23 @@ uint32_t index_of(struct Data data, uint8_t* name, uint32_t name_len){
 	return ans;
 	
 }
+uint32_t get_data_len(struct Data data, uint32_t index, uint32_t* ele_size){
+	if(index >= data.label_size) return index;
+	uint32_t pos;
+	uint32_t data_size;
+	memcpy(&pos, data.pos + (index * POS_LEN), POS_LEN);
+	memcpy(ele_size, data.data + pos, sizeof(uint32_t));
+	return 0;
+}
 //Use subscripts to access data, return stream of data
 uint32_t get_data(struct Data data, uint32_t index, uint32_t* ele_size, uint8_t* ele){
 	if(index >= data.label_size) return index;
 	uint32_t pos;
 	uint32_t data_size;
+
 	memcpy(&pos, data.pos + (index * POS_LEN), POS_LEN);
 	memcpy(&data_size, data.data + pos, sizeof(uint32_t));
-
+	//printf("get data size %u\n", data_size);
 	if(data_size > *ele_size){
 		printf("error:cannot store full data\n");
 		return data_size;
@@ -169,6 +178,17 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 	uint32_t now_pos;
 	memcpy(&now_pos, code->pos_s + (POS_LEN*code->now_pos), POS_LEN);
 	code->now_pos ++;
+	if(code->S[now_pos] == OUT_OP){
+		printf("do out\n");
+		if(memcmp(last_label, code->S + now_pos + 1, LABEL_LEN) == 0){
+			return 998;
+		}else{
+			memcpy(last_label, code->S + now_pos + 1, LABEL_LEN);
+
+			return 999;
+		}
+		
+	}
 	//printf("now_pos is %u, S[%d]type is %u\n",code->now_pos,now_pos,code->S[now_pos]);
 	if(code->S[now_pos] < 99){
 		/*recover data of label1\label2\label3*/
@@ -684,15 +704,33 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 				/*recover weight*/
 				float* weight = (float*)malloc(weight_width*data_shape.size*sizeof(float));
 				memcpy(weight, code->W + W_pos, weight_width*data_shape.size*sizeof(float));
-				float output[10];
+				float output[weight_width];
 
 				FC_f(image, output, weight, weight_width);
-				printf("check mac successfully. get output: [\n");
-				for(int i = 0; i < 10; i ++){
-					printf("%f ", output[i]);
+				
+				struct Shape ans_shape = {weight_width,1,1,weight_width};
+				last_tp->shape = ans_shape;
+				if(image.data == last_tp->data){
+					image.data= NULL;
 				}
-				printf("]\n");
+				free(last_tp->data);
+				last_tp->data = (float*)malloc(weight_width*sizeof(float));
+				memcpy(last_tp->data, output, weight_width*sizeof(float)); 
+				memcpy(last_label, out_label, LABEL_LEN); 
+
+				if(ex_for_tee == 1){
+					add_data(data, out_label, LABEL_LEN, (uint8_t*)last_tp->data, ans_shape.size*sizeof(float));
+					free(last_tp->data);
+					last_tp->data = NULL;
+				}
+				/*free image*/
+				if(image.data!= NULL){
+					free(image.data);image.data = NULL;
+				}
+				
 				free(weight);
+
+
 				
 			}
 			break;

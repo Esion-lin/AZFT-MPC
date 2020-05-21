@@ -8,6 +8,7 @@
 #define POS_LEN 	sizeof(uint32_t)
 
 #define INS_LEN 19
+#define OUT_LEN 6
 #define COV_LEN 32
 #define POOLING_LEN 25
 #define RELU_LEN 22
@@ -15,7 +16,7 @@
 #define FC_LEN 26
 #define SHORTCUT_LEN 29
 
-#define END_OP 0
+#define OUT_OP 0
 
 #define AND_OP 1
 #define NOT_OP 2

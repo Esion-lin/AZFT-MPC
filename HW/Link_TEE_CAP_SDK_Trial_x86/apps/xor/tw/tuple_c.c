@@ -160,15 +160,15 @@ struct Tuple pooling(struct Tuple tuple, struct Shape kenerl_shape, bool pending
 	for(int j = 0; j < ans_shape.w; j ++){
 		int tmp_start_x = start_x;
 		for(int k = 0; k < ans_shape.l; k ++){
-			int a = 0,b = 0,c = kenerl_shape.l,d = kenerl_shape.w;
+			int c = kenerl_shape.l,d = kenerl_shape.w;
 			bool now_pend = false;
 			if(tmp_start_x < 0){
-				a = 0 - tmp_start_x;
+				
 				c = kenerl_shape.l + tmp_start_x;
 				now_pend = true;
 			}
 			if(start_y < 0){
-				b = 0 - start_y;
+				
 				d = kenerl_shape.w + start_y;
 				now_pend = true;
 

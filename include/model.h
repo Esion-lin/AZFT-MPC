@@ -13,9 +13,7 @@ static void save_model(T * data, uint32_t data_len, std::string filename){
   	}
 
 	fwrite (&data_len , sizeof(uint32_t), 1, pFile);
-  printf("store len successful\n");
 	fwrite (data , sizeof(T), data_len, pFile);
-  printf("store data successful\n");
 	fclose (pFile);
 };
 template<typename T>

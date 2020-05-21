@@ -23,6 +23,7 @@
 #define CMD_KEY_VERIFY      (0x006)
 #define CMD_ENCRYPT_MAC     (0x007)
 #define CMD_DECRYPT_MAC     (0x008)
+#define CMD_QUERY           (0x011)
 #define CMD_RUN             (0x010)
 
 #define MAX_LABEL_SIZE  1024
@@ -593,6 +594,35 @@ cleanup:
         return true;    
     }
 }
+static TEE_Result query_data(uint8_t* label, uint32_t lab_len, uint8_t* tru_out, uint32_t* out_len){
+    TEE_Result ret = 0;
+    uint8_t * data = (uint8_t*)malloc(MAX_DATA_SIZE);
+    uint8_t * label_tt = (uint8_t*)malloc(MAX_LABEL_SIZE);
+    uint32_t data_len = MAX_DATA_SIZE;
+    uint32_t label_len = MAX_LABEL_SIZE;
+    struct Data data_s;
+    if( (ret = sst_read_data("plainlabel",10,label_tt,&label_len)) != TEE_SUCCESS ){
+        TA_DBG("error: label store Error.\n");
+        goto cleanup1;
+    }
+    if( (ret = sst_read_data("plaindata",9,data,&data_len)) != TEE_SUCCESS ){
+        TA_DBG("error: data store Error.\n");
+        goto cleanup1;
+    }
+    data_s = serialize(label_tt, label_len/5, data, data_len);
+    if(0 != get_data(data_s, index_of(data_s, label, LABEL_LEN), out_len, tru_out)){
+        printf("error[label]: cannot get plain data.\n");
+        ret = TEE_ERROR_BAD_PARAMETERS;
+        goto cleanup1;
+        
+    }
+    printf("query success\n");
+cleanup1:
+    free(data);
+    free(label_tt);
+    return ret;
+}
+
 static TEE_Result run_protocol(uint8_t* protocol, uint32_t protocol_len, uint8_t* mac, uint32_t mac_len){
     TEE_Result ret = 0;
     uint8_t * data = (uint8_t*)malloc(MAX_DATA_SIZE);
@@ -600,10 +630,18 @@ static TEE_Result run_protocol(uint8_t* protocol, uint32_t protocol_len, uint8_t
     uint32_t data_len = MAX_DATA_SIZE;
     uint32_t label_len = MAX_LABEL_SIZE;
     struct Tuple tmp;
-    tmp.data = NULL;
     uint8_t tmp_label[5]="";
     struct Data data_s;
     struct Code code;
+    uint32_t ret_code;
+    struct Link_list* head_p = (struct Link_list*)malloc(sizeof(struct Link_list));
+    struct Link_list* p_now = head_p;
+    uint32_t label_size = 0;
+    uint32_t data_total_len = 0;
+    uint8_t* label_ans;
+    uint8_t* data_ans;
+    uint32_t itr = 0;
+    tmp.data = NULL;
     // if((ret = gen_mac(protocol,protocol_len,"mac_for_protocol_key",20, mac, &mac_len, true)) != TEE_SUCCESS){
     //     return TEE_ERROR_BAD_STATE;
     // }
@@ -624,10 +662,66 @@ static TEE_Result run_protocol(uint8_t* protocol, uint32_t protocol_len, uint8_t
     /*expend protocol*/
     
     while(code.now_pos < code.code_size){
-        run_code(&data_s, &code, &tmp, (uint8_t*)tmp_label);
+        ret_code = run_code(&data_s, &code, &tmp, (uint8_t*)tmp_label);
+        /*make sure out follow ex_for_tee != 1 layer*/
+        if(ret_code == 999){
+            label_size ++;
+            memcpy(p_now->label, tmp_label, LABEL_LEN);            
+            get_data_len(data_s, index_of(data_s, tmp_label, LABEL_LEN), &p_now->data_len);
+            data_total_len += p_now->data_len;
+            p_now->data = (uint8_t*)malloc(p_now->data_len);
+            get_data(data_s, index_of(data_s, tmp_label, LABEL_LEN), &p_now->data_len, p_now->data);
+            p_now->next = (struct Link_list*)malloc(sizeof(struct Link_list));
+            p_now = p_now->next;
+            p_now -> next = NULL;
+        }else if(ret_code == 998){
+            label_size ++;
+            memcpy(p_now->label, tmp_label, LABEL_LEN);
+            p_now->data_len = tmp.shape.size*sizeof(float);
+            data_total_len += p_now->data_len;
+            p_now->data = (uint8_t*)malloc(p_now->data_len);
+            memcpy(p_now->data, tmp.data, p_now->data_len);
+            p_now->next = (struct Link_list*)malloc(sizeof(struct Link_list));
+            p_now = p_now->next;
+            p_now -> next = NULL;
+        }
     }
 
-    /*re store data*/
+    label_ans = (uint8_t*) malloc(label_size * LABEL_LEN);
+    data_ans = (uint8_t*) malloc(label_size * POS_LEN + data_total_len + label_size*sizeof(uint32_t));
+    p_now = head_p;
+    for(int i = 0; i < label_size; i++){
+
+        /*cpy the pos buffer in data_ans*/
+        memcpy(data_ans + i * POS_LEN, &itr, POS_LEN);
+        /*cpy label buffer*/
+        memcpy(label_ans + i * LABEL_LEN, p_now->label, LABEL_LEN);
+        /*cpy data buffer*/
+        memcpy(data_ans + itr + label_size*POS_LEN, &p_now->data_len, sizeof(uint32_t));
+        itr += sizeof(uint32_t);
+        memcpy(data_ans + itr + label_size*POS_LEN, p_now->data, p_now->data_len);
+        itr += p_now->data_len;
+
+        /*free linked list*/
+        struct Link_list* tmp_p = p_now;
+        p_now = p_now->next;
+        free(tmp_p);
+    }
+    free(p_now);
+    if(label_size > 0){
+
+        /*re store data*/
+        if( (ret = sst_write_data("plainlabel",10,label_ans,label_size * LABEL_LEN)) != TEE_SUCCESS ){
+            TA_DBG("error: plain label store Error.\n");
+            goto cleanup1;
+        }
+        if( (ret = sst_write_data("plaindata",9,data_ans,label_size * POS_LEN + data_total_len + label_size*sizeof(uint32_t))) != TEE_SUCCESS ){
+            TA_DBG("error: plain data store Error.\n");
+            goto cleanup1;
+        }
+    }
+    
+    
 cleanup1:
     free(data);
     free(label);
@@ -637,6 +731,8 @@ cleanup1:
     free(data_s.label);
     free(data_s.pos);
     free(data_s.data);
+    free(label_ans);
+    free(data_ans);
     return ret;
 }
 /*static TEE_Result hybrid_encrypt(uint8_t* data, uint32_t data_len, char* name, uint8_t name_len){
@@ -960,8 +1056,22 @@ static TEE_Result _TA_InvokeCommandEntryPoint(
                     params[1].memref.buffer, 
                     params[1].memref.size);
     }
+    else if (commandID == CMD_QUERY){
+        if (TEE_PARAM_TYPES(
+                    TEE_PARAM_TYPE_MEMREF_INPUT,
+                    TEE_PARAM_TYPE_MEMREF_OUTPUT,
+                    TEE_PARAM_TYPE_NONE,
+                    TEE_PARAM_TYPE_NONE) != paramTypes) {
+            return TEE_ERROR_BAD_PARAMETERS;
+        }
+        ret = query_data(
+                    params[0].memref.buffer, 
+                    params[0].memref.size,
+                    params[1].memref.buffer, 
+                    &(params[1].memref.size));
+    }
 
-    return TEE_SUCCESS;
+    return ret;
 }
 
 tee_srv_head_t xor_srv_head = {

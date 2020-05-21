@@ -1,6 +1,7 @@
 #include <string.h>
 #include "component.h"
 #include "model.h"
+
 int main(){
 	/*
 	+ l1 l2 l3
@@ -17,9 +18,9 @@ int main(){
 	*/
 	struct Code code;
 
-	code.code_size = 9;
+	code.code_size = 10;
 	code.pos_s = (uint8_t*)malloc(code.code_size*POS_LEN);
-	uint8_t* Structure = (uint8_t*)malloc(INS_LEN*3 + COV_LEN + POOLING_LEN + RELU_LEN + BN_LEN + FC_LEN + SHORTCUT_LEN);
+	uint8_t* Structure = (uint8_t*)malloc(INS_LEN*3 + COV_LEN + POOLING_LEN + RELU_LEN + BN_LEN + FC_LEN + SHORTCUT_LEN + OUT_LEN);
 	
 	code.now_pos = 0;
 	uint32_t itr = 0;
@@ -226,6 +227,15 @@ int main(){
 	memcpy(Structure + itr, &fc_wpos, POS_LEN);
 	itr += POS_LEN;
 
+	/*add out layer*/
+	memcpy(code.pos_s + POS_LEN*9,&itr,POS_LEN);
+	Structure[itr++] = OUT_OP;
+	printf("add out %s\n", label5);
+	memcpy(Structure + itr, label5, LABEL_LEN);
+	itr += LABEL_LEN;
+
+
+
 	printf("next add weight of FC\n");
 	float* w_of_fc = (float*)malloc(57*57*64*10*sizeof(float));
 	for(int i = 0; i < 57*57*64*10;i ++){
@@ -234,9 +244,9 @@ int main(){
 	memcpy(code.W + 64 * 5*5*3*sizeof(float) + 5*sizeof(float), w_of_fc, 57*57*64*10*sizeof(float));
 
 
-	printf("itr is %u\n",itr);
+	printf("code size [%u]\n",itr);
 	code.S = Structure;
-	code.S_len =  INS_LEN*3 + COV_LEN + POOLING_LEN + RELU_LEN + BN_LEN + FC_LEN + SHORTCUT_LEN;
+	code.S_len =  INS_LEN*3 + COV_LEN + POOLING_LEN + RELU_LEN + BN_LEN + FC_LEN + SHORTCUT_LEN + OUT_LEN;
 	uint8_t* out_stream = (uint8_t*)malloc(code.S_len + code.W_len + code.code_size*sizeof(uint32_t) + 4*sizeof(uint32_t));
 	uint32_t out_stream_len;
 	code_deserialize(code, out_stream, &out_stream_len);

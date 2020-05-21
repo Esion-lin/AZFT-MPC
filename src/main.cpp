@@ -240,6 +240,21 @@ int main(int argc, char* argv[]){
              case 2:{
                 tru->run_op(protocol->data,protocol->data_len,NULL,0);
              }break;
+             case 3:{
+                uint8_t label_input[LABEL_LEN];
+                uint32_t query_size;
+                printf("input label to continue query:");
+                std::cin>>label_input;
+                printf("input size to continue query:");
+                std::cin>>query_size;
+                uint8_t tru_out[query_size];
+                tru->query_data(label_input, LABEL_LEN, tru_out, &query_size);
+                printf("get data [\n");
+                for(int i = 0; i < query_size; i++){
+                    printf("%u ",tru_out[i]);
+                }
+                printf("]\n");
+             }break;
     		// case 2:
       //           //test end  
     		// 	// if(!nettool->is_data_store){

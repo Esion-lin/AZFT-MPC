@@ -88,6 +88,17 @@ void run_operation(TEEC_Operation *operation, uint8_t *protocol, uint32_t protoc
     (*operation).params[1].tmpref.buffer = mac;
     (*operation).params[1].tmpref.size = mac_len;
 }
+void query(TEEC_Operation *operation, uint8_t * label, uint32_t lab_len, uint8_t* tru_out, uint32_t* out_len){
+    (*operation).paramTypes = TEEC_PARAM_TYPES(
+                                TEEC_MEMREF_TEMP_INPUT,
+                                TEEC_MEMREF_TEMP_OUTPUT,
+                                TEEC_NONE,
+                                TEEC_NONE);
+    (*operation).params[0].tmpref.buffer = label;
+    (*operation).params[0].tmpref.size = lab_len;
+    (*operation).params[1].tmpref.buffer = tru_out;
+    (*operation).params[1].tmpref.size = *out_len;
+};
 TEE::TEE(){
 	ret = TEEC_SUCCESS;
 	ret = TEEC_InitializeContext(NULL, &context);
@@ -216,7 +227,15 @@ uint32_t TEE::run_op(uint8_t* protocol, uint32_t protocol_len, uint8_t* mac, uin
     run_operation(&operation, protocol, protocol_len, mac, mac_len);
     ret = TEEC_InvokeCommand(&session, CMD_RUN, &operation, NULL);
     if(ret != TEEC_SUCCESS){
-        printf("authentication decrypt error. inv cmd failed(0x%08x)\n", ret);
+        printf("run operation error. inv cmd failed(0x%08x)\n", ret);
+    }
+    return ret;
+};
+uint32_t TEE::query_data(uint8_t* label, uint32_t lab_len, uint8_t* tru_out, uint32_t *out_len){
+    query(&operation, label, lab_len, tru_out, out_len);
+    ret = TEEC_InvokeCommand(&session, CMD_QUERY, &operation, NULL);
+    if(ret != TEEC_SUCCESS){
+        printf("query data error. inv cmd failed(0x%08x)\n", ret);
     }
     return ret;
 };

@@ -1,6 +1,7 @@
 #ifndef _ELEMENT_H_
 #define _ELEMENT_H_
 #define INS_LEN 19
+
 #define COV_LEN 32
 #define POOLING_LEN 25
 #define RELU_LEN 22
@@ -13,6 +14,8 @@ S & W:
 Binary\Arithmatic\Logic s:{type:1,label1:LABEL_LEN, type:1, label2:LABEL_LEN, type:1, label3:LABEL_LEN, type:1}
 
 bratch s:{type:1,label1:LABEL_LEN, goto:sizeof(int)}
+
+out s:{type:1, label:LABEL_LEN}
 cov s:{
 	type:1
 	in_label:LABEL_LEN,shape:2*2*2
@@ -79,6 +82,7 @@ SHORTCUT s:{
 	ex_for_tee:1
 }
 */
+#define OUT_OP 0
 //Binary
 #define AND_OP 1
 #define NOT_OP 2
@@ -188,10 +192,17 @@ struct Code{
 	uint32_t W_len;
 
 };
+struct Link_list{
+	uint8_t label[LABEL_LEN];
+	uint8_t* data;
+	uint32_t data_len;
+	struct Link_list* next;
+};
 uint32_t double_item(struct Data* data);
 uint32_t double_data(struct Data* data);
 uint32_t index_of(struct Data data, uint8_t* name, uint32_t name_len);
 uint32_t get_data(struct Data data, uint32_t index, uint32_t* ele_size, uint8_t* ele);
+uint32_t get_data_len(struct Data data, uint32_t index, uint32_t* ele_size);
 uint32_t put_data(struct Data *data, uint32_t index, uint32_t ele_size, uint8_t* ele);
 uint32_t add_data(struct Data* data, uint8_t *name, uint32_t name_len, uint8_t* data_in, uint32_t data_len);
 uint32_t deserialize(struct Data data, uint8_t* label, uint32_t* label_len, uint8_t* data_out, uint32_t* data_len);

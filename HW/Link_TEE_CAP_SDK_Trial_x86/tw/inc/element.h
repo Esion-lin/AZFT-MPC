@@ -1,6 +1,7 @@
 #ifndef _ELEMENT_H_
 #define _ELEMENT_H_
 #define INS_LEN 19
+#define OUT_LEN 6
 #define COV_LEN 32
 #define POOLING_LEN 25
 #define RELU_LEN 22
@@ -79,6 +80,7 @@ SHORTCUT s:{
 	ex_for_tee:1
 }
 */
+#define OUT_OP 0
 //Binary
 #define AND_OP 1
 #define NOT_OP 2
@@ -187,6 +189,12 @@ struct Code{
 	uint8_t* W;
 	uint32_t W_len;
 
+};
+struct Link_list{
+	uint8_t label[LABEL_LEN];
+	uint8_t* data;
+	uint32_t data_len;
+	struct Link_list* next;
 };
 uint32_t double_item(struct Data* data);
 uint32_t double_data(struct Data* data);
