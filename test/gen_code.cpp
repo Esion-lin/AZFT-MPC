@@ -156,7 +156,7 @@ int main(){
 	for(int i = 0; i < 64; i++){
 		memcpy(code.W + i * 5*5*3*sizeof(float), arr, 5*5*3*sizeof(float));
 	}	
-
+	save_model<uint8_t>(code.W , 5*5*3*64*sizeof(float), "./kernels")
 	printf("next add structure of BN\n");
 	memcpy(code.pos_s + POS_LEN*6,&itr,POS_LEN);
 	Structure[itr++] = BN_ID;
@@ -230,8 +230,8 @@ int main(){
 	/*add out layer*/
 	memcpy(code.pos_s + POS_LEN*9,&itr,POS_LEN);
 	Structure[itr++] = OUT_OP;
-	printf("add out %s\n", label5);
-	memcpy(Structure + itr, label5, LABEL_LEN);
+	printf("add out %s\n", FC_label_out);
+	memcpy(Structure + itr, FC_label_out, LABEL_LEN);
 	itr += LABEL_LEN;
 
 
