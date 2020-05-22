@@ -397,9 +397,23 @@ bool read_model(std::string file_path){
     		add_short(w, l, h, label_in, w2, l2, h2, label2_in, label_out, ex_for_tee);
     	}
     	else if(strLine.find("FC") != strLine.npos){
-    		ilen ++;
-    		slen += FC_LEN;
-    		wlen += sizeof(float) *atoi(index_pattern_of_string(strLine, 4).c_str()) * size_of_shape(index_pattern_of_string(strLine, 3));
+    		uint32_t w = idx_in_shape(index_pattern_of_string(strLine, 3), 1);
+        	uint32_t l = idx_in_shape(index_pattern_of_string(strLine, 3), 2);
+        	uint32_t h = idx_in_shape(index_pattern_of_string(strLine, 3), 3);
+        	char label_in[LABEL_LEN];
+        	char label_out[LABEL_LEN];
+        	to_char(index_pattern_of_string(strLine, 2), label_in);
+        	to_char(index_pattern_of_string(strLine, 8), label_out);
+        	uint32_t weight_width = atoi(index_pattern_of_string(strLine, 4).c_str());
+        	uint8_t ex_for_tee = (uint8_t)atoi(index_pattern_of_string(strLine, 5).c_str());
+        	//add weight
+        	uint32_t weight_len = sizeof(float) *atoi(index_pattern_of_string(strLine, 4).c_str()) * size_of_shape(index_pattern_of_string(strLine, 3));
+        	string weight_path = index_pattern_of_string(strLine, 6);
+    		weight_path = weight_path.substr(weight_path.find(":") + 1);
+    		load_weight(weight_path, weight_len, code.W + w_itr);
+
+        	add_FC(w, l, h, label_in, label_out, weight_width, ex_for_tee, w_itr, code, pos_itr, s_itr);
+        	/*FC lay2 [] 10 1 w:fc -> lay*/
     	}
     }
 }
