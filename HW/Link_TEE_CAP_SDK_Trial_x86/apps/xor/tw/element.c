@@ -1,4 +1,15 @@
 #include "element.h"
+uint8_t cmp_str(uint8_t* a,uint8_t* b,uint32_t len){
+	for(int i = 0; i < len; i++){
+		if(a[i] != b[i]){
+			return 22;
+		}
+		if(a[i] == '\0'){
+			return 0;
+		}
+	}
+	return 0;
+}
 uint32_t double_item(struct Data* data){
 
 	uint8_t* new_label = (uint8_t*)malloc((data->item_capacity)*2*LABEL_LEN);
@@ -28,7 +39,7 @@ uint32_t index_of(struct Data data, uint8_t* name, uint32_t name_len){
 	uint8_t* label_tmp = data.label;
 	uint32_t ans = data.label_size;
 	for(int i = 0; i < data.label_size; i ++){
-		if(memcmp(name, label_tmp + (i*LABEL_LEN), LABEL_LEN) == 0){
+		if(cmp_str(name, label_tmp + (i*LABEL_LEN), LABEL_LEN) == 0){
 			ans = i; break;
 		}
 	}
@@ -172,15 +183,15 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 	/*optimise store*/
 	/*query nower idex of S*/
 	if(code->now_pos >= code->code_size){
-		printf("Error. Try to run the code has ended\n");
+		printf("<TEE_CALCULAR> Error. Try to run the code has ended\n");
 		return 300;
 	}
 	uint32_t now_pos;
 	memcpy(&now_pos, code->pos_s + (POS_LEN*code->now_pos), POS_LEN);
 	code->now_pos ++;
 	if(code->S[now_pos] == OUT_OP){
-		printf("do out\n");
-		if(memcmp(last_label, code->S + now_pos + 1, LABEL_LEN) == 0){
+		printf("<TEE_CALCULAR> do out\n");
+		if(cmp_str(last_label, code->S + now_pos + 1, LABEL_LEN) == 0){
 			return 998;
 		}else{
 			memcpy(last_label, code->S + now_pos + 1, LABEL_LEN);
@@ -210,11 +221,11 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 		memcpy(label3, code->S + now_pos + 3 + 2 * LABEL_LEN, LABEL_LEN);
 		type3 = code->S[now_pos + 3 + 3*LABEL_LEN];
 		if(0 != get_data(*data, index_of(*data, label1, LABEL_LEN), &data1_len, data1)){
-			printf("error[label1]: cannot get right data in Binary/Arithmatic/Logic cmd.\n");
+			printf("<TEE_CALCULAR> error[label1]: cannot get right data in Binary/Arithmatic/Logic cmd.\n");
 			return 100;
 		}
 		if(0 != get_data(*data, index_of(*data, label2, LABEL_LEN), &data2_len, data2)){
-			printf("error[label2]: cannot get right data in Binary/Arithmatic/Logic cmd.\n");
+			printf("<TEE_CALCULAR> error[label2]: cannot get right data in Binary/Arithmatic/Logic cmd.\n");
 			return 100;
 		}
 		// if(type3 < (type2>type1?type2:type1)){
@@ -321,20 +332,19 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 				break;
 			}
 			data3[0] = tar;
-			printf("check mac successfully. get output: %d\n",tar);
 			add_data(data, label3, LABEL_LEN, data3, 1);
 		}
 		
 	}
 	else if(code->S[now_pos] == 99){
-		printf("do goto\n");
+		printf("<TEE_CALCULAR> do goto\n");
 		uint8_t label[LABEL_LEN];
 		uint8_t label_data[1];
 		uint32_t label_data_len = 1;
 		uint32_t tar_pos;
 		memcpy(label, code->S + now_pos + 1, LABEL_LEN);
 		if(0 != get_data(*data, index_of(*data, label, LABEL_LEN), &label_data_len, label_data)){
-			printf("error[label]: cannot get right data in Binary/Arithmatic/Logic cmd.\n");
+			printf("<TEE_CALCULAR> error[%s]: cannot get right data in Binary/Arithmatic/Logic cmd.\n",label);
 			return 100;
 		}
 		if(label_data[0] == 1){
@@ -346,7 +356,7 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 	else{
 		switch(code->S[now_pos]){
 			case COV:{
-				printf("do cov\n");
+				printf("<TEE_CALCULAR> do cov\n");
 				/*recover the structure*/
 				uint32_t step = now_pos + 1;
 				uint8_t label[LABEL_LEN];
@@ -384,22 +394,24 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 				step += POS_LEN;
 				/*recover the data*/
 				struct Tuple image;
-				if(memcmp(last_label, label, LABEL_LEN) == 0){
+				if(cmp_str(last_label, label, LABEL_LEN) == 0){
+					
 					image = *last_tp;
 				}else{
+					printf("<TEE_CALCULAR> search data in Persistence\n");
 					image.shape = data_shape;
 					image.data = (float*)malloc(data_shape.size * sizeof(float));
 
 					uint32_t check_len = data_shape.size * sizeof(float);
 					uint8_t* check_data = (uint8_t*)malloc(check_len);
 					if(0!=get_data(*data, index_of(*data, label, LABEL_LEN), &check_len, check_data)){
-						printf("error[label]: cannot get right data in cov cmd.\n");
+						printf("<TEE_CALCULAR> error[%s]: cannot get right data in cov cmd.\n",label);
 						free(check_data);
 						free(image.data);
 						return 100;
 					}
 					if(check_len != data_shape.size * sizeof(float)){
-						printf("data error.shape not match\n");
+						printf("<TEE_CALCULAR> data error.shape not match\n");
 						free(check_data);
 						free(image.data);
 						return 200;
@@ -407,7 +419,6 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 					memcpy(image.data,check_data,check_len);
 					free(check_data);
 				}
-				
 				/*recover the weight*/
 				struct Tuple* kernels = (struct Tuple*)malloc(sizeof(struct Tuple)*kernel_size);
 				for(int i = 0; i < kernel_size; i++){
@@ -443,7 +454,7 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 			}
 			break;
 			case POOLING:{
-				printf("do pooling\n");
+				printf("<TEE_CALCULAR> do pooling\n");
 				uint32_t step = now_pos + 1;
 				uint8_t label[LABEL_LEN];
 				struct Shape data_shape;
@@ -472,10 +483,12 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 				ex_for_tee = code->S[step++];
 
 				/*recover the data*/
+				bool store = false;
 				struct Tuple image;
-				if(memcmp(last_label, label, LABEL_LEN) == 0){
+				if(cmp_str(last_label, label, LABEL_LEN) == 0){
 					image = *last_tp;
 				}else{
+					store = true;
 					image.shape = data_shape;
 					image.data = (float*)malloc(data_shape.size * sizeof(float));
 
@@ -483,13 +496,13 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 					
 					uint8_t* check_data = (uint8_t*)malloc(check_len);
 					if(0!=get_data(*data, index_of(*data, label, LABEL_LEN), &check_len, check_data)){
-						printf("error[label]: cannot get right data in cov cmd.\n");
+						printf("<TEE_CALCULAR> error[%s]: cannot get right data in POOLING cmd.\n",label);
 						free(check_data);
 						free(image.data);
 						return 100;
 					}
 					if(check_len != data_shape.size * sizeof(float)){
-						printf("data error.shape not match\n");
+						printf("<TEE_CALCULAR> data error.shape not match\n");
 						free(check_data);
 						free(image.data);
 						return 200;
@@ -499,26 +512,30 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 				}
 				/*do pooling*/
 				struct Tuple ans = pooling(image, kernel_shape, is_pending, stride, pooling_type);
-				if(image.data != last_tp->data && last_tp->data != NULL){
-					free(last_tp->data);
-					last_tp->data = NULL;
-				}
 				/**/
 				if(ex_for_tee != 1){
+
+					free(image.data);
 					last_tp->shape = ans.shape;
 					last_tp->data = ans.data;
 					memcpy(last_label, out_label, LABEL_LEN); 
+					
 				}else{
 					add_data(data, out_label, LABEL_LEN, (uint8_t*)ans.data, ans.shape.l*ans.shape.w*ans.shape.h*sizeof(float));
 					free(ans.data);
-					last_tp->data = NULL;
+					if(store){
+						free(image.data);
+					}else{
+						last_tp->data = NULL;
+						last_tp = NULL;
+					}
+					
 				}
 				/*free image*/
-				free(image.data);image.data = NULL;
 			}
 			break;
 			case RELU:{
-				printf("do ReLU\n");
+				printf("<TEE_CALCULAR> do ReLU\n");
 				uint8_t label[LABEL_LEN];
 				uint8_t out_label[LABEL_LEN];
 				struct Shape data_shape;
@@ -537,27 +554,27 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 				memcpy(&alpha, code->S + step, sizeof(float));
 				step += sizeof(float);
 				ex_for_tee = code->S[step++];
-
+				bool store = false;
 				/*recover the data*/
 				struct Tuple image;
-				if(memcmp(last_label, label, LABEL_LEN) == 0){
+				if(cmp_str(last_label, label, LABEL_LEN) == 0){
 					image = *last_tp;
 				}else{
-
+					store = true;
 					image.shape = data_shape;
 					image.data = (float*)malloc(data_shape.size * sizeof(float));
 
 					uint32_t check_len = data_shape.size * sizeof(float);
 					uint8_t* check_data = (uint8_t*)malloc(check_len);
 					if(0!=get_data(*data, index_of(*data, label, LABEL_LEN), &check_len, check_data)){
-						printf("error[label]: cannot get right data in cov cmd.\n");
+						printf("<TEE_CALCULAR> error[%s]: cannot get right data in ReLU cmd.\n",label);
 						free(check_data);
 						free(image.data);
 						return 100;
 					}
 
 					if(check_len != data_shape.size * sizeof(float)){
-						printf("data error.shape not match\n");
+						printf("<TEE_CALCULAR> data error.shape not match\n");
 						free(check_data);
 						free(image.data);
 						return 200;
@@ -566,27 +583,26 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 					free(check_data);
 				}
 				ReLU(&image, false, alpha);
-				
-				if(image.data != last_tp->data && last_tp->data != NULL){
-
-					free(last_tp->data);
-					last_tp->data = NULL;
-				}
-
 				if(ex_for_tee != 1){
 					last_tp->shape = image.shape;
 					last_tp->data = image.data;
 					memcpy(last_label, out_label, LABEL_LEN); 
+					
 				}else{
-					add_data(data, out_label, LABEL_LEN, (uint8_t*)image.data, image.shape.size*sizeof(float));	
-					free(image.data);image.data = NULL;last_tp->data = NULL;
+					add_data(data, out_label, LABEL_LEN, (uint8_t*)image.data, image.shape.size*sizeof(float));
+					if(store){
+						free(image.data);
+					}else{
+						last_tp->data = NULL;
+						last_tp = NULL;
+					}
+					
 				}
-
 
 			}
 			break;
 			case BN_ID:{
-				printf("do BN\n");
+				printf("<TEE_CALCULAR> do BN\n");
 				uint8_t label[LABEL_LEN];
 				struct Shape data_shape;
 				uint8_t out_label[LABEL_LEN];
@@ -607,23 +623,25 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 				step += POS_LEN;
 				
 				/*recover the data*/
+				bool store = false;
 				struct Tuple image;
-				if(memcmp(last_label, label, LABEL_LEN) == 0){
+				if(cmp_str(last_label, label, LABEL_LEN) == 0){
 					image = *last_tp;
 				}else{
+					store = true;
 					image.shape = data_shape;
 					image.data = (float*)malloc(data_shape.size * sizeof(float));
 
 					uint32_t check_len = data_shape.size * sizeof(float);
 					uint8_t* check_data = (uint8_t*)malloc(check_len);
 					if(0!=get_data(*data, index_of(*data, label, LABEL_LEN), &check_len, check_data)){
-						printf("error[label]: cannot get right data in cov cmd.\n");
+						printf("<TEE_CALCULAR> error[%s]: cannot get right data in BN cmd.\n",label);
 						free(check_data);
 						free(image.data);
 						return 100;
 					}
 					if(check_len != data_shape.size * sizeof(float)){
-						printf("data error.shape not match\n");
+						printf("<TEE_CALCULAR> data error.shape not match\n");
 						free(check_data);
 						free(image.data);
 						return 200;
@@ -637,23 +655,26 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 				//printf("[%f,%f,%f,%f,%f]\n",bn_weight_test[0],bn_weight_test[1],bn_weight_test[2],bn_weight_test[3],bn_weight_test[4]);
  				BN_for_test(&image, bn_weight_test[0], bn_weight_test[1], bn_weight_test[2], bn_weight_test[3], bn_weight_test[4]);
 
- 				if(image.data != last_tp->data && last_tp->data != NULL){
-					free(last_tp->data);
-					last_tp->data = NULL;
-				}
-				if(ex_for_tee != 1){
+ 				if(ex_for_tee != 1){
 					last_tp->shape = image.shape;
 					last_tp->data = image.data;
 					memcpy(last_label, out_label, LABEL_LEN); 
+					
 				}else{
-					add_data(data, out_label, LABEL_LEN, (uint8_t*)image.data, image.shape.size*sizeof(float));	
-					free(image.data);image.data = NULL;last_tp->data = NULL;
+					add_data(data, out_label, LABEL_LEN, (uint8_t*)image.data, image.shape.size*sizeof(float));
+					if(store){
+						free(image.data);
+					}else{
+						last_tp->data = NULL;
+						last_tp = NULL;
+					}
+					
 				}
 
 			}
 			break;
 			case FC_ID:{
-				printf("do FC\n");
+				printf("<TEE_CALCULAR> do FC\n");
 				uint8_t label[LABEL_LEN];
 				struct Shape data_shape;
 				uint8_t out_label[LABEL_LEN];
@@ -678,7 +699,7 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 
 				/*recover the data*/
 				struct Tuple image;
-				if(memcmp(last_label, label, LABEL_LEN) == 0){
+				if(cmp_str(last_label, label, LABEL_LEN) == 0){
 					image = *last_tp;
 				}else{
 					image.shape = data_shape;
@@ -687,13 +708,13 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 					uint32_t check_len = data_shape.size * sizeof(float);
 					uint8_t* check_data = (uint8_t*)malloc(check_len);
 					if(0!=get_data(*data, index_of(*data, label, LABEL_LEN), &check_len, check_data)){
-						printf("error[label]: cannot get right data in cov cmd.\n");
+						printf("<TEE_CALCULAR>error[%s]: cannot get right data in FC cmd.\n",label);
 						free(check_data);
 						free(image.data);
 						return 100;
 					}
 					if(check_len != data_shape.size * sizeof(float)){
-						printf("data error.shape not match\n");
+						printf("<TEE_CALCULAR>data error.shape not match\n");
 						free(check_data);
 						free(image.data);
 						return 200;
@@ -735,7 +756,7 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 			}
 			break;
 			case SHORTCUT:{
-				printf("do shortcut\n");
+				printf("<TEE_CALCULAR> do shortcut\n");
 				uint8_t label1[LABEL_LEN];
 				struct Shape data_shape1;
 				uint8_t label2[LABEL_LEN];
@@ -756,7 +777,7 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 				data_shape2.h = code->S[step++]*256 + code->S[step++];
 				data_shape2.size = data_shape2.l * data_shape2.w * data_shape2.h;
 				if(data_shape1.size != data_shape2.size){
-					printf("illegal shapes of two layer\n");
+					printf("<TEE_CALCULAR>illegal shapes of two layer\n");
 					return 400;
 				}
 				memcpy(out_label, code->S + step, LABEL_LEN);
@@ -764,7 +785,7 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 				ex_for_tee = code->S[step++];
 				/*recover the data*/
 				struct Tuple image1;
-				if(memcmp(last_label, label1, LABEL_LEN) == 0){
+				if(cmp_str(last_label, label1, LABEL_LEN) == 0){
 					image1 = *last_tp;
 				}else{
 					image1.shape = data_shape1;
@@ -773,13 +794,13 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 					uint32_t check_len = data_shape1.size * sizeof(float);
 					uint8_t* check_data = (uint8_t*)malloc(check_len);
 					if(0!=get_data(*data, index_of(*data, label1, LABEL_LEN), &check_len, check_data)){
-						printf("error[label]: cannot get right data in cov cmd.\n");
+						printf("<TEE_CALCULAR>error[%s]: cannot get right data in sc cmd.\n",label1);
 						free(check_data);
 						free(image1.data);
 						return 100;
 					}
 					if(check_len != data_shape1.size * sizeof(float)){
-						printf("data error.shape not match\n");
+						printf("<TEE_CALCULAR>data error.shape not match\n");
 						free(check_data);
 						free(image1.data);
 						return 200;
@@ -797,13 +818,13 @@ uint32_t run_code(struct Data* data, struct Code* code, struct Tuple* last_tp, u
 					uint32_t check_len = data_shape2.size * sizeof(float);
 					uint8_t* check_data = (uint8_t*)malloc(check_len);
 					if(0!=get_data(*data, index_of(*data, label2, LABEL_LEN), &check_len, check_data)){
-						printf("error[label]: cannot get right data in cov cmd.\n");
+						printf("<TEE_CALCULAR>error[%s]: cannot get right data in sc cmd.\n",label2);
 						free(check_data);
 						free(image2.data);
 						return 100;
 					}
 					if(check_len != data_shape2.size * sizeof(float)){
-						printf("data error.shape not match\n");
+						printf("<TEE_CALCULAR>data error.shape not match\n");
 						free(check_data);
 						free(image2.data);
 						return 200;

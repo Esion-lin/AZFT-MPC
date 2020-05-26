@@ -53,6 +53,7 @@ public:
 	/*run protocol*/
 	uint32_t run_op(uint8_t* protocol, uint32_t protocol_len, uint8_t* mac, uint32_t mac_len);
 	uint32_t query_data(uint8_t* label, uint32_t lab_len, uint8_t* tru_out, uint32_t* out_len);
+	uint32_t sign_protocol(uint8_t* protocol_data, uint32_t protocol_len, uint8_t* mac_out, uint32_t* mac_len);
 private:
 	TEEC_Context     context;
     TEEC_Session     session;

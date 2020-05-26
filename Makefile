@@ -111,6 +111,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named test_component
+
+# Build rule for target.
+test_component: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 test_component
+.PHONY : test_component
+
+# fast build rule for target.
+test_component/fast:
+	$(MAKE) -f CMakeFiles/test_component.dir/build.make CMakeFiles/test_component.dir/build
+.PHONY : test_component/fast
+
+#=============================================================================
 # Target rules for targets named main
 
 # Build rule for target.
@@ -137,17 +150,17 @@ hardware_lib/fast:
 .PHONY : hardware_lib/fast
 
 #=============================================================================
-# Target rules for targets named code_gen
+# Target rules for targets named compiler_ex
 
 # Build rule for target.
-code_gen: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 code_gen
-.PHONY : code_gen
+compiler_ex: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 compiler_ex
+.PHONY : compiler_ex
 
 # fast build rule for target.
-code_gen/fast:
-	$(MAKE) -f CMakeFiles/code_gen.dir/build.make CMakeFiles/code_gen.dir/build
-.PHONY : code_gen/fast
+compiler_ex/fast:
+	$(MAKE) -f CMakeFiles/compiler_ex.dir/build.make CMakeFiles/compiler_ex.dir/build
+.PHONY : compiler_ex/fast
 
 #=============================================================================
 # Target rules for targets named file_deal
@@ -161,6 +174,19 @@ file_deal: cmake_check_build_system
 file_deal/fast:
 	$(MAKE) -f CMakeFiles/file_deal.dir/build.make CMakeFiles/file_deal.dir/build
 .PHONY : file_deal/fast
+
+#=============================================================================
+# Target rules for targets named code_gen
+
+# Build rule for target.
+code_gen: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 code_gen
+.PHONY : code_gen
+
+# fast build rule for target.
+code_gen/fast:
+	$(MAKE) -f CMakeFiles/code_gen.dir/build.make CMakeFiles/code_gen.dir/build
+.PHONY : code_gen/fast
 
 #=============================================================================
 # Target rules for targets named hardware
@@ -364,6 +390,33 @@ src/tool.cpp.s:
 	$(MAKE) -f CMakeFiles/hardware_lib.dir/build.make CMakeFiles/hardware_lib.dir/src/tool.cpp.s
 .PHONY : src/tool.cpp.s
 
+test/compiler.o: test/compiler.cpp.o
+
+.PHONY : test/compiler.o
+
+# target to build an object file
+test/compiler.cpp.o:
+	$(MAKE) -f CMakeFiles/compiler_ex.dir/build.make CMakeFiles/compiler_ex.dir/test/compiler.cpp.o
+.PHONY : test/compiler.cpp.o
+
+test/compiler.i: test/compiler.cpp.i
+
+.PHONY : test/compiler.i
+
+# target to preprocess a source file
+test/compiler.cpp.i:
+	$(MAKE) -f CMakeFiles/compiler_ex.dir/build.make CMakeFiles/compiler_ex.dir/test/compiler.cpp.i
+.PHONY : test/compiler.cpp.i
+
+test/compiler.s: test/compiler.cpp.s
+
+.PHONY : test/compiler.s
+
+# target to generate assembly for a file
+test/compiler.cpp.s:
+	$(MAKE) -f CMakeFiles/compiler_ex.dir/build.make CMakeFiles/compiler_ex.dir/test/compiler.cpp.s
+.PHONY : test/compiler.cpp.s
+
 test/gen_code.o: test/gen_code.cpp.o
 
 .PHONY : test/gen_code.o
@@ -391,6 +444,33 @@ test/gen_code.cpp.s:
 	$(MAKE) -f CMakeFiles/code_gen.dir/build.make CMakeFiles/code_gen.dir/test/gen_code.cpp.s
 .PHONY : test/gen_code.cpp.s
 
+test/test__component.o: test/test__component.cpp.o
+
+.PHONY : test/test__component.o
+
+# target to build an object file
+test/test__component.cpp.o:
+	$(MAKE) -f CMakeFiles/test_component.dir/build.make CMakeFiles/test_component.dir/test/test__component.cpp.o
+.PHONY : test/test__component.cpp.o
+
+test/test__component.i: test/test__component.cpp.i
+
+.PHONY : test/test__component.i
+
+# target to preprocess a source file
+test/test__component.cpp.i:
+	$(MAKE) -f CMakeFiles/test_component.dir/build.make CMakeFiles/test_component.dir/test/test__component.cpp.i
+.PHONY : test/test__component.cpp.i
+
+test/test__component.s: test/test__component.cpp.s
+
+.PHONY : test/test__component.s
+
+# target to generate assembly for a file
+test/test__component.cpp.s:
+	$(MAKE) -f CMakeFiles/test_component.dir/build.make CMakeFiles/test_component.dir/test/test__component.cpp.s
+.PHONY : test/test__component.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -398,11 +478,13 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... edit_cache"
+	@echo "... test_component"
 	@echo "... main"
 	@echo "... hardware_lib"
-	@echo "... code_gen"
-	@echo "... file_deal"
+	@echo "... compiler_ex"
 	@echo "... rebuild_cache"
+	@echo "... file_deal"
+	@echo "... code_gen"
 	@echo "... hardware"
 	@echo "... src/_file_deal.o"
 	@echo "... src/_file_deal.i"
@@ -425,9 +507,15 @@ help:
 	@echo "... src/tool.o"
 	@echo "... src/tool.i"
 	@echo "... src/tool.s"
+	@echo "... test/compiler.o"
+	@echo "... test/compiler.i"
+	@echo "... test/compiler.s"
 	@echo "... test/gen_code.o"
 	@echo "... test/gen_code.i"
 	@echo "... test/gen_code.s"
+	@echo "... test/test__component.o"
+	@echo "... test/test__component.i"
+	@echo "... test/test__component.s"
 .PHONY : help
 
 

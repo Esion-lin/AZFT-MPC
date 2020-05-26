@@ -54,9 +54,11 @@ set(CMAKE_MAKEFILE_PRODUCTS
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
+  "CMakeFiles/test_component.dir/DependInfo.cmake"
   "CMakeFiles/main.dir/DependInfo.cmake"
   "CMakeFiles/hardware_lib.dir/DependInfo.cmake"
-  "CMakeFiles/code_gen.dir/DependInfo.cmake"
+  "CMakeFiles/compiler_ex.dir/DependInfo.cmake"
   "CMakeFiles/file_deal.dir/DependInfo.cmake"
+  "CMakeFiles/code_gen.dir/DependInfo.cmake"
   "HW/CMakeFiles/hardware.dir/DependInfo.cmake"
   )

@@ -239,3 +239,11 @@ uint32_t TEE::query_data(uint8_t* label, uint32_t lab_len, uint8_t* tru_out, uin
     }
     return ret;
 };
+uint32_t TEE::sign_protocol(uint8_t* protocol_data, uint32_t protocol_len, uint8_t* mac_out, uint32_t* mac_len){
+    query(&operation, protocol_data, protocol_len, mac_out, mac_len);
+    ret = TEEC_InvokeCommand(&session, CMD_TEST_MAC, &operation, NULL);
+    if(ret != TEEC_SUCCESS){
+        printf("query data error. inv cmd failed(0x%08x)\n", ret);
+    }
+    return ret;
+}

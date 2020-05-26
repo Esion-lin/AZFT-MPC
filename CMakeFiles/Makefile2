@@ -60,14 +60,52 @@ CMAKE_SOURCE_DIR = /home/eason/Documents/AZFT-MPC
 CMAKE_BINARY_DIR = /home/eason/Documents/AZFT-MPC
 
 #=============================================================================
+# Target rules for target CMakeFiles/test_component.dir
+
+# All Build rule for target.
+CMakeFiles/test_component.dir/all: CMakeFiles/hardware_lib.dir/all
+CMakeFiles/test_component.dir/all: HW/CMakeFiles/hardware.dir/all
+	$(MAKE) -f CMakeFiles/test_component.dir/build.make CMakeFiles/test_component.dir/depend
+	$(MAKE) -f CMakeFiles/test_component.dir/build.make CMakeFiles/test_component.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/eason/Documents/AZFT-MPC/CMakeFiles --progress-num=17,18 "Built target test_component"
+.PHONY : CMakeFiles/test_component.dir/all
+
+# Include target in all.
+all: CMakeFiles/test_component.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/test_component.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/Documents/AZFT-MPC/CMakeFiles 10
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/test_component.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/Documents/AZFT-MPC/CMakeFiles 0
+.PHONY : CMakeFiles/test_component.dir/rule
+
+# Convenience name for target.
+test_component: CMakeFiles/test_component.dir/rule
+
+.PHONY : test_component
+
+# clean rule for target.
+CMakeFiles/test_component.dir/clean:
+	$(MAKE) -f CMakeFiles/test_component.dir/build.make CMakeFiles/test_component.dir/clean
+.PHONY : CMakeFiles/test_component.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/test_component.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
 # Target rules for target CMakeFiles/main.dir
 
 # All Build rule for target.
-CMakeFiles/main.dir/all: HW/CMakeFiles/hardware.dir/all
 CMakeFiles/main.dir/all: CMakeFiles/hardware_lib.dir/all
+CMakeFiles/main.dir/all: HW/CMakeFiles/hardware.dir/all
 	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/depend
 	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/eason/Documents/AZFT-MPC/CMakeFiles --progress-num=13,14 "Built target main"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/eason/Documents/AZFT-MPC/CMakeFiles --progress-num=15,16 "Built target main"
 .PHONY : CMakeFiles/main.dir/all
 
 # Include target in all.
@@ -104,7 +142,7 @@ clean: CMakeFiles/main.dir/clean
 CMakeFiles/hardware_lib.dir/all: HW/CMakeFiles/hardware.dir/all
 	$(MAKE) -f CMakeFiles/hardware_lib.dir/build.make CMakeFiles/hardware_lib.dir/depend
 	$(MAKE) -f CMakeFiles/hardware_lib.dir/build.make CMakeFiles/hardware_lib.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/eason/Documents/AZFT-MPC/CMakeFiles --progress-num=7,8,9,10,11,12 "Built target hardware_lib"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/eason/Documents/AZFT-MPC/CMakeFiles --progress-num=9,10,11,12,13,14 "Built target hardware_lib"
 .PHONY : CMakeFiles/hardware_lib.dir/all
 
 # Include target in all.
@@ -135,11 +173,86 @@ clean: CMakeFiles/hardware_lib.dir/clean
 .PHONY : clean
 
 #=============================================================================
+# Target rules for target CMakeFiles/compiler_ex.dir
+
+# All Build rule for target.
+CMakeFiles/compiler_ex.dir/all: CMakeFiles/hardware_lib.dir/all
+CMakeFiles/compiler_ex.dir/all: HW/CMakeFiles/hardware.dir/all
+	$(MAKE) -f CMakeFiles/compiler_ex.dir/build.make CMakeFiles/compiler_ex.dir/depend
+	$(MAKE) -f CMakeFiles/compiler_ex.dir/build.make CMakeFiles/compiler_ex.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/eason/Documents/AZFT-MPC/CMakeFiles --progress-num=3,4 "Built target compiler_ex"
+.PHONY : CMakeFiles/compiler_ex.dir/all
+
+# Include target in all.
+all: CMakeFiles/compiler_ex.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/compiler_ex.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/Documents/AZFT-MPC/CMakeFiles 10
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/compiler_ex.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/Documents/AZFT-MPC/CMakeFiles 0
+.PHONY : CMakeFiles/compiler_ex.dir/rule
+
+# Convenience name for target.
+compiler_ex: CMakeFiles/compiler_ex.dir/rule
+
+.PHONY : compiler_ex
+
+# clean rule for target.
+CMakeFiles/compiler_ex.dir/clean:
+	$(MAKE) -f CMakeFiles/compiler_ex.dir/build.make CMakeFiles/compiler_ex.dir/clean
+.PHONY : CMakeFiles/compiler_ex.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/compiler_ex.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/file_deal.dir
+
+# All Build rule for target.
+CMakeFiles/file_deal.dir/all:
+	$(MAKE) -f CMakeFiles/file_deal.dir/build.make CMakeFiles/file_deal.dir/depend
+	$(MAKE) -f CMakeFiles/file_deal.dir/build.make CMakeFiles/file_deal.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/eason/Documents/AZFT-MPC/CMakeFiles --progress-num=5,6 "Built target file_deal"
+.PHONY : CMakeFiles/file_deal.dir/all
+
+# Include target in all.
+all: CMakeFiles/file_deal.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/file_deal.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/Documents/AZFT-MPC/CMakeFiles 2
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/file_deal.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/Documents/AZFT-MPC/CMakeFiles 0
+.PHONY : CMakeFiles/file_deal.dir/rule
+
+# Convenience name for target.
+file_deal: CMakeFiles/file_deal.dir/rule
+
+.PHONY : file_deal
+
+# clean rule for target.
+CMakeFiles/file_deal.dir/clean:
+	$(MAKE) -f CMakeFiles/file_deal.dir/build.make CMakeFiles/file_deal.dir/clean
+.PHONY : CMakeFiles/file_deal.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/file_deal.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
 # Target rules for target CMakeFiles/code_gen.dir
 
 # All Build rule for target.
-CMakeFiles/code_gen.dir/all: HW/CMakeFiles/hardware.dir/all
 CMakeFiles/code_gen.dir/all: CMakeFiles/hardware_lib.dir/all
+CMakeFiles/code_gen.dir/all: HW/CMakeFiles/hardware.dir/all
 	$(MAKE) -f CMakeFiles/code_gen.dir/build.make CMakeFiles/code_gen.dir/depend
 	$(MAKE) -f CMakeFiles/code_gen.dir/build.make CMakeFiles/code_gen.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/eason/Documents/AZFT-MPC/CMakeFiles --progress-num=1,2 "Built target code_gen"
@@ -173,43 +286,6 @@ clean: CMakeFiles/code_gen.dir/clean
 .PHONY : clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/file_deal.dir
-
-# All Build rule for target.
-CMakeFiles/file_deal.dir/all:
-	$(MAKE) -f CMakeFiles/file_deal.dir/build.make CMakeFiles/file_deal.dir/depend
-	$(MAKE) -f CMakeFiles/file_deal.dir/build.make CMakeFiles/file_deal.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/eason/Documents/AZFT-MPC/CMakeFiles --progress-num=3,4 "Built target file_deal"
-.PHONY : CMakeFiles/file_deal.dir/all
-
-# Include target in all.
-all: CMakeFiles/file_deal.dir/all
-
-.PHONY : all
-
-# Build rule for subdir invocation for target.
-CMakeFiles/file_deal.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/Documents/AZFT-MPC/CMakeFiles 2
-	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/file_deal.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/eason/Documents/AZFT-MPC/CMakeFiles 0
-.PHONY : CMakeFiles/file_deal.dir/rule
-
-# Convenience name for target.
-file_deal: CMakeFiles/file_deal.dir/rule
-
-.PHONY : file_deal
-
-# clean rule for target.
-CMakeFiles/file_deal.dir/clean:
-	$(MAKE) -f CMakeFiles/file_deal.dir/build.make CMakeFiles/file_deal.dir/clean
-.PHONY : CMakeFiles/file_deal.dir/clean
-
-# clean rule for target.
-clean: CMakeFiles/file_deal.dir/clean
-
-.PHONY : clean
-
-#=============================================================================
 # Directory level rules for directory HW
 
 # Convenience name for "all" pass in the directory.
@@ -234,7 +310,7 @@ HW/preinstall:
 HW/CMakeFiles/hardware.dir/all:
 	$(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/depend
 	$(MAKE) -f HW/CMakeFiles/hardware.dir/build.make HW/CMakeFiles/hardware.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/eason/Documents/AZFT-MPC/CMakeFiles --progress-num=5,6 "Built target hardware"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/eason/Documents/AZFT-MPC/CMakeFiles --progress-num=7,8 "Built target hardware"
 .PHONY : HW/CMakeFiles/hardware.dir/all
 
 # Include target in all.

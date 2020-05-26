@@ -1,9 +1,11 @@
 /home/eason/Documents/AZFT-MPC/CMakeFiles/edit_cache.dir
+/home/eason/Documents/AZFT-MPC/CMakeFiles/test_component.dir
 /home/eason/Documents/AZFT-MPC/CMakeFiles/main.dir
 /home/eason/Documents/AZFT-MPC/CMakeFiles/hardware_lib.dir
-/home/eason/Documents/AZFT-MPC/CMakeFiles/code_gen.dir
-/home/eason/Documents/AZFT-MPC/CMakeFiles/file_deal.dir
+/home/eason/Documents/AZFT-MPC/CMakeFiles/compiler_ex.dir
 /home/eason/Documents/AZFT-MPC/CMakeFiles/rebuild_cache.dir
+/home/eason/Documents/AZFT-MPC/CMakeFiles/file_deal.dir
+/home/eason/Documents/AZFT-MPC/CMakeFiles/code_gen.dir
 /home/eason/Documents/AZFT-MPC/HW/CMakeFiles/hardware.dir
 /home/eason/Documents/AZFT-MPC/HW/CMakeFiles/edit_cache.dir
 /home/eason/Documents/AZFT-MPC/HW/CMakeFiles/rebuild_cache.dir

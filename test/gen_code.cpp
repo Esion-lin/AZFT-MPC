@@ -156,7 +156,7 @@ int main(){
 	for(int i = 0; i < 64; i++){
 		memcpy(code.W + i * 5*5*3*sizeof(float), arr, 5*5*3*sizeof(float));
 	}	
-	save_model<uint8_t>(code.W , 5*5*3*64*sizeof(float), "./kernels")
+	save_model<uint8_t>(code.W , 5*5*3*64*sizeof(float), "./kernels");
 	printf("next add structure of BN\n");
 	memcpy(code.pos_s + POS_LEN*6,&itr,POS_LEN);
 	Structure[itr++] = BN_ID;
@@ -179,7 +179,7 @@ int main(){
 	printf("next add weight of BN\n");
 	float w_of_bn[5] = {0.1234,77.123,55.34,87.123,76};
 	memcpy(code.W + 64 * 5*5*3*sizeof(float), w_of_bn, 5*sizeof(float));
-
+	save_model<uint8_t>(code.W + 64 * 5*5*3*sizeof(float) , 5*sizeof(float), "./bn");
 
 	printf("next add structure of SHORTCUT\n");
 	memcpy(code.pos_s + POS_LEN*7,&itr,POS_LEN);
@@ -242,7 +242,7 @@ int main(){
 		w_of_fc[i] = 1;
 	}
 	memcpy(code.W + 64 * 5*5*3*sizeof(float) + 5*sizeof(float), w_of_fc, 57*57*64*10*sizeof(float));
-
+	save_model<uint8_t>(code.W + 64 * 5*5*3*sizeof(float) + 5*sizeof(float) , 57*57*64*10*sizeof(float), "./fc");
 
 	printf("code size [%u]\n",itr);
 	code.S = Structure;

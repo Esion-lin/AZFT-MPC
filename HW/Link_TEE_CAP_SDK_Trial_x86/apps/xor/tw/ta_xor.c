@@ -214,7 +214,26 @@ cleanup:
     TEE_CloseObject(keyObject);
     return ret;
 }
+/*clear*/
+static TEE_Result clean(char* name, uint8_t name_len){
+    TEE_Result ret = 0;
+    TEE_ObjectHandle data = TEE_HANDLE_NULL;
+    ret = TEE_OpenPersistentObject(TEE_STORAGE_PRIVATE, name, name_len,
+                                   TEE_DATA_FLAG_ACCESS_READ |
+                                   TEE_DATA_FLAG_ACCESS_WRITE |
+                                   TEE_DATA_FLAG_ACCESS_WRITE_META,
+                                   &data);
+    if (TEE_SUCCESS != ret){
+        TA_DBG("pattern has deleted\n");
+    }
+    ret = TEE_CloseAndDeletePersistentObject1(data);
+    if (TEE_SUCCESS != ret){
 
+        TA_DBG("cannot delete pattern\n");
+    }
+    TEE_CloseObject(data);
+    return ret;
+}
 /*generate MAC code*/
 static TEE_Result gen_mac(uint8_t* data, uint32_t data_len,  char* name, uint8_t name_len, uint8_t * data_out, uint32_t * data_out_len, bool check){
     TEE_Result ret = 0;
@@ -241,8 +260,10 @@ static TEE_Result gen_mac(uint8_t* data, uint32_t data_len,  char* name, uint8_t
     if(check){
         ret = TEE_MACCompareFinal(macOp, data, data_len, data_out, *data_out_len);
     }else{
-        ret = TEE_MACComputeFinal(macOp, data, data_len, data_out, data_out_len);   
+        ret = TEE_MACComputeFinal(macOp, data, data_len, data_out, data_out_len);  
     }
+    
+
     if (TEE_SUCCESS != ret) {
         TA_DBG("gen_mac: caculate MAC error. TEE_SetOperationKey err: 0x%x\n", ret);
         goto cleanup;
@@ -642,9 +663,9 @@ static TEE_Result run_protocol(uint8_t* protocol, uint32_t protocol_len, uint8_t
     uint8_t* data_ans;
     uint32_t itr = 0;
     tmp.data = NULL;
-    // if((ret = gen_mac(protocol,protocol_len,"mac_for_protocol_key",20, mac, &mac_len, true)) != TEE_SUCCESS){
-    //     return TEE_ERROR_BAD_STATE;
-    // }
+    if((ret = gen_mac(protocol,protocol_len,"mac_for_protocol_key",20, mac, &mac_len, true)) != TEE_SUCCESS){
+        return TEE_ERROR_BAD_STATE;
+    }
     /*recover data*/
     if( (ret = sst_read_data("label",5,label,&label_len)) != TEE_SUCCESS ){
         TA_DBG("error: label store Error.\n");
@@ -654,13 +675,13 @@ static TEE_Result run_protocol(uint8_t* protocol, uint32_t protocol_len, uint8_t
         TA_DBG("error: data store Error.\n");
         goto cleanup1;
     }
+    printf(" label %s\n", label);
     //printf("label_len is %u\n", label_len);
     //printf("data_len is %u\n", data_len);
     data_s = serialize(label, label_len/5, data, data_len);
     code = code_serialize(protocol,protocol_len);
 
     /*expend protocol*/
-    
     while(code.now_pos < code.code_size){
         ret_code = run_code(&data_s, &code, &tmp, (uint8_t*)tmp_label);
         /*make sure out follow ex_for_tee != 1 layer*/
@@ -719,6 +740,7 @@ static TEE_Result run_protocol(uint8_t* protocol, uint32_t protocol_len, uint8_t
             TA_DBG("error: plain data store Error.\n");
             goto cleanup1;
         }
+        TA_DBG("caculate successful\n");
     }
     
     
@@ -953,11 +975,12 @@ static TEE_Result _TA_InvokeCommandEntryPoint(
                     TEE_PARAM_TYPE_NONE) != paramTypes) {
             return TEE_ERROR_BAD_PARAMETERS;
         }
+        
         ret = gen_mac(
             params[0].memref.buffer, 
             params[0].memref.size,
-            "org_key_mac", 
-            11,
+            "mac_for_protocol_key", 
+            20,
             params[1].memref.buffer,
             &(params[1].memref.size),false);
     }else if (commandID == CMD_KEY_STORE){

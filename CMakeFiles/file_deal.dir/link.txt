@@ -1,1 +1,1 @@
-/usr/bin/c++    -fopenmp -O3 -DNDEBUG    CMakeFiles/file_deal.dir/src/_file_deal.cpp.o  -o file_deal  -L/home/eason/Documents/AZFT-MPC/lib 
+/usr/bin/c++    -fopenmp  -O0 -Wall -g2 -ggdb    CMakeFiles/file_deal.dir/src/_file_deal.cpp.o  -o file_deal  -L/home/eason/Documents/AZFT-MPC/lib 

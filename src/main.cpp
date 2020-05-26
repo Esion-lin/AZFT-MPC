@@ -110,9 +110,10 @@ int main(int argc, char* argv[]){
     bool is_ML = false;
     std::string path = "./code_data.code";
     
-    bool load_succ;
+    bool load_succ = true;
     PotocolRead* protocol = new PotocolRead(path, load_succ, true, is_ML);
     if(!load_succ){
+      printf("protocol error\n");
         exit(0);
     }
     printf("protocol file length:%u\n",protocol->protocol.code_size);
@@ -238,7 +239,12 @@ int main(int argc, char* argv[]){
             }    
              break;
              case 2:{
-                tru->run_op(protocol->data,protocol->data_len,NULL,0);
+                uint32_t pro_mac_len;
+                load_model_len(pro_mac_len, "./code_mac.code");
+                uint8_t* pro_mac = (uint8_t*)malloc(pro_mac_len);
+                printf("pro_mac len %u\n",pro_mac_len);
+                load_model<uint8_t>(pro_mac, pro_mac_len, "./code_mac.code");
+                tru->run_op(protocol->data,protocol->data_len,pro_mac,pro_mac_len);
              }break;
              case 3:{
                 uint8_t label_input[LABEL_LEN];
