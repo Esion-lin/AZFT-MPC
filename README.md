@@ -30,7 +30,7 @@ MPC(Secure multi-party computation) 可以用于解决一组互不信任的参�
 
 *可证明安全下的异构*
 
-<img src="C:\Users\Administrator\AZFT-MPC\image\logical.png" alt="logical" style="zoom:75%;" />
+<img src=".\image\logical.png" alt="logical" style="zoom:75%;" />
 
 <center>逻辑结构和物理结构对比</center>
 
@@ -40,7 +40,7 @@ MPC(Secure multi-party computation) 可以用于解决一组互不信任的参�
 
 本框架与同类型相比在安全性上有较大优势，做到了mobile下的malicious安全，远远超过了目前市面上的主流框架。
 
-![table](C:\Users\Administrator\AZFT-MPC\image\table.png)
+![table](.\image\table.png)
 
 <center>与同类型框架安全性比较 </center> 
 
@@ -73,7 +73,7 @@ block2：b = b ^ d
 
 指令与nonce连接通过hash函数生成新的nonce，与下一条指令继续进行连接hash操作，这样形成了链式的hash结构，最后，输出的nonce作为可信硬件检测指令完整性的凭据，输入到可信硬件中，可信硬件在计算指令时重新构建hash链验证一致后输出运输结果。
 
-![Hash](C:\Users\Administrator\AZFT-MPC\image\Hash.png)
+![Hash](.\image\Hash.png)
 
 <center>hash链结构 </center> 
 
@@ -107,11 +107,11 @@ label1:
 - 秘钥交换
   <br>密钥交互的过程为构建可信信道的过程，可信硬件初始化时，TEE产生公钥对，此时TEE创建了两对公钥对，为了构建密码学下的P2P网络，TEE会向全网络广播对应的两个公钥，这使得全网络所有的节点都清楚其他所有节点的公钥对，为确保所有公钥对与所有节点对号入座，所有节点维持一个节点的序列值，按节点的序列值填入收到的公钥对，由此构成了公钥板。与此同时，为了确保收到的公钥对的确是对应节点发送的，TEE需要使用其Root key对公钥信息进行确认，对此全网络交换公钥对后，TEE对公钥板（包涵自己公钥）进行签名（使用root key：第二对公钥对中的私钥），签名后发送到P2P网络上，TEE收到对应整个网络的公钥板签名后，检查所有签名是否满足阈值要求。对应的广播信息结构如下，下图为为第一次告知全网络TEE自己的公钥对时的结构，前半部分为公钥对1，后半部分为公钥对2，其中收到的TEE会根据接受方硬编码的IP地址得到对于的TEE序号，感觉序号生成签署公钥对数据包，如下图前半部分为签名信息，后半部分为签名时公钥板上的公钥序列，后半部分可以缺省，缺省时为默认自然数序列的公钥顺序。
 
-![image-20200520192508483](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20200520192508483.png)
+![image-20200520192508483](.\image\image-20200520192508483.png)
 
 <center>公钥对结构</center>
 
-![image-20200520192601773](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20200520192601773.png)
+![image-20200520192601773](.\image\image-20200520192601773.png)
 
 <center>签署公钥对数据包结构</center>
 
@@ -119,13 +119,13 @@ label1:
 
 - 数据交换<br>与指令交换类似的，需要进行数据交换来确保用户运行的指令中的数据的正确性。可信硬件同样使用非对称秘钥对中用于加密的私钥对对称秘钥进行加密，然后使用对称秘钥对数据进行加密，最后使用该秘钥对数据和指令中使用的标签整合内容进行MAC计算。用户广播并监听。 具体实现为使用AE（Authenticated encryption）系统进行数据的加密和数据和label的对映。先使用对称密钥对数据进行加密得到密文，再对密文和label进行连接，使用Hmac计算MAC数据，将这几个字段以及使用公钥加密的对称密钥密文数据一起打包成数据报发布到P2P网络上。如下图
 
-  ![image-20200520193138528](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20200520193138528.png)
+  ![image-20200520193138528](.\image\image-20200520193138528.png)
 
   <center>数据交换报文</center>
 
   可信硬件进行计算时检查AE的正确来确保数据的可靠。流程图如下
 
-<img src="C:\Users\Administrator\AZFT-MPC\image\protocol_0.png" alt="protocol_0" style="zoom:100%;" />
+<img src=".\image\protocol_0.png" alt="protocol_0" style="zoom:100%;" />
 
 <center>秘钥、数据交换过程 </center> 
 
@@ -138,7 +138,7 @@ label1:
 
 #### 系统流程设计
 
-![struct](C:\Users\Administrator\AZFT-MPC\image\struct.png)
+![struct](.\image\struct.png)
 
 <center>系统实现</center> 
 
@@ -149,7 +149,7 @@ label1:
 - 网络层模块设计
   网络实现了数据的接受和发送，以及对数据的序列化和对象化，主程序将数据对象交付给该模块后，该模块转换为二进制流发送到网络；该模块将在网络上监听到的二进制数据流转换为数据对象供主程序查询。
 
-![protocol_1](C:\Users\Administrator\AZFT-MPC\image\protocol_1.png)
+![protocol_1](。\image\protocol_1.png)
 
 <center>协议运行</center> 
 
@@ -166,7 +166,7 @@ label1:
     - 数据的加密查询接口。
     - 对不同流程中签名的检查逻辑，并返回对应的数据流。
 
-  ![protocol_2](C:\Users\Administrator\AZFT-MPC\image\protocol_2.png)
+  ![protocol_2](.\image\protocol_2.png)
 
 <center>协议运行优化</center> 
 
@@ -179,7 +179,7 @@ label1:
 
 
 
-<img src="C:\Users\Administrator\AZFT-MPC\image\code_block.png" alt="code_block" style="zoom:50%;" />
+<img src=".\image\code_block.png" alt="code_block" style="zoom:50%;" />
 
 <center>代码块实现</center> 
 
@@ -246,7 +246,7 @@ label1:
 
 持有协议签名密钥&zeta;的节点，生成协议并共享到所有参加运算的节点。所有的节点运行MPC程序，两两发送持有的数据密文，进行数据交换。最后各自向本地的可信硬件输入之前得到的协议。可信硬件运行协议，检查到输出语句向客户端输出明文数据。TEE在内部维持数据存储。若数据栈满，客户端需要向TEE查询数据。此时TEE会返回使用AE加密的密文数据。在下一轮计算是客户端需要提供这些数据。
 
-<img src="C:\Users\Administrator\AZFT-MPC\image\截屏2020-05-20 下午8.01.38.png" alt="截屏2020-05-20 下午8.01.38" style="zoom:50%;" />
+<img src=".\image\截屏2020-05-20 下午8.01.38.png" alt="截屏2020-05-20 下午8.01.38" style="zoom:50%;" />
 
 <center>运行结构</center>
 
